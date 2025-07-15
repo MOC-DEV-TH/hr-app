@@ -78,75 +78,64 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         },
       ),
 
-      ///dashboard page
-      ShellRoute(
-          navigatorKey: shellNavigator,
-          builder: (context, state, child) =>
-              DashboardPage(key: state.pageKey, child: child),
-          routes: [
-            ///home page
-            GoRoute(
-              path: '/',
-              name: RoutePath.home.name,
-              pageBuilder: (context, state) {
-                return buildPageWithDefaultTransition(
-                    context: context,
-                    state: state,
-                    child: SafeArea(
-                      child: HomePage(
-                        key: state.pageKey,
-                      ),
-                    ));
-              },
-            ),
+      ///home page
+      GoRoute(
+          path: '/',
+          name: RoutePath.home.name,
+          parentNavigatorKey: rootNavigator,
+          pageBuilder: (context, state) {
+            return buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: SafeArea(
+                  child: HomePage(
+                    key: state.pageKey,
+                  ),
+                ));
+          },
+      ),
 
+      ///my attendance page
+      GoRoute(
+        path: RoutePath.attendance.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: AttendancePage(
+                key: state.pageKey,
+              ));
+        },
+      ),
 
-            ///my attendance page
-            GoRoute(
-              path: RoutePath.attendance.path,
-              name: RoutePath.attendance.name,
-              parentNavigatorKey: shellNavigator,
-              pageBuilder: (context, state) {
-                return buildPageWithDefaultTransition(
-                    context: context,
-                    state: state,
-                    child: AttendancePage(
-                      key: state.pageKey,
-                    ));
-              },
-            ),
+      ///leave request page
+      GoRoute(
+        path: RoutePath.leaveRequest.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: LeaveRequestPage(
+                key: state.pageKey,
+              ));
+        },
+      ),
 
-            ///leave request page
-            GoRoute(
-              path: RoutePath.leaveRequest.path,
-              name: RoutePath.leaveRequest.name,
-              parentNavigatorKey: shellNavigator,
-              pageBuilder: (context, state) {
-                return buildPageWithDefaultTransition(
-                    context: context,
-                    state: state,
-                    child: LeaveRequestPage(
-                      key: state.pageKey,
-                    ));
-              },
-            ),
-
-            ///leave status page
-            GoRoute(
-              path: RoutePath.leaveStatus.path,
-              name: RoutePath.leaveStatus.name,
-              parentNavigatorKey: shellNavigator,
-              pageBuilder: (context, state) {
-                return buildPageWithDefaultTransition(
-                    context: context,
-                    state: state,
-                    child: LeaveStatusPage(
-                      key: state.pageKey,
-                    ));
-              },
-            ),
-          ]),
-
+      ///leave status page
+      GoRoute(
+        path: RoutePath.leaveStatus.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: LeaveStatusPage(
+                key: state.pageKey,
+              ));
+        },
+      ),
     ],
     errorBuilder: (context, state) => RouteErrorScreen(
       errorMsg: state.error.toString(),
