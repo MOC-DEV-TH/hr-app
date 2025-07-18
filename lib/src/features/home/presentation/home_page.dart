@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
@@ -11,8 +12,17 @@ import 'package:hr_app/src/utils/images.dart';
 
 import '../../../services/location_service.dart';
 
-class HomePage extends StatelessWidget {
+enum WorkLocation { workFromHome, office }
+
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  WorkLocation? _selectedLocation;
 
   Future<void> _handleOfficeCheckIn(BuildContext context) async {
     /// Check location services
@@ -119,30 +129,46 @@ class HomePage extends StatelessWidget {
 
                   20.vGap,
 
-                  ///work from home button
+                  /// Work From Home button - Updated with selection state
                   SizedBox(
                     width: double.infinity,
                     child: CommonButton(
                       containerVPadding: 10,
                       text: 'Work From Home',
-                      buttonTextColor: kPrimaryColor,
-                      onTap: () {},
-                      bgColor: kWhiteColor,
+                      buttonTextColor: _selectedLocation == WorkLocation.workFromHome
+                          ? Colors.white
+                          : kPrimaryColor,
+                      onTap: () {
+                        setState(() {
+                          _selectedLocation = WorkLocation.workFromHome;
+                        });
+                      },
+                      bgColor: _selectedLocation == WorkLocation.workFromHome
+                          ? kPrimaryColor
+                          : kWhiteColor,
                       isShowBorderColor: true,
                     ),
                   ),
 
                   20.vGap,
 
-                  ///office button
+                  /// Office button - Updated with selection state
                   SizedBox(
                     width: double.infinity,
                     child: CommonButton(
                       containerVPadding: 10,
                       text: 'Office',
-                      buttonTextColor: kPrimaryColor,
-                      onTap: () {},
-                      bgColor: kWhiteColor,
+                      buttonTextColor: _selectedLocation == WorkLocation.office
+                          ? Colors.white
+                          : kPrimaryColor,
+                      onTap: () {
+                        setState(() {
+                          _selectedLocation = WorkLocation.office;
+                        });
+                      },
+                      bgColor: _selectedLocation == WorkLocation.office
+                          ? kPrimaryColor
+                          : kWhiteColor,
                       isShowBorderColor: true,
                     ),
                   ),
