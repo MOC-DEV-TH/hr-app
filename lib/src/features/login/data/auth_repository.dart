@@ -1,14 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../exceptions/app_exception.dart';
 import '../../../network/api_constants.dart';
 import '../../../network/dio_no_token.dart';
-import '../../../network/dio_provider.dart';
 import '../../../network/error_handler.dart';
 import '../../../utils/secure_storage.dart';
 

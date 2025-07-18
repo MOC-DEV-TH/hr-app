@@ -1,27 +1,31 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'login_controller.dart';
+part of 'leave_status_repository.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$loginControllerHash() => r'58735ed333d35e53f7cd32cc18d589795ab413ae';
+String _$leaveStatusRepositoryHash() =>
+    r'4a8f08f062ba65a39679f46b954e9be0fac1557f';
 
-/// See also [LoginController].
-@ProviderFor(LoginController)
-final loginControllerProvider =
-    AutoDisposeAsyncNotifierProvider<LoginController, void>.internal(
-      LoginController.new,
-      name: r'loginControllerProvider',
+/// See also [leaveStatusRepository].
+@ProviderFor(leaveStatusRepository)
+final leaveStatusRepositoryProvider =
+    AutoDisposeProvider<LeaveStatusRepository>.internal(
+      leaveStatusRepository,
+      name: r'leaveStatusRepositoryProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$loginControllerHash,
+              : _$leaveStatusRepositoryHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$LoginController = AutoDisposeAsyncNotifier<void>;
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef LeaveStatusRepositoryRef =
+    AutoDisposeProviderRef<LeaveStatusRepository>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
