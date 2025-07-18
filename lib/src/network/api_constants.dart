@@ -8,47 +8,7 @@ const String kErrorImageUrl =
 
 ///End points
 const String kEndPointLogin = "/login";
-const String kEndPointHome = "/home";
-const String kEndPointEditProfile = "/edit_profile";
-const String kEndPointChangePassword = "/change_password";
-const String kEndPointContacts = "/contacts";
-const String kEndPointAnnoucement = "/annoucement";
-const String kEndPointStudentExamDate = "/student_examdate";
-const String kEndPointStudentHomeWork = "/student_homework";
-const String kEndPointStudentMessage = "/student_message";
-const String kEndPointStudentEvent = "/student_event";
-const String kEndPointStudentBilling = "/student_billing";
-const String kEndPointStudentCurriculum = "/student_curriculum";
-const String kEndPointStudentExamTerms = "/student_examterms";
-const String kEndPointStudentExamTermsResult = "/student_examterms_result";
-const String kEndPointStudentLeaveRequest = "/student_leaverequest";
-const String kEndPointStudentProgress = "/student_progress";
-const String kEndPointStudentSpecialRequest = "/student_specialrequest";
-const String kEndPointStudentHealth = "/student_health";
-const String kEndPointStudentNews = "/student_news";
-const String kEndPointStudentCertifications = "/student_certificate";
-const String kEndPointStudentAttendance = "/student_attendance";
-const String kEndPointAllEvents = "/event";
-const String kEndPointGetChatMessages = "/get_chat_messages";
-const String kEndPointSendChatMessage = "/send_chat_message";
-const String kEndPointSaveNewsComment = "/save_news_comment";
-const String kEndPointSaveSpecialRequest = "/save_specialrequest";
-const String kEndPointSavePocketMoney = "/pocket_money_save";
-const String kEndPointBillPayment = "/bill_payment";
-const String kEndPointSaveSpecialRequestComment =
-    "/save_specialrequest_comment";
-const String kEndPointPocketMoneyRequest = "/pocket_money_request";
-const String kEndPointSaveHomeworkComment = "/save_homework_comment";
-const String kEndPointSaveDeviceData = "/save_device";
-const String kEndPointStudentFerryTracking = "/student_ferry_tracking";
-const String kEndPointRequestPocketMoney = "/pocket_money_request";
-const String kEndPointCheckNewSpecialRequest = "/check_new_specialrequest";
-const String kEndPointCheckNewSpecialRequestByRole =
-    "/check_new_specialrequest_byrole";
-const String kEndPointSaveSpecialRequestLastReadAt =
-    "/save_specialrequest_last_readat";
-const String kEndPointSchoolDetails = "/school_detail";
-const String kEndPointCheckVersion = "/config_api";
+
 
 ///Parameters
 const String kParamApiKey = "api_key";

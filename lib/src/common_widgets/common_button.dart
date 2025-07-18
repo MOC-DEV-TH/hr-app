@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hr_app/src/utils/colors.dart';
 
@@ -28,7 +29,7 @@ class CommonButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Bounceable(
       onTap: () {
         onTap();
       },

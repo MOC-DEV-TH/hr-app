@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/time_tracking_table.dart';
@@ -8,8 +9,74 @@ import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/images.dart';
 
+import '../../../services/location_service.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  Future<void> _handleOfficeCheckIn(BuildContext context) async {
+    /// Check location services
+    if (!await LocationService.isLocationServiceEnabled()) {
+      _showErrorDialog(context, 'Please enable location services');
+      return;
+    }
+
+    /// Check permissions
+    var permission = await LocationService.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await LocationService.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        _showErrorDialog(context, 'Location permission required');
+        return;
+      }
+    }
+
+    /// Check if within office radius
+    final isWithinRadius = await LocationService.isWithinOfficeRadius();
+    if (!isWithinRadius) {
+      _showErrorDialog(
+        context,
+        'You must be within 10km of the office to check in',
+      );
+      return;
+    }
+
+    /// Proceed with office check-in
+    _showSuccessDialog(context, 'Office check-in successful!');
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Check-In Failed'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Success'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
