@@ -23,7 +23,7 @@ String fn(AppException exception) {
 
 class EmptyPhoneNumberOrPasswordException extends AppException {
   EmptyPhoneNumberOrPasswordException()
-      : super('empty-email-or-password', 'Empty memberID or password');
+      : super('empty-email-or-password', 'Empty email or password');
 }
 
 class EmailAlreadyInUseException extends AppException {

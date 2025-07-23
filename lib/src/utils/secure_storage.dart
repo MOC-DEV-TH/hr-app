@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hr_app/src/features/login/model/login_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'secure_storage.g.dart';
@@ -9,7 +11,8 @@ enum SecureDataList {
   isAlreadyLogin,
   isSignedIn,
   authToken,
-  baseApiUrl
+  baseApiUrl,
+  userData
 }
 
 class SecureStorage {
@@ -23,11 +26,28 @@ class SecureStorage {
     return res;
   }
 
+  /// User Data Methods (new)
+  Future<void> saveUser(UserVO user) async {
+    await GetStorage().write(SecureDataList.userData.name, user.toJson());
+  }
+
+  ///get user Data
+  Future<UserVO?> getUser() async {
+    final data = GetStorage().read(SecureDataList.userData.name);
+    return data != null ? UserVO.fromJson(data) : null;
+  }
+
+  ///clear user
+  Future<void> clearUser() async {
+    await GetStorage().remove(SecureDataList.userData.name);
+  }
+
   ///fcm token
   saveFCMToken(String fcmToken) async {
     await GetStorage().write(SecureDataList.fCMToken.name, fcmToken);
   }
 
+  ///get fcm token
   getFCMToken() {
     return GetStorage().read(SecureDataList.fCMToken.name);
   }
@@ -51,4 +71,10 @@ SecureStorage secureStorage(SecureStorageRef ref) {
 Future<String?> getAuthStatus(GetAuthStatusRef ref) {
   final provider = ref.watch(secureStorageProvider);
   return provider.getAuthStatus();
+}
+
+@riverpod
+Future<UserVO?> getUserData(GetUserDataRef ref) {
+  final provider = ref.watch(secureStorageProvider);
+  return provider.getUser();
 }

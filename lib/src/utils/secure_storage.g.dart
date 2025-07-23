@@ -42,5 +42,21 @@ final getAuthStatusProvider = AutoDisposeFutureProvider<String?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetAuthStatusRef = AutoDisposeFutureProviderRef<String?>;
+String _$getUserDataHash() => r'c2a0ae5b1642bb8865c9f4b3d2c1b1f440d337b3';
+
+/// See also [getUserData].
+@ProviderFor(getUserData)
+final getUserDataProvider = AutoDisposeFutureProvider<UserVO?>.internal(
+  getUserData,
+  name: r'getUserDataProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$getUserDataHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetUserDataRef = AutoDisposeFutureProviderRef<UserVO?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

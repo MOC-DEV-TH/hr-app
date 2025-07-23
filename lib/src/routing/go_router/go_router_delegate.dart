@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
-import 'package:hr_app/src/features/dashboard/presentation/dashboard_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

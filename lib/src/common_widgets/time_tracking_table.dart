@@ -1,8 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:hr_app/src/features/home/model/time_record_vo.dart';
+import 'package:hr_app/src/features/home/model/attendance_response.dart';
 
 class TimeTrackingTable extends StatelessWidget {
-  final List<TimeRecordVO> records;
+  final List<AttendanceDataVO> records;
 
   const TimeTrackingTable({super.key, required this.records});
 
@@ -19,9 +20,9 @@ class TimeTrackingTable extends StatelessWidget {
         ],
         rows: records.map((record) {
           return DataRow(cells: [
-            DataCell(Text(record.date)),
-            DataCell(Text(record.clockIn)),
-            DataCell(Text(record.clockOut)),
+            DataCell(Text(DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now()))),
+            DataCell(Text(record.attendances.first.checkIn)),
+            DataCell(Text(record.attendances.first.checkOut)),
           ]);
         }).toList(),
       ),

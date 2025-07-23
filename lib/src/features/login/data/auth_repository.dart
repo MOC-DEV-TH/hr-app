@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hr_app/src/features/login/model/login_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../exceptions/app_exception.dart';
@@ -24,30 +26,32 @@ class AuthRepository {
     }
     try {
       final baseOptions = BaseOptions(
-          baseUrl: kBaseUrl,
-          connectTimeout: const Duration(milliseconds: 5000),
-          receiveTimeout: const Duration(milliseconds: 5000),
-          responseType: ResponseType.json,
-          headers: {
-            "Content-Type": "application/json",
-          });
+        baseUrl: kBaseUrl,
+        connectTimeout: const Duration(milliseconds: 5000),
+        receiveTimeout: const Duration(milliseconds: 5000),
+        responseType: ResponseType.json,
+        headers: {"Content-Type": "application/json"},
+      );
 
       final dio = Dio(baseOptions);
-      final response = await dio.post(kEndPointLogin,
-          options: Options(
-            headers: {
-              "Content-Type": "application/json",
-            },
-          ),
-          data: {"email": email, "password": password});
+      final response = await dio.post(
+        kEndPointLogin,
+        options: Options(headers: {"Content-Type": "application/json"}),
+        data: {"email": email, "password": password},
+      );
       final tokenBox = GetStorage();
-      tokenBox.write(SecureDataList.token.name, response.data['token']);
+
+      debugPrint("UserData>>>>>>${response.data["data"]["user"]}");
+      tokenBox.write(
+        SecureDataList.token.name,
+        response.data["data"]['access_token'],
+      );
+      await ref
+          .read(secureStorageProvider)
+          .saveUser(UserVO.fromJson(response.data["data"]["user"]));
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
-          ErrorHandler
-              .handle(e)
-              .failure
-              .message;
+          ErrorHandler.handle(e).failure.message;
     } catch (e) {
       throw e.toString();
     }
@@ -58,4 +62,3 @@ class AuthRepository {
 AuthRepository authRepositoryNoToken(AuthRepositoryNoTokenRef ref) {
   return AuthRepository(dio: ref.watch(dioNoTokenProvider), ref: ref);
 }
-
