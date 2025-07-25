@@ -50,7 +50,7 @@ class _DropDownWidgetState extends ConsumerState<DynamicDropDownWidget> {
         selectedItemBuilder: (BuildContext context) {
           return widget.items.map<Widget>((dynamic item) {
             return Text(
-              item['name'],
+              item.name,
               style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.normal
@@ -62,7 +62,7 @@ class _DropDownWidgetState extends ConsumerState<DynamicDropDownWidget> {
             .map((item) => DropdownMenuItem(
                   value: item,
                   child: Text(
-                    item['name'],
+                    item.name,
                     style: const TextStyle(
                       color: Colors.black,
                         fontWeight: FontWeight.normal

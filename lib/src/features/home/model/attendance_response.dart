@@ -49,14 +49,14 @@ class AttendanceDataVO {
 }
 
 class Attendance {
-  int userId;
-  String checkIn;
-  String checkOut;
+  int? userId;
+  String? checkIn;
+  String? checkOut;
 
   Attendance({
-    required this.userId,
-    required this.checkIn,
-    required this.checkOut,
+     this.userId,
+     this.checkIn,
+     this.checkOut,
   });
 
   factory Attendance.fromJson(Map<String, dynamic> json) => Attendance(

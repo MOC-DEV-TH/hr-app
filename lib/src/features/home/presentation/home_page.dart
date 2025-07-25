@@ -6,15 +6,14 @@ import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/loading_view.dart';
 import 'package:hr_app/src/common_widgets/time_tracking_table.dart';
-import 'package:hr_app/src/features/attendance/data/attendance_repository.dart';
 import 'package:hr_app/src/features/home/controller/check_in_controller.dart';
 import 'package:hr_app/src/features/home/controller/check_out_controller.dart';
 import 'package:hr_app/src/features/home/data/home_repository.dart';
-import 'package:hr_app/src/features/home/model/time_record_vo.dart';
 import 'package:hr_app/src/network/api_constants.dart';
 import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
+import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/images.dart';
 import 'package:hr_app/src/utils/strings.dart';
@@ -34,86 +33,76 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   WorkLocation? _selectedLocation;
+  bool _isShowLoadingView = false;
 
+  ///handle office check in
   Future<void> _handleOfficeCheckIn(BuildContext context) async {
-    /// Check location services
-    if (!await LocationService.isLocationServiceEnabled()) {
-      _showErrorDialog(context, 'Please enable location services');
-      return;
-    }
+    setState(() {
+      _isShowLoadingView = true;
+    });
 
-    /// Check permissions
-    var permission = await LocationService.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await LocationService.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        _showErrorDialog(context, 'Location permission required');
+    try {
+      /// Check location services
+      if (!await LocationService.isLocationServiceEnabled()) {
+        context.showErrorDialog(
+          'Please enable location services',
+          'Check-In Failed',
+        );
         return;
       }
+
+      /// Check permissions
+      var permission = await LocationService.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await LocationService.requestPermission();
+        if (permission != LocationPermission.whileInUse &&
+            permission != LocationPermission.always) {
+          context.showErrorDialog(
+            'Location permission required',
+            'Check-In Failed',
+          );
+          return;
+        }
+      }
+
+      /// Check if within office radius
+      final isWithinRadius = await LocationService.isWithinOfficeRadius();
+      if (!isWithinRadius) {
+        context.showErrorDialog(
+          'You must be within 10km of the office to check in',
+          'Check-In Failed',
+        );
+        return;
+      }
+
+      /// Proceed with office check-in
+      final bool isSuccess = await ref
+          .read(checkInControllerProvider.notifier)
+          .checkIn(type: kTypeOffice);
+
+      if (isSuccess) {
+        ref.invalidate(fetchAttendanceDataProvider);
+      }
+    } catch (e) {
+      context.showErrorDialog('Something went wrong', 'Check-In Failed');
+    } finally {
+      setState(() {
+        _isShowLoadingView = false;
+      });
     }
-
-    /// Check if within office radius
-    final isWithinRadius = await LocationService.isWithinOfficeRadius();
-    if (!isWithinRadius) {
-      _showErrorDialog(
-        context,
-        'You must be within 10km of the office to check in',
-      );
-      return;
-    }
-
-    /// Proceed with office check-in
-    _showSuccessDialog(context, 'Office check-in successful!');
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Check-In Failed'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void _showSuccessDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Success'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     ///show error dialog when network response error
     ref.listen<AsyncValue>(
       checkOutControllerProvider,
-          (_, state) => state.showAlertDialogOnError(context),
+      (_, state) => state.showAlertDialogOnError(context),
     );
     ref.listen<AsyncValue>(
       checkInControllerProvider,
-          (_, state) => state.showAlertDialogOnError(context),
+      (_, state) => state.showAlertDialogOnError(context),
     );
-
 
     ///provider states
     final checkInState = ref.watch(checkInControllerProvider);
@@ -136,16 +125,15 @@ class _HomePageState extends ConsumerState<HomePage> {
           final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
           final todayDatum = attendanceData.data.firstWhere(
-                (datum) => DateFormat('yyyy-MM-dd').format(datum.date!) == currentDate,
-            orElse: () => AttendanceDataVO(
-              date: null,
-              attendances: [],
-            ),
+            (datum) =>
+                DateFormat('yyyy-MM-dd').format(datum.date!) == currentDate,
+            orElse: () => AttendanceDataVO(date: null, attendances: []),
           );
 
           /// Safe checks with null-aware operators
           final hasCheckedIn = todayDatum.attendances.isNotEmpty;
-          final hasCheckedOut = todayDatum.attendances.firstOrNull?.checkOut != null;
+          final hasCheckedOut =
+              todayDatum.attendances.firstOrNull?.checkOut != null;
 
           return SafeArea(
             child: Stack(
@@ -232,25 +220,35 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                           ///clock in button
                           Visibility(
-                            visible: hasCheckedOut == false,
+                            visible: hasCheckedIn == false,
                             child: TextButton(
                               onPressed: () async {
-                                if (!checkInState.isLoading) {
-                                  final bool isSuccess = await ref
-                                      .read(checkInControllerProvider.notifier)
-                                      .checkIn(
-                                        type:
-                                            _selectedLocation ==
-                                                    WorkLocation.workFromHome
-                                                ? kTypeWfh
-                                                : kTypeOffice,
-                                      );
+                                if (_selectedLocation == null) {
+                                  context.showErrorSnackBar(
+                                    'Please select a check-in type: Office or Work From Home.',
+                                  );
+                                } else {
+                                  ///work from home check in
+                                  if (_selectedLocation ==
+                                      WorkLocation.workFromHome) {
+                                    if (!checkInState.isLoading) {
+                                      final bool isSuccess = await ref
+                                          .read(
+                                            checkInControllerProvider.notifier,
+                                          )
+                                          .checkIn(type: kTypeWfh);
 
-                                  ///is success login
-                                  if (isSuccess) {
-                                    ref.invalidate(
-                                      attendanceRepositoryProvider,
-                                    );
+                                      ///is success login
+                                      if (isSuccess) {
+                                        ref.invalidate(
+                                          fetchAttendanceDataProvider,
+                                        );
+                                      }
+                                    }
+                                  }
+                                  ///office check in
+                                  else {
+                                    _handleOfficeCheckIn(context);
                                   }
                                 }
                               },
@@ -280,15 +278,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                                 ///is checkOut success
                                 if (isSuccess) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '✅ Checkout successful!',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.green[700],
-                                      duration: Duration(seconds: 4),
-                                    ),
+                                  ref.invalidate(fetchAttendanceDataProvider);
+                                  context.showSuccessSnackBar(
+                                    '✅ Checkout successful!',
                                   );
                                 }
                               },
@@ -305,9 +297,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                           30.vGap,
 
+                          ///time tracking table
                           Visibility(
-                              visible: todayDatum.date != null,
-                              child: TimeTrackingTable(records: [todayDatum])),
+                            visible: todayDatum.date != null,
+                            child: TimeTrackingTable(records: [todayDatum]),
+                          ),
                         ],
                       ),
                     ),
@@ -315,7 +309,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
 
                 ///loading view
-                if (checkOutState.isLoading || checkInState.isLoading)
+                if (_isShowLoadingView == true ||
+                    checkOutState.isLoading ||
+                    checkInState.isLoading)
                   Container(
                     color: Colors.black12,
                     child: const Center(

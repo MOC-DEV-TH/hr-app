@@ -11,7 +11,9 @@ const String kEndPointLogin = "/login";
 const String kEndPointCheckIn = "/check-in";
 const String kEndPointCheckOut = "/check-out";
 const String kEndPointAttendanceList = "/attendance-list";
-
+const String kEndPointLeaveTypes = "/leave-types";
+const String kEndPointLeaveStatus = "/leaves";
+const String kEndPointCreateLeave = "/create-leave";
 
 ///Parameters
 const String kParamApiKey = "api_key";

@@ -16,8 +16,9 @@ class AttendancePage extends ConsumerWidget {
     return Scaffold(backgroundColor: kWhiteColor,
     appBar: CustomAppBarView(title: 'My Attendance'),
     body:attendanceState.when(data: (attendData){
-      debugPrint("AttendanceList>>>>${attendData.data.length}");
-      return TimeTrackingTable(records: attendData.data);
+      return Visibility(
+          visible: attendData.data.isNotEmpty,
+          child: TimeTrackingTable(records: attendData.data));
     },loading:
         () => const Center(
       child: CircularProgressIndicator(color: kPrimaryColor),

@@ -21,8 +21,8 @@ class TimeTrackingTable extends StatelessWidget {
         rows: records.map((record) {
           return DataRow(cells: [
             DataCell(Text(DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now()))),
-            DataCell(Text(record.attendances.first.checkIn)),
-            DataCell(Text(record.attendances.first.checkOut)),
+            DataCell(Text(record.attendances.first.checkIn ?? '')),
+            DataCell(Text(record.attendances.first.checkOut ?? '')),
           ]);
         }).toList(),
       ),

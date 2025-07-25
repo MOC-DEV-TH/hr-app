@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 
 class LocationService {
-  static const double officeLatitude = 13.755090050076316;
-  static const double officeLongitude = 100.53326119614125;
+  static const double officeLatitude = 13.755204682621741;
+  static const double officeLongitude = 100.5332719248907;
   static const double allowedRadius = 10.0;
+
 
   /// Check if location services are enabled
   static Future<bool> isLocationServiceEnabled() async {
@@ -48,6 +49,8 @@ class LocationService {
   static Future<bool> isWithinOfficeRadius() async {
     try {
       final position = await getCurrentPosition();
+      debugPrint("CurrentLat>>>>>>${position.latitude}");
+      debugPrint("CurrentLong>>>>>>>>${position.longitude}");
       final distance = calculateDistance(
         position.latitude,
         position.longitude,

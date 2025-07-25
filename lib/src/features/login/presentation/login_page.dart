@@ -6,7 +6,9 @@ import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/loading_view.dart';
 import '../../../utils/secure_storage.dart';
 import '../../../utils/strings.dart';
 import '../controller/login_controller.dart';
@@ -37,65 +39,82 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ///login label
-            Text(
-              'Login',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: kTextRegular24,
+      body: Stack(
+        children: [
+          ///body view
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ///login label
+                Text(
+                  'Login',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: kTextRegular24,
+                  ),
+                ),
+
+                30.vGap,
+
+                ///user name input view
+                InputView(
+                  controller: emailController,
+                  hintLabel: 'Email',
+                  hintTextColor: kPrimaryColor,
+                ),
+
+                15.vGap,
+
+                ///password input view
+                InputView(
+                  controller: passwordController,
+                  hintLabel: 'Password',
+                  hintTextColor: kPrimaryColor,
+                ),
+
+                50.vGap,
+
+                ///login button
+                CommonButton(
+                  containerVPadding: 10,
+                  containerHPadding: 60,
+                  text: 'Login', onTap: () async{
+
+                  if (!state.isLoading) {
+                    final bool isSuccess = await ref
+                        .read(loginControllerProvider.notifier)
+                        .login(
+                        email:
+                        emailController.text,
+                        password: passwordController.text.trim());
+
+                    ///is success login
+                    if (isSuccess) {
+                      await ref
+                          .read(secureStorageProvider)
+                          .saveAuthStatus(kAuthLoggedIn);
+                      ref.invalidate(secureStorageProvider);
+                    }
+                  }
+                },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
+              ],
+            ),
+          ),
+
+          ///loading view
+          if (state.isLoading)
+            Container(
+              color: Colors.black12,
+              child: const Center(
+                child: LoadingView(
+                  indicatorColor: Colors.white,
+                  indicator: Indicator.ballRotate,
+                ),
               ),
             ),
-
-            30.vGap,
-
-            ///user name input view
-            InputView(
-              controller: emailController,
-              hintLabel: 'Email',
-              hintTextColor: kPrimaryColor,
-            ),
-
-            15.vGap,
-
-            ///password input view
-            InputView(
-              controller: passwordController,
-              hintLabel: 'Password',
-              hintTextColor: kPrimaryColor,
-            ),
-
-            50.vGap,
-
-            ///login button
-            CommonButton(
-              containerVPadding: 10,
-              containerHPadding: 60,
-              text: 'Login', onTap: () async{
-
-              if (!state.isLoading) {
-                final bool isSuccess = await ref
-                    .read(loginControllerProvider.notifier)
-                    .login(
-                    email:
-                    emailController.text,
-                    password: passwordController.text.trim());
-
-                ///is success login
-                if (isSuccess) {
-                  await ref
-                      .read(secureStorageProvider)
-                      .saveAuthStatus(kAuthLoggedIn);
-                  ref.invalidate(secureStorageProvider);
-                }
-              }
-            },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
-          ],
-        ),
+        ],
       ),
     );
   }

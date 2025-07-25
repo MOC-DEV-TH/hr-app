@@ -1,7 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:hr_app/src/features/home/model/time_record_vo.dart';
-import 'package:hr_app/src/features/leave_status/model/leave_status_vo.dart';
-import 'package:hr_app/src/utils/colors.dart';
+import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
 
 class LeaveStatusTable extends StatelessWidget {
   final List<LeaveStatusVO> status;
@@ -29,7 +28,12 @@ class LeaveStatusTable extends StatelessWidget {
             status.map((record) {
               return DataRow(
                 cells: [
-                  DataCell(Text(record.date,style: TextStyle(color: Colors.blue),)),
+                  DataCell(
+                    Text(
+                      DateFormat('yyyy-MM-dd').format(record.date),
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
                   DataCell(
                     Text(
                       record.status,
