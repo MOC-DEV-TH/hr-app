@@ -12,3 +12,4 @@ const Color kDarkGreyColor = Color(0XFFAEAEAE);
 const Color kGreyColor = Color(0XFF808080);
 const Color kWhiteColor = Color(0XFFFFFFFF);
 const Color kLightGreyColor = Color(0XFFCFCFCF);
+const Color kEmeraldGreenColor= Color(0XFF1Cb08F);

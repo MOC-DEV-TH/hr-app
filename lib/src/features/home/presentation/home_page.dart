@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hr_app/src/common_widgets/circle_button.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/loading_view.dart';
@@ -135,194 +136,228 @@ class _HomePageState extends ConsumerState<HomePage> {
           final hasCheckedOut =
               todayDatum.attendances.firstOrNull?.checkOut != null;
 
-          return SafeArea(
-            child: Stack(
-              children: [
-                ///body view
-                SingleChildScrollView(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(kMarginLarge),
-                      child:
-                      ///content view
-                      Column(
-                        children: [
-                          20.vGap,
-                          Text(
-                            'Check In / Check Out',
-                            style: TextStyle(
-                              color: kPrimaryColor,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+          return StreamBuilder<DateTime>(
+            stream: Stream.periodic(
+              const Duration(seconds: 1),
+                  (_) => DateTime.now(),
+            ),
+            builder: (context,snapshot){
+              final currentTime = snapshot.data ?? DateTime.now();
 
-                          20.vGap,
-
-                          /// Work From Home button - Updated with selection state
-                          SizedBox(
-                            width: double.infinity,
-                            child: CommonButton(
-                              containerVPadding: 10,
-                              text: 'Work From Home',
-                              buttonTextColor:
-                                  _selectedLocation == WorkLocation.workFromHome
-                                      ? Colors.white
-                                      : kPrimaryColor,
-                              onTap: () {
-                                setState(() {
-                                  _selectedLocation = WorkLocation.workFromHome;
-                                });
-                              },
-                              bgColor:
-                                  _selectedLocation == WorkLocation.workFromHome
-                                      ? kPrimaryColor
-                                      : kWhiteColor,
-                              isShowBorderColor: true,
-                            ),
-                          ),
-
-                          20.vGap,
-
-                          /// Office button - Updated with selection state
-                          SizedBox(
-                            width: double.infinity,
-                            child: CommonButton(
-                              containerVPadding: 10,
-                              text: 'Office',
-                              buttonTextColor:
-                                  _selectedLocation == WorkLocation.office
-                                      ? Colors.white
-                                      : kPrimaryColor,
-                              onTap: () {
-                                setState(() {
-                                  _selectedLocation = WorkLocation.office;
-                                });
-                              },
-                              bgColor:
-                                  _selectedLocation == WorkLocation.office
-                                      ? kPrimaryColor
-                                      : kWhiteColor,
-                              isShowBorderColor: true,
-                            ),
-                          ),
-
-                          20.vGap,
-
-                          ///clock image
-                          Image.asset(
-                            kClockImage,
-                            fit: BoxFit.cover,
-                            height: 225,
-                          ),
-
-                          20.vGap,
-
-                          ///clock in button
-                          Visibility(
-                            visible: hasCheckedIn == false,
-                            child: TextButton(
-                              onPressed: () async {
-                                if (_selectedLocation == null) {
-                                  context.showErrorSnackBar(
-                                    'Please select a check-in type: Office or Work From Home.',
-                                  );
-                                } else {
-                                  ///work from home check in
-                                  if (_selectedLocation ==
-                                      WorkLocation.workFromHome) {
-                                    if (!checkInState.isLoading) {
-                                      final bool isSuccess = await ref
-                                          .read(
-                                            checkInControllerProvider.notifier,
-                                          )
-                                          .checkIn(type: kTypeWfh);
-
-                                      ///is success login
-                                      if (isSuccess) {
-                                        ref.invalidate(
-                                          fetchAttendanceDataProvider,
-                                        );
-                                      }
-                                    }
-                                  }
-                                  ///office check in
-                                  else {
-                                    _handleOfficeCheckIn(context);
-                                  }
-                                }
-                              },
-                              child: Text(
-                                kLabelClockIn,
+              return SafeArea(
+                child: Stack(
+                  children: [
+                    ///body view
+                    SingleChildScrollView(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(kMarginLarge),
+                          child:
+                          ///content view
+                          Column(
+                            children: [
+                              20.vGap,
+                              Text(
+                                'Check In / Check Out',
                                 style: TextStyle(
                                   color: kPrimaryColor,
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                          ),
 
-                          ///clock out button
-                          Visibility(
-                            visible:
-                                hasCheckedOut == true || hasCheckedIn == true,
-                            child: TextButton(
-                              onPressed: () async {
-                                final bool isSuccess =
-                                    await ref
-                                        .read(
-                                          checkOutControllerProvider.notifier,
-                                        )
-                                        .checkOut();
+                              20.vGap,
 
-                                ///is checkOut success
-                                if (isSuccess) {
-                                  ref.invalidate(fetchAttendanceDataProvider);
-                                  context.showSuccessSnackBar(
-                                    '✅ Checkout successful!',
-                                  );
-                                }
-                              },
-                              child: Text(
-                                kLabelClockOut,
-                                style: TextStyle(
-                                  color: kRedAccentColor,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
+                              /// Work From Home button - Updated with selection state
+                              SizedBox(
+                                width: double.infinity,
+                                child: CommonButton(
+                                  containerVPadding: 10,
+                                  text: 'Work From Home',
+                                  buttonTextColor:
+                                  _selectedLocation == WorkLocation.workFromHome
+                                      ? Colors.white
+                                      : kPrimaryColor,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedLocation = WorkLocation.workFromHome;
+                                    });
+                                  },
+                                  bgColor:
+                                  _selectedLocation == WorkLocation.workFromHome
+                                      ? kPrimaryColor
+                                      : kWhiteColor,
+                                  isShowBorderColor: true,
                                 ),
                               ),
-                            ),
-                          ),
 
-                          30.vGap,
+                              20.vGap,
 
-                          ///time tracking table
-                          Visibility(
-                            visible: todayDatum.date != null,
-                            child: TimeTrackingTable(records: [todayDatum]),
+                              /// Office button - Updated with selection state
+                              SizedBox(
+                                width: double.infinity,
+                                child: CommonButton(
+                                  containerVPadding: 10,
+                                  text: 'Office',
+                                  buttonTextColor:
+                                  _selectedLocation == WorkLocation.office
+                                      ? Colors.white
+                                      : kPrimaryColor,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedLocation = WorkLocation.office;
+                                    });
+                                  },
+                                  bgColor:
+                                  _selectedLocation == WorkLocation.office
+                                      ? kPrimaryColor
+                                      : kWhiteColor,
+                                  isShowBorderColor: true,
+                                ),
+                              ),
+
+                              50.vGap,
+
+                              Text(
+                                currentTime.greeting,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+
+                              4.vGap,
+
+                              Text(
+                                DateTime.now().formattedFullDate,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.grey,
+                                ),
+                              ),
+
+                              4.vGap,
+
+                              Text(
+                                currentTime.time12h,
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+
+                              40.vGap,
+
+                              // ///clock image
+                              // Image.asset(
+                              //   kClockImage,
+                              //   fit: BoxFit.cover,
+                              //   height: 225,
+                              // ),
+                              //
+                              // 20.vGap,
+
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  /// CHECK-IN BUTTON
+                                  if (!hasCheckedIn)
+                                    CircleActionButton(
+                                      onTap: () async {
+                                        if (_selectedLocation == null) {
+                                          context.showErrorSnackBar(
+                                            'Please select a check-in type: Office or Work From Home.',
+                                          );
+                                          return;
+                                        }
+
+                                        if (_selectedLocation ==
+                                            WorkLocation.workFromHome) {
+                                          if (!checkInState.isLoading) {
+                                            final isSuccess = await ref
+                                                .read(
+                                              checkInControllerProvider
+                                                  .notifier,
+                                            )
+                                                .checkIn(type: kTypeWfh);
+
+                                            if (isSuccess) {
+                                              ref.invalidate(
+                                                fetchAttendanceDataProvider,
+                                              );
+                                            }
+                                          }
+                                        } else {
+                                          _handleOfficeCheckIn(context);
+                                        }
+                                      },
+                                      label: 'Check-In',
+                                      icon: Icons.login,
+                                      backgroundColor: kEmeraldGreenColor,
+                                    ),
+
+                                  /// CHECK-OUT BUTTON
+                                  if (hasCheckedIn || hasCheckedOut)
+                                    CircleActionButton(
+                                      onTap: () async {
+                                        final isSuccess =
+                                        await ref
+                                            .read(
+                                          checkOutControllerProvider
+                                              .notifier,
+                                        )
+                                            .checkOut();
+
+                                        if (isSuccess) {
+                                          ref.invalidate(
+                                            fetchAttendanceDataProvider,
+                                          );
+                                          context.showSuccessSnackBar(
+                                            '✅ Checkout successful!',
+                                          );
+                                        }
+                                      },
+                                      label: 'Check-Out',
+                                      icon: Icons.logout,
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                ],
+                              ),
+
+                              30.vGap,
+
+                              ///time tracking table
+                              Visibility(
+                                visible: todayDatum.date != null,
+                                child: TimeTrackingTable(records: [todayDatum]),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+
+                    ///loading view
+                    if (_isShowLoadingView == true ||
+                        checkOutState.isLoading ||
+                        checkInState.isLoading)
+                      Container(
+                        color: Colors.black12,
+                        child: const Center(
+                          child: LoadingView(
+                            indicatorColor: Colors.white,
+                            indicator: Indicator.ballRotate,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-
-                ///loading view
-                if (_isShowLoadingView == true ||
-                    checkOutState.isLoading ||
-                    checkInState.isLoading)
-                  Container(
-                    color: Colors.black12,
-                    child: const Center(
-                      child: LoadingView(
-                        indicatorColor: Colors.white,
-                        indicator: Indicator.ballRotate,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+              );
+            },
           );
         },
         loading:

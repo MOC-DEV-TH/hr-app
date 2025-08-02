@@ -39,7 +39,7 @@ class CommonButton extends StatelessWidget {
             vertical: containerVPadding ?? 6),
         decoration: BoxDecoration(
           color: bgColor ?? Colors.blue,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color:isShowBorderColor==true ? kPrimaryColor : Colors.transparent,width: 1)
         ),
         child: isLoading

@@ -52,15 +52,15 @@ class InputView extends StatelessWidget {
           border: InputBorder.none,
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(width: 1, color: kPrimaryColor),
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
           disabledBorder: OutlineInputBorder(
             borderSide: BorderSide(width: 1, color: kPrimaryColor),
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(width: 1, color: kPrimaryColor),
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
           suffixIcon:
               isPasswordView == true

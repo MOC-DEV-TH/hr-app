@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
+import 'package:hr_app/src/utils/extensions.dart';
 
 class LeaveStatusTable extends StatelessWidget {
   final List<LeaveStatusVO> status;
@@ -36,7 +37,7 @@ class LeaveStatusTable extends StatelessWidget {
                   ),
                   DataCell(
                     Text(
-                      record.status,
+                      record.status.capitalizeFirstLetter(),
                       style: TextStyle(
                         color:
                             record.status == 'Pending'

@@ -4,8 +4,8 @@ import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/input_view.dart';
 import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
-import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:hr_app/src/utils/images.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../common_widgets/loading_view.dart';
@@ -23,6 +23,13 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isShowPassword = true;
+
+  void onTapToggleObscured(){
+    setState(() {
+      isShowPassword = !isShowPassword;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,64 +49,69 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       body: Stack(
         children: [
           ///body view
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ///login label
-                Text(
-                  'Login',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: kTextRegular24,
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  60.vGap,
+                  ///login office image
+                  Image.asset(
+                    kLoginImage,
+                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height/3,
                   ),
-                ),
 
-                30.vGap,
 
-                ///user name input view
-                InputView(
-                  controller: emailController,
-                  hintLabel: 'Email',
-                  hintTextColor: kPrimaryColor,
-                ),
+                  30.vGap,
 
-                15.vGap,
+                  ///user name input view
+                  InputView(
+                    controller: emailController,
+                    hintLabel: 'Email',
+                    hintTextColor: kPrimaryColor,
+                  ),
 
-                ///password input view
-                InputView(
-                  controller: passwordController,
-                  hintLabel: 'Password',
-                  hintTextColor: kPrimaryColor,
-                ),
+                  15.vGap,
 
-                50.vGap,
+                  ///password input view
+                  InputView(
+                    controller: passwordController,
+                    hintLabel: 'Password',
+                    hintTextColor: kPrimaryColor,
+                    isSecure : isShowPassword,
+                    isPasswordView: true,
+                    toggleObscured: onTapToggleObscured,
+                    toggleObscuredColor: kPrimaryColor,
+                  ),
 
-                ///login button
-                CommonButton(
-                  containerVPadding: 10,
-                  containerHPadding: 60,
-                  text: 'Login', onTap: () async{
+                  50.vGap,
 
-                  if (!state.isLoading) {
-                    final bool isSuccess = await ref
-                        .read(loginControllerProvider.notifier)
-                        .login(
-                        email:
-                        emailController.text,
-                        password: passwordController.text.trim());
+                  ///login button
+                  CommonButton(
+                    containerVPadding: 10,
+                    containerHPadding: 60,
+                    text: 'Login', onTap: () async{
 
-                    ///is success login
-                    if (isSuccess) {
-                      await ref
-                          .read(secureStorageProvider)
-                          .saveAuthStatus(kAuthLoggedIn);
-                      ref.invalidate(secureStorageProvider);
+                    if (!state.isLoading) {
+                      final bool isSuccess = await ref
+                          .read(loginControllerProvider.notifier)
+                          .login(
+                          email:
+                          emailController.text,
+                          password: passwordController.text.trim());
+
+                      ///is success login
+                      if (isSuccess) {
+                        await ref
+                            .read(secureStorageProvider)
+                            .saveAuthStatus(kAuthLoggedIn);
+                        ref.invalidate(secureStorageProvider);
+                      }
                     }
-                  }
-                },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
-              ],
+                  },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
+                ],
+              ),
             ),
           ),
 
