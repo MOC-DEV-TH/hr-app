@@ -27,6 +27,9 @@ dependencies:
   #network:
   dio: ^5.8.0+1
 
+  #http:
+  http: ^1.4.0
+
   #cached_network_image:
   cached_network_image: ^3.4.1
 
@@ -50,6 +53,12 @@ dependencies:
 
   #loading_indicator:
   loading_indicator: ^3.1.1
+
+  #firebase messaging:
+  firebase_messaging: ^15.1.6
+  flutter_local_notifications: ^18.0.1
+  firebase_core: ^3.1.1
+  firebase_analytics: ^11.2.0
 
   #intl:
   intl: ^0.20.2

@@ -7,6 +7,7 @@ import 'package:hr_app/src/features/leave_request/controller/send_leave_request_
 import 'package:hr_app/src/features/leave_request/data/leave_request_repository.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
+import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
@@ -154,26 +155,37 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                           containerVPadding: 10,
                           text: 'Send',
                           onTap: () async {
-                            final bool isSuccess = await ref
-                                .read(sendLeaveRequestControllerProvider.notifier)
-                                .sendLeaveRequest(
-                                  date: _dateController.text,
-                                  leaveType: leaveType,
-                                  message: _messageController.text,
-                                );
-
-                            ///is success
-                            if (isSuccess) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '✅ Leave request sent.!',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  backgroundColor: Colors.green[700],
-                                  duration: Duration(seconds: 4),
-                                ),
+                            if(_dateController.text.isEmpty){
+                              context.showErrorSnackBar('Please select date');
+                            }
+                            else if(leaveType == null){
+                              context.showErrorSnackBar('Please select leave type');
+                            }
+                            else if(_messageController.text.isEmpty){
+                              context.showErrorSnackBar('Please type the reason for leave.');
+                            }
+                            else{
+                              final bool isSuccess = await ref
+                                  .read(sendLeaveRequestControllerProvider.notifier)
+                                  .sendLeaveRequest(
+                                date: _dateController.text,
+                                leaveType: leaveType,
+                                message: _messageController.text,
                               );
+
+                              ///is success
+                              if (isSuccess) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '✅ Leave request sent.!',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green[700],
+                                    duration: Duration(seconds: 4),
+                                  ),
+                                );
+                              }
                             }
                           },
                           bgColor: kPrimaryColor,

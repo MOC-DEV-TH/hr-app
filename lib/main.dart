@@ -1,17 +1,32 @@
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hr_app/src/api/firebase_api.dart';
 import 'package:hr_app/src/routing/go_router/go_router_delegate.dart';
 import 'package:hr_app/src/utils/fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+import 'firebase_options.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("Handling a background message: ${message.messageId}");
+}
 
 final ProviderContainer container = ProviderContainer();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await FirebaseApi().initNotification();
+  await initializeDateFormatting('en_US');
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();
   registerErrorHandlers();

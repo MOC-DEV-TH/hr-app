@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-LeaveTypeResponse leaveTypeResponseFromJson(String str) => LeaveTypeResponse.fromJson(json.decode(str));
+LeaveTypeResponse leaveTypeResponseFromJson(String str) =>
+    LeaveTypeResponse.fromJson(json.decode(str));
 
-String leaveTypeResponseToJson(LeaveTypeResponse data) => json.encode(data.toJson());
+String leaveTypeResponseToJson(LeaveTypeResponse data) =>
+    json.encode(data.toJson());
 
 class LeaveTypeResponse {
   int statusCode;
@@ -15,11 +17,14 @@ class LeaveTypeResponse {
     required this.data,
   });
 
-  factory LeaveTypeResponse.fromJson(Map<String, dynamic> json) => LeaveTypeResponse(
-    statusCode: json["status_code"],
-    message: json["message"],
-    data: List<LeaveTypeVO>.from(json["data"].map((x) => LeaveTypeVO.fromJson(x))),
-  );
+  factory LeaveTypeResponse.fromJson(Map<String, dynamic> json) =>
+      LeaveTypeResponse(
+        statusCode: json["status_code"],
+        message: json["message"],
+        data: List<LeaveTypeVO>.from(
+          json["data"].map((x) => LeaveTypeVO.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
     "status_code": statusCode,
@@ -29,21 +34,13 @@ class LeaveTypeResponse {
 }
 
 class LeaveTypeVO {
-  int id;
-  String name;
+  int? id;
+  String? name;
 
-  LeaveTypeVO({
-    required this.id,
-    required this.name,
-  });
+  LeaveTypeVO({this.id, this.name});
 
-  factory LeaveTypeVO.fromJson(Map<String, dynamic> json) => LeaveTypeVO(
-    id: json["id"],
-    name: json["name"],
-  );
+  factory LeaveTypeVO.fromJson(Map<String, dynamic> json) =>
+      LeaveTypeVO(id: json["id"], name: json["name"]);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-  };
+  Map<String, dynamic> toJson() => {"id": id, "name": name};
 }

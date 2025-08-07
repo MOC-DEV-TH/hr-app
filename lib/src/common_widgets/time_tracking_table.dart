@@ -9,23 +9,49 @@ class TimeTrackingTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: screenWidth),
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Date', style: TextStyle(fontWeight: FontWeight.bold))),
-          DataColumn(label: Text('Clock In', style: TextStyle(fontWeight: FontWeight.bold))),
-          DataColumn(label: Text('Clock Out', style: TextStyle(fontWeight: FontWeight.bold))),
-        ],
-        rows: records.map((record) {
-          return DataRow(cells: [
-            DataCell(Text(DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now()))),
-            DataCell(Text(record.attendances.first.checkIn ?? '')),
-            DataCell(Text(record.attendances.first.checkOut ?? '')),
-          ]);
-        }).toList(),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: DataTable(
+              columnSpacing: 16,
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Date',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Clock In',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Clock Out',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+              rows: records.map((record) {
+                final date = DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now());
+                final checkIn = record.attendances.isNotEmpty ? record.attendances.first.checkIn ?? '' : '';
+                final checkOut = record.attendances.isNotEmpty ? record.attendances.first.checkOut ?? '' : '';
+
+                return DataRow(cells: [
+                  DataCell(Text(date)),
+                  DataCell(Text(checkIn)),
+                  DataCell(Text(checkOut)),
+                ]);
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

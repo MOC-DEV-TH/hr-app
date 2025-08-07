@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -16,8 +15,7 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
-import 'package:hr_app/src/utils/images.dart';
-import 'package:hr_app/src/utils/strings.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../services/location_service.dart';

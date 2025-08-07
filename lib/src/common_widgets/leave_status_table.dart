@@ -40,9 +40,9 @@ class LeaveStatusTable extends StatelessWidget {
                       record.status.capitalizeFirstLetter(),
                       style: TextStyle(
                         color:
-                            record.status == 'Pending'
+                            record.status == 'pending'
                                 ? Colors.orange
-                                : record.status == 'Approved'
+                                : record.status == 'approved'
                                 ? Colors.green
                                 : Colors.red,
                       ),
