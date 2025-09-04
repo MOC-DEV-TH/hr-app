@@ -26,6 +26,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseApi().initNotification();
+  await FirebaseApi.scheduleDaily9AMCheckInNotification();
+  await FirebaseApi.scheduleCheckoutReminders();
   await initializeDateFormatting('en_US');
   await GetStorage.init();
   await EasyLocalization.ensureInitialized();

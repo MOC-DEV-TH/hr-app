@@ -14,7 +14,9 @@ enum SecureDataList {
   authToken,
   baseApiUrl,
   userData,
-  leaveTypes,
+  leaveTypes,allowDistance,
+  businessLat,
+  businessLong
 }
 
 class SecureStorage {
@@ -45,6 +47,39 @@ class SecureStorage {
   Future<void> clearUser() async {
     await _box.remove(SecureDataList.userData.name);
   }
+
+  /// Save Business Unit Config
+  Future<void> saveBusinessUnitConfig({
+    double? lat,
+    double? long,
+    int? allowDistance,
+  }) async {
+    if (lat != null) {
+      await _box.write(SecureDataList.businessLat.name, lat);
+    }
+    if (long != null) {
+      await _box.write(SecureDataList.businessLong.name, long);
+    }
+    if (allowDistance != null) {
+      await _box.write(SecureDataList.allowDistance.name, allowDistance);
+    }
+  }
+
+  /// Get Business Unit Latitude
+  Future<double?> getBusinessLat() async {
+    return _box.read(SecureDataList.businessLat.name);
+  }
+
+  /// Get Business Unit Longitude
+  Future<double?> getBusinessLong() async {
+    return _box.read(SecureDataList.businessLong.name);
+  }
+
+  /// Get Allow Distance
+  Future<int?> getAllowDistance() async {
+    return _box.read(SecureDataList.allowDistance.name);
+  }
+
 
   Future<void> saveLeaveTypes(List<LeaveTypeVO> leaveTypes) async {
     final List<Map<String, dynamic>> leaveTypesJson =

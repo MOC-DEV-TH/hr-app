@@ -14,6 +14,7 @@ const String kEndPointAttendanceList = "/attendance-list";
 const String kEndPointLeaveTypes = "/leave-types";
 const String kEndPointLeaveStatus = "/leaves";
 const String kEndPointCreateLeave = "/create-leave";
+const String kEndPointGetConfig = "/get-config";
 
 ///Parameters
 const String kParamApiKey = "api_key";

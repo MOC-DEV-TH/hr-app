@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  static const double officeLatitude = 13.755204682621741;
-  static const double officeLongitude = 100.5332719248907;
+  static const double officeLatitude = 13.679558684704288;
+  static const double officeLongitude = 100.60937316907061;
   static const double allowedRadius = 10.0;
 
 
@@ -46,18 +46,22 @@ class LocationService {
   }
 
   /// Check if user is within allowed radius
-  static Future<bool> isWithinOfficeRadius() async {
+  static Future<bool> isWithinOfficeRadius(double? lat,double? long,double? allowDistanceRadius) async {
     try {
       final position = await getCurrentPosition();
       debugPrint("CurrentLat>>>>>>${position.latitude}");
       debugPrint("CurrentLong>>>>>>>>${position.longitude}");
+      debugPrint("OfficeLat>>>>>>$lat");
+      debugPrint("OfficeLong>>>>>>>>$long");
+      debugPrint("AllowDistance>>>>>>>>$allowDistanceRadius");
       final distance = calculateDistance(
         position.latitude,
         position.longitude,
-        officeLatitude,
-        officeLongitude,
+        lat ?? 0.0,
+        long ?? 0.0,
       );
-      return distance <= allowedRadius;
+      debugPrint("Distance>>>>>>$distance");
+      return distance <= allowDistanceRadius!;
     } catch (e) {
       return false;
     }

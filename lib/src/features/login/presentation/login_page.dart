@@ -34,6 +34,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
+    final authStatus = ref.watch(getAuthStatusProvider).value;
+    debugPrint("AuthStatus:::$authStatus");
+
     ///show error dialog when network response error
     ref.listen<AsyncValue>(
       loginControllerProvider,
