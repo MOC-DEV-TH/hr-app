@@ -18,6 +18,7 @@ import 'package:hr_app/src/utils/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/error_retry_view.dart';
 import '../../../services/location_service.dart';
 import '../model/attendance_response.dart';
 
@@ -372,18 +373,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                     () => const Center(
                       child: CircularProgressIndicator(color: kPrimaryColor),
                     ),
-                error:
-                    (error, stackTrace) =>
-                        Center(child: Text('Error loading attendance: $error')),
+                error: (error, stackTrace) => ErrorRetryView(
+                  title: 'Error loading attendance',
+                  message: error.toString(),
+                  onRetry: () => ref.invalidate(fetchAttendanceDataProvider),
+                ),
+
               );
             },
             loading:
                 () => const Center(
                   child: CircularProgressIndicator(color: kPrimaryColor),
                 ),
-            error:
-                (error, stackTrace) =>
-                    Center(child: Text('Error loading config: $error')),
+            error: (error, stackTrace) => ErrorRetryView(
+              title: 'Error loading config',
+              message: error.toString(),
+              onRetry: () => ref.invalidate(fetchConfigDataProvider),
+            ),
           ),
 
           /// Overlay loading indicator when any loading is active

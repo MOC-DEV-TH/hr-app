@@ -7,46 +7,95 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:hr_app/src/api/firebase_api.dart';
 import 'package:hr_app/src/routing/go_router/go_router_delegate.dart';
 import 'package:hr_app/src/utils/fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 
+/// ------------------------------
+/// FCM background handler
+/// ------------------------------
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   debugPrint("Handling a background message: ${message.messageId}");
 }
 
+/// A single, top-level ProviderContainer (matches your original pattern)
 final ProviderContainer container = ProviderContainer();
 
-void main() async {
+/// App readiness flag so we can render instantly and initialize in parallel
+final appReadyProvider = StateProvider<bool>((_) => false);
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await FirebaseApi().initNotification();
-  await FirebaseApi.scheduleDaily9AMCheckInNotification();
-  await FirebaseApi.scheduleCheckoutReminders();
-  await initializeDateFormatting('en_US');
-  await GetStorage.init();
-  await EasyLocalization.ensureInitialized();
   registerErrorHandlers();
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('th')],
-        path: 'assets/l10n',
-        fallbackLocale: const Locale('en'),
-        child: const MyApp(),
-      ),
+      child: const _BootstrapGate(),
     ),
   );
 }
 
-///My App
+/// Bootstrap gate: shows a minimal splash while we init Firebase, storage, locales, etc.
+class _BootstrapGate extends ConsumerStatefulWidget {
+  const _BootstrapGate({super.key});
+
+  @override
+  ConsumerState<_BootstrapGate> createState() => _BootstrapGateState();
+}
+
+class _BootstrapGateState extends ConsumerState<_BootstrapGate> {
+  @override
+  void initState() {
+    super.initState();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    try {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      await Future.wait([
+        initializeDateFormatting('en_US'),
+        GetStorage.init(),
+        EasyLocalization.ensureInitialized(),
+      ]);
+    } catch (e, st) {
+      debugPrint('Bootstrap error: $e\n$st');
+    } finally {
+      if (mounted) {
+        ref.read(appReadyProvider.notifier).state = true;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ready = ref.watch(appReadyProvider);
+
+    if (!ready) {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: _SplashScaffold(),
+      );
+    }
+
+    return EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('th')],
+      path: 'assets/l10n',
+      fallbackLocale: const Locale('en'),
+      child: const MyApp(),
+    );
+  }
+}
+
+/// Your real app (unchanged except for being mounted after bootstrap)
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -64,21 +113,35 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-///error handler
+/// Lightweight splash shown during bootstrap
+class _SplashScaffold extends StatelessWidget {
+  const _SplashScaffold({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+/// ------------------------------
+/// Error handling
+/// ------------------------------
 void registerErrorHandlers() {
-  /// * Show some error UI if any uncaught exception happens
+  /// Show some error UI if any uncaught exception happens
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint(details.toString());
   };
 
-  /// * Handle errors from the underlying platform/OS
+  /// Handle errors from the underlying platform/OS
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
     debugPrint(error.toString());
     return true;
   };
 
-  /// * Show some error UI when any widget in the app fails to build
+  /// Show some error UI when any widget in the app fails to build
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return MaterialApp(
       home: Scaffold(
@@ -92,16 +155,16 @@ void registerErrorHandlers() {
   };
 }
 
-///Page transition builder
+/// Page transition builder (unchanged)
 class CustomPageTransitionBuilder extends PageTransitionsBuilder {
   @override
   Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child,
+      ) {
     const begin = Offset(1.0, 0.0);
     const end = Offset.zero;
     const curve = Curves.easeInOut;

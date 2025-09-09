@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -86,4 +87,31 @@ extension StringCasingExtension on String {
     return this[0].toUpperCase() + substring(1);
   }
 }
+
+extension DioExceptionX on DioException {
+  String get errorMessage {
+    final data = response?.data;
+
+    if (data is Map && data['message'] is String && (data['message'] as String).trim().isNotEmpty) {
+      return data['message'] as String;
+    }
+
+    switch (type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        return 'Network timeout. Please try again.';
+
+      case DioExceptionType.connectionError:
+        return 'No internet connection.';
+
+      case DioExceptionType.badResponse:
+        return 'Request failed (${response?.statusCode ?? 'unknown'}).';
+
+      default:
+        return 'Unexpected error occurred.';
+    }
+  }
+}
+
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
+import 'package:hr_app/src/features/setting/presentation/setting_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/login/presentation/login_page.dart';
@@ -21,6 +22,7 @@ enum RoutePath {
   checkInCheckOut(path: '/checkInCheckOut'),
   leaveStatus(path: '/leaveStatus'),
   leaveRequest(path: '/leaveRequest'),
+  settings(path: '/settings'),
   ;
 
   const RoutePath({required this.path});
@@ -131,6 +133,20 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
               context: context,
               state: state,
               child: LeaveStatusPage(
+                key: state.pageKey,
+              ));
+        },
+      ),
+
+      ///setting page
+      GoRoute(
+        path: RoutePath.settings.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+              context: context,
+              state: state,
+              child: SettingPage(
                 key: state.pageKey,
               ));
         },

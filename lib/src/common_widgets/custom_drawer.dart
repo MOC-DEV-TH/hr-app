@@ -97,7 +97,10 @@ class CustomDrawer extends ConsumerWidget {
                   context,
                   icon: Icons.settings,
                   title: 'Settings',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                    GoRouter.of(context).push(RoutePath.settings.path);
+                  },
                 ),
                 Divider(height: 1, color: Colors.grey[300]),
                 _buildDrawerItem(

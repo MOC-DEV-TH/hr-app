@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../main.dart';
 import '../utils/secure_storage.dart';
@@ -56,6 +57,31 @@ class FirebaseApi {
       }
     }
   }
+
+  /// Turn notifications ON
+  Future<void> enableNotifications() async {
+    await _firebaseMessaging.requestPermission(alert: true, badge: true, sound: true);
+
+    await _firebaseMessaging.subscribeToTopic('all_users');
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', true);
+  }
+
+  /// Turn notifications OFF
+  Future<void> disableNotifications() async {
+    await _firebaseMessaging.unsubscribeFromTopic('all_users');
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', false);
+  }
+
+  /// Check status
+  Future<bool> isNotificationsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('notifications_enabled') ?? true;
+  }
+
 
   ///init notification
   Future<void> initNotification() async {
@@ -227,7 +253,7 @@ class FirebaseApi {
   }
 
   ///scheduleDaily9AMCheckInNotification
-  static Future<void> scheduleDaily9AMCheckInNotification() async {
+  static Future<void> scheduleDailyCheckInCheckOutNotification() async {
     await _localNotifications.zonedSchedule(
       1001,
       'Check In Reminder',
@@ -244,11 +270,56 @@ class FirebaseApi {
         ),
 
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+
+
+    await _localNotifications.zonedSchedule(
+      5001,
+      'Checkout Reminder',
+      'It\'s 5 PM! Please don\'t forget to checkout.',
+      _nextInstanceOfTime(hour: 17),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'checkout_channel',
+          'Checkout Reminders',
+          channelDescription: 'Reminders to checkout after work',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: "@mipmap/ic_launcher",
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+
+    await _localNotifications.zonedSchedule(
+      6001,
+      'Final Checkout Reminder',
+      'It\'s 6 PM! Make sure you have checked out.',
+      _nextInstanceOfTime(hour: 18),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'checkout_channel',
+          'Checkout Reminders',
+          channelDescription: 'Final reminder to checkout',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: "@mipmap/ic_launcher",
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
   }
 
   ///checkout reminder
@@ -319,7 +390,6 @@ class FirebaseApi {
 
     return scheduledDate;
   }
-
 
   static tz.TZDateTime _nextInstanceOfTime({required int hour}) {
     final now = tz.TZDateTime.now(tz.local);

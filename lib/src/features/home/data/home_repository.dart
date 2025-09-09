@@ -6,6 +6,7 @@ import 'package:hr_app/src/features/home/model/config_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../network/dio_provider.dart';
+import '../../../network/error_handler.dart';
 import '../../../utils/secure_storage.dart';
 
 part 'home_repository.g.dart';
@@ -23,18 +24,19 @@ class HomeRepository {
           .get(kEndPointGetConfig);
       ConfigResponse data = ConfigResponse.fromJson(response.data);
 
-      ///save lat , long , allow distance
-      double? userLat = double.tryParse(data.data?.businessUnit?.lat ?? '');
-      double? userLong = double.tryParse(data.data?.businessUnit?.long ?? '');
-      int? allowDistanceRadius = data.data?.allowDistance;
-
-      // await ref
-      //     .read(secureStorageProvider).saveBusinessUnitConfig(lat: userLat , long: userLong , allowDistance: allowDistanceRadius);
-      debugPrint("Config Response Data::${response.data}");
+      // ///save lat , long , allow distance
+      // double? userLat = double.tryParse(data.data?.businessUnit?.lat ?? '');
+      // double? userLong = double.tryParse(data.data?.businessUnit?.long ?? '');
+      // int? allowDistanceRadius = data.data?.allowDistance;
+      //
+      // // await ref
+      // //     .read(secureStorageProvider).saveBusinessUnitConfig(lat: userLat , long: userLong , allowDistance: allowDistanceRadius);
+      // debugPrint("Config Response Data::${response.data}");
 
       return data;
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
@@ -70,7 +72,8 @@ class HomeRepository {
 
       return data;
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 }
