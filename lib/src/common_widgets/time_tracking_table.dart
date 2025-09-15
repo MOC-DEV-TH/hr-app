@@ -12,7 +12,7 @@ class TimeTrackingTable extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+          scrollDirection: Axis.vertical,
           child: ConstrainedBox(
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             child: DataTable(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/src/common_widgets/circle_button.dart';
+import 'package:hr_app/src/common_widgets/clock_out_restricte_bottom_sheet.dart';
+import 'package:hr_app/src/common_widgets/clock_out_successful_dialog.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/loading_view.dart';
@@ -18,6 +20,8 @@ import 'package:hr_app/src/utils/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/clock_out_confirm_bottom_sheet.dart';
+import '../../../common_widgets/clock_out_not_allow_dialog.dart';
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../services/location_service.dart';
 import '../model/attendance_response.dart';
@@ -34,72 +38,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   WorkLocation? _selectedLocation;
   bool _isShowLoadingView = false;
-
-  ///handle office check in
-  Future<void> _handleOfficeCheckIn(
-    BuildContext context,
-    double? lat,
-    double? long,
-    int? allowDistanceRadius,
-  ) async {
-    setState(() {
-      _isShowLoadingView = true;
-    });
-
-    try {
-      /// Check location services
-      if (!await LocationService.isLocationServiceEnabled()) {
-        context.showErrorDialog(
-          'Please enable location services',
-          'Check-In Failed',
-        );
-        return;
-      }
-
-      /// Check permissions
-      var permission = await LocationService.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await LocationService.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
-          context.showErrorDialog(
-            'Location permission required',
-            'Check-In Failed',
-          );
-          return;
-        }
-      }
-
-      /// Check if within office radius
-      final isWithinRadius = await LocationService.isWithinOfficeRadius(
-        lat,
-        long,
-        allowDistanceRadius?.toDouble(),
-      );
-      if (!isWithinRadius) {
-        context.showErrorDialog(
-          'You must be within 10km of the office to check in',
-          'Check-In Failed',
-        );
-        return;
-      }
-
-      /// Proceed with office check-in
-      final bool isSuccess = await ref
-          .read(checkInControllerProvider.notifier)
-          .checkIn(type: kTypeOffice);
-
-      if (isSuccess) {
-        ref.invalidate(fetchAttendanceDataProvider);
-      }
-    } catch (e) {
-      context.showErrorDialog('Something went wrong', 'Check-In Failed');
-    } finally {
-      setState(() {
-        _isShowLoadingView = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +97,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     builder: (context, snapshot) {
                       final currentTime = snapshot.data ?? DateTime.now();
+
+                      ///calculate working period
+                      final wp = ref.read(homeRepositoryProvider).computeWorkingPeriod(todayDatum.attendances);
+                      final clockInText  = wp.clockInText;
+                      final clockOutText = wp.clockOutText;
+                      final periodText   = wp.periodText;
 
                       return SafeArea(
                         child: SingleChildScrollView(
@@ -267,6 +211,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                                   40.vGap,
 
+
+                                  ///check in , check out button view
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -327,26 +273,67 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       if (hasCheckedIn || hasCheckedOut)
                                         CircleActionButton(
                                           onTap: () async {
-                                            final isSuccess =
-                                                await ref
-                                                    .read(
+                                            if(hasCheckedOut == true){
+                                              return;
+                                            }
+                                            if (_selectedLocation == null) {
+                                              context.showErrorSnackBar(
+                                                'Please select a check-out type: Office or Work From Home.',
+                                              );
+                                              return;
+                                            }
+
+                                            await showClockOutConfirmBottomSheet(
+                                              context,
+                                              clockInText: clockInText,
+                                              clockOutText: clockOutText,
+                                              periodText: periodText,
+                                              onConfirm: () async {
+
+                                                if (_selectedLocation ==
+                                                    WorkLocation.workFromHome) {
+                                                  if (!checkOutState.isLoading) {
+                                                    final isSuccess = await ref
+                                                        .read(
                                                       checkOutControllerProvider
                                                           .notifier,
                                                     )
-                                                    .checkOut();
+                                                        .checkOut();
 
-                                            if (isSuccess) {
-                                              ref.invalidate(
-                                                fetchAttendanceDataProvider,
-                                              );
-                                              context.showSuccessSnackBar(
-                                                '✅ Checkout successful!',
-                                              );
-                                            }
+                                                    if (isSuccess) {
+                                                      await showClockOutSuccessDialog(context);
+                                                      ref.invalidate(
+                                                        fetchAttendanceDataProvider,
+                                                      );
+                                                    }
+                                                  }
+                                                } else {
+                                                  _handleOfficeCheckOut(
+                                                    context,
+                                                    double.tryParse(
+                                                      configData
+                                                          .data
+                                                          ?.businessUnit
+                                                          ?.lat ??
+                                                          '',
+                                                    ),
+                                                    double.tryParse(
+                                                      configData
+                                                          .data
+                                                          ?.businessUnit
+                                                          ?.long ??
+                                                          '',
+                                                    ),
+                                                    configData.data?.allowLogoutDistance,
+                                                  );
+                                                }
+                                              }
+                                            );
+
                                           },
                                           label: 'Check-Out',
                                           icon: Icons.logout,
-                                          backgroundColor: Colors.orange,
+                                          backgroundColor:hasCheckedOut ? Colors.grey : Colors.orange,
                                         ),
                                     ],
                                   ),
@@ -408,5 +395,153 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
     );
+  }
+
+
+  ///handle office check in
+  Future<void> _handleOfficeCheckIn(
+      BuildContext context,
+      double? lat,
+      double? long,
+      int? allowDistanceRadius,
+      ) async {
+    setState(() {
+      _isShowLoadingView = true;
+    });
+
+    try {
+      /// Check location services
+      if (!await LocationService.isLocationServiceEnabled()) {
+        context.showErrorDialog(
+          'Please enable location services',
+          'Check-In Failed',
+        );
+        return;
+      }
+
+      /// Check permissions
+      var permission = await LocationService.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await LocationService.requestPermission();
+        if (permission != LocationPermission.whileInUse &&
+            permission != LocationPermission.always) {
+          context.showErrorDialog(
+            'Location permission required',
+            'Check-In Failed',
+          );
+          return;
+        }
+      }
+
+      /// Check if within office radius
+      final isWithinRadius = await LocationService.isWithinOfficeRadius(
+        lat,
+        long,
+        allowDistanceRadius?.toDouble(),
+      );
+      if (!isWithinRadius) {
+        context.showErrorDialog(
+          'You must be within 10km of the office to check in',
+          'Check-In Failed',
+        );
+        return;
+      }
+
+      /// Proceed with office check-in
+      final bool isSuccess = await ref
+          .read(checkInControllerProvider.notifier)
+          .checkIn(type: kTypeOffice);
+
+      if (isSuccess) {
+        ref.invalidate(fetchAttendanceDataProvider);
+      }
+    } catch (e) {
+      context.showErrorDialog('Something went wrong', 'Check-In Failed');
+    } finally {
+      setState(() {
+        _isShowLoadingView = false;
+      });
+    }
+  }
+
+
+  ///handle office check out
+  Future<void> _handleOfficeCheckOut(
+      BuildContext context,
+      double? lat,
+      double? long,
+      int? allowDistanceRadius,
+      ) async {
+    setState(() {
+      _isShowLoadingView = true;
+    });
+
+    try {
+      /// Check location services
+      if (!await LocationService.isLocationServiceEnabled()) {
+        context.showErrorDialog(
+          'Please enable location services',
+          'Check-In Failed',
+        );
+        return;
+      }
+
+      /// Check permissions
+      var permission = await LocationService.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await LocationService.requestPermission();
+        if (permission != LocationPermission.whileInUse &&
+            permission != LocationPermission.always) {
+          context.showErrorDialog(
+            'Location permission required',
+            'Check-In Failed',
+          );
+          return;
+        }
+      }
+
+      /// Check out within office radius
+      final isWithinRadius = await LocationService.isWithinOfficeRadius(
+        lat,
+        long,
+        allowDistanceRadius?.toDouble(),
+      );
+      if (!isWithinRadius) {
+        await showClockOutNotAllowedDialog(context,onUnderstand: (){
+          showClockOutRestrictedBottomSheet(context,onSubmit: (clockOutReason) async{
+            final isSuccess = await ref
+                .read(
+              checkOutControllerProvider
+                  .notifier,
+            )
+                .checkOut(reason: clockOutReason);
+
+            if (isSuccess) {
+              await showClockOutSuccessDialog(context);
+              ref.invalidate(
+                fetchAttendanceDataProvider,
+              );
+            }
+          });
+        });
+        return;
+      }
+
+      /// Proceed with office check-in
+      final bool isSuccess = await ref
+          .read(checkOutControllerProvider.notifier)
+          .checkOut();
+
+      if (isSuccess) {
+        ref.invalidate(fetchAttendanceDataProvider);
+        await showClockOutSuccessDialog(context);
+      }
+    } catch (e) {
+      context.showErrorDialog('Something went wrong', 'Check-In Failed');
+    } finally {
+      setState(() {
+        _isShowLoadingView = false;
+      });
+    }
   }
 }

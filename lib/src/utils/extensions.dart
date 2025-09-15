@@ -115,3 +115,43 @@ extension DioExceptionX on DioException {
 }
 
 
+/// Flexible parser for DateTime | ISO string | "hh:mm a" | "HH:mm"
+extension AnyToDateTimeX on Object? {
+  /// Returns a DateTime when possible, or null.
+  DateTime? asDateTimeFlex() {
+    final v = this;
+    if (v == null) return null;
+    if (v is DateTime) return v;
+
+    if (v is String) {
+      final iso = DateTime.tryParse(v);
+      if (iso != null) return iso;
+
+      final now = DateTime.now();
+      try {
+        final t12 = DateFormat('hh:mm a').parse(v);
+        return DateTime(now.year, now.month, now.day, t12.hour, t12.minute);
+      } catch (_) {}
+      try {
+        final t24 = DateFormat('HH:mm').parse(v);
+        return DateTime(now.year, now.month, now.day, t24.hour, t24.minute);
+      } catch (_) {}
+    }
+    return null;
+  }
+}
+
+/// Duration → "HH:MM Hrs" (clamped at 00:00)
+extension DurationHrsLabelX on Duration {
+  String toHrsLabel({bool withSuffix = true}) {
+    var d = this;
+    if (d.isNegative) d = Duration.zero;
+    final h = d.inHours;
+    final m = d.inMinutes.remainder(60);
+    final hhmm = '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
+    return withSuffix ? '$hhmm Hrs' : hhmm;
+  }
+}
+
+
+
