@@ -7,8 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.hr_app"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
+    ndkVersion = "25.1.8937393"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -23,9 +23,11 @@ android {
     defaultConfig {
         applicationId = "com.moc.hr_app"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 33
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -37,6 +39,7 @@ android {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("androidx.multidex:multidex:2.0.1")
 }
 
 flutter {

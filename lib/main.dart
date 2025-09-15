@@ -13,9 +13,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 
-/// ------------------------------
-/// FCM background handler
-/// ------------------------------
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -59,8 +57,12 @@ class _BootstrapGateState extends ConsumerState<_BootstrapGate> {
 
   Future<void> _bootstrap() async {
     try {
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      FirebaseMessaging.onBackgroundMessage(
+        _firebaseMessagingBackgroundHandler,
+      );
       await Future.wait([
         initializeDateFormatting('en_US'),
         GetStorage.init(),
@@ -85,7 +87,6 @@ class _BootstrapGateState extends ConsumerState<_BootstrapGate> {
         home: _SplashScaffold(),
       );
     }
-
     return EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('th')],
       path: 'assets/l10n',
@@ -119,9 +120,7 @@ class _SplashScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
 
@@ -159,12 +158,12 @@ void registerErrorHandlers() {
 class CustomPageTransitionBuilder extends PageTransitionsBuilder {
   @override
   Widget buildTransitions<T>(
-      PageRoute<T> route,
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child,
-      ) {
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     const begin = Offset(1.0, 0.0);
     const end = Offset.zero;
     const curve = Curves.easeInOut;

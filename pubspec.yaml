@@ -87,7 +87,6 @@ flutter:
   #---------------- ./ LOCAL ASSETS ----------------#
   assets:
     - assets/images/
-    - assets/svgs/
 
   #---------------- ./ LOCAL FONTS ----------------#
 #  fonts:
