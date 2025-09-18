@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:hr_app/src/utils/images.dart';
 import 'package:hr_app/src/utils/strings.dart';
 
 /// Call this to show the sheet. Returns `true` if user confirmed.
@@ -14,7 +15,7 @@ Future<bool?> showClockOutConfirmBottomSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -62,16 +63,7 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 48,
-            height: 5,
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: theme.dividerColor.withOpacity(.5),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-
+          14.vGap,
           Container(
             width: 66,
             height: 66,
@@ -90,7 +82,13 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
                 ),
               ],
             ),
-            child: const Icon(Icons.schedule, color: Colors.white, size: 32),
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Image.asset(
+                kScheduleImage,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -110,7 +108,7 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
           ),
           const SizedBox(height: 16),
 
-          // three pills row
+          /// three pills row
           Row(
             children: [
               Expanded(
@@ -159,7 +157,7 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
               },
               child: const Text(
                 kLabelYesClockOut,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 14),
               ),
             ),
           ),
@@ -178,10 +176,12 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
               onPressed: () => Navigator.of(context).maybePop(false),
               child: const Text(
                 kLabelNoLetMeCheck,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: Colors.black),
               ),
             ),
           ),
+
+          20.vGap
         ],
       ),
     );
@@ -197,14 +197,6 @@ class _InfoPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dot = Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: theme.hintColor.withOpacity(.35),
-      ),
-    );
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -218,19 +210,29 @@ class _InfoPill extends StatelessWidget {
         children: [
           Row(
             children: [
-              dot,
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: theme.hintColor,
+              Image.asset(kClockGreyImage, width: 13, height: 13),
+              const SizedBox(width: 4),
+              // 👇 make label flexible so Row won't overflow
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.hintColor,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
+          // 👇 same for value; 1 line + ellipsis prevents overflow
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),
@@ -240,3 +242,4 @@ class _InfoPill extends StatelessWidget {
     );
   }
 }
+

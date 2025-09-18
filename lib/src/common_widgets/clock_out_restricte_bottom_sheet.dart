@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/gap.dart';
+
+import '../utils/images.dart';
 
 Future<String?> showClockOutRestrictedBottomSheet(
     BuildContext context, {
@@ -14,7 +17,7 @@ Future<String?> showClockOutRestrictedBottomSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
+    backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -91,18 +94,9 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // handle
-          Container(
-            width: 48,
-            height: 5,
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: theme.dividerColor.withOpacity(.5),
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
+          14.vGap,
 
-          // circular clock icon
+          /// circular clock icon
           Container(
             width: 66,
             height: 66,
@@ -121,7 +115,13 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
                 ),
               ],
             ),
-            child: const Icon(Icons.schedule, color: Colors.white, size: 32),
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Image.asset(
+                kScheduleImage,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -198,6 +198,8 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
               child: const Text('Send', style: TextStyle(fontSize: 16)),
             ),
           ),
+
+          20.vGap
         ],
       ),
     );

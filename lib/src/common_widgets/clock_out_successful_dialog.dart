@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/images.dart';
+
 Future<void> showClockOutSuccessDialog(
     BuildContext context, {
       String title = 'Clock-out Successful!',
@@ -46,7 +48,13 @@ Future<void> showClockOutSuccessDialog(
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.schedule, color: Colors.white, size: 32),
+                  child: Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Image.asset(
+                      kScheduleImage,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                 ),
 
                 const SizedBox(height: 16),
