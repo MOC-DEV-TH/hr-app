@@ -1,5 +1,6 @@
 ///Base Url
 const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
+const String kStagingUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
 const String kImageBaseUrlHttp = "";
 
 ///Error image string

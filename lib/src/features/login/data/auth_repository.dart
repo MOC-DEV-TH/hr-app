@@ -26,7 +26,7 @@ class AuthRepository {
     }
     try {
       final baseOptions = BaseOptions(
-        baseUrl: kBaseUrl,
+        baseUrl: kStagingUrl,
         connectTimeout: const Duration(milliseconds: 5000),
         receiveTimeout: const Duration(milliseconds: 5000),
         responseType: ResponseType.json,

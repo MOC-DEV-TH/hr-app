@@ -44,16 +44,6 @@ class HomeRepository {
       final response = await dio
           .get(kEndPointGetConfig);
       ConfigResponse data = ConfigResponse.fromJson(response.data);
-
-      // ///save lat , long , allow distance
-      // double? userLat = double.tryParse(data.data?.businessUnit?.lat ?? '');
-      // double? userLong = double.tryParse(data.data?.businessUnit?.long ?? '');
-      // int? allowDistanceRadius = data.data?.allowDistance;
-      //
-      // // await ref
-      // //     .read(secureStorageProvider).saveBusinessUnitConfig(lat: userLat , long: userLong , allowDistance: allowDistanceRadius);
-      // debugPrint("Config Response Data::${response.data}");
-
       return data;
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
@@ -67,7 +57,8 @@ class HomeRepository {
       final response = await dio.post(kEndPointCheckIn, data: {"type": type});
       debugPrint("CheckIn response::${response.data}");
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
@@ -78,7 +69,8 @@ class HomeRepository {
       final response = await dio.post(kEndPointCheckOut,data: {"log_out_reason" : reason});
       debugPrint("CheckOut response::${response.data}");
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
@@ -97,8 +89,6 @@ class HomeRepository {
           ErrorHandler.handle(e).failure.message;
     }
   }
-
-
 
 
 }
