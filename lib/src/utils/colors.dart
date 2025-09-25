@@ -6,6 +6,7 @@ const Color kSecondaryColor = Color(0XFF1F3681);
 const Color kGreenAccentColor = Color(0XFFCDDC39);
 const Color kOrangeAccentColor = Color(0XFFFAA82C);
 const Color kBlueAccentColor = Color(0XFF0CAEDD);
+const Color kBlueColor = Color(0XFF5C99EE);
 const Color kYellowAccentColor = Color(0XFFCDDC39);
 const Color kRedAccentColor = Color(0xFFF15A25);
 const Color kDarkGreyColor = Color(0XFFAEAEAE);

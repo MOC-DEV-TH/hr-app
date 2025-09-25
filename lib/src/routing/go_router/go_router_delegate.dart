@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard_page.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
 import 'package:hr_app/src/features/setting/presentation/setting_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../features/home/presentation/home_page.dart';
+import '../../features/home/presentation/employee_home_page.dart';
 import '../../features/login/presentation/login_page.dart';
 import '../../utils/secure_storage.dart';
 import '../../utils/strings.dart';
@@ -17,13 +18,13 @@ enum RoutePath {
   initial(path: '/'),
   root(path: "root"),
   home(path: "home"),
+  employeeHome(path: "/employeeHome"),
   login(path: '/login'),
   attendance(path: '/attendance'),
   checkInCheckOut(path: '/checkInCheckOut'),
   leaveStatus(path: '/leaveStatus'),
   leaveRequest(path: '/leaveRequest'),
-  settings(path: '/settings'),
-  ;
+  settings(path: '/settings');
 
   const RoutePath({required this.path});
 
@@ -33,11 +34,13 @@ enum RoutePath {
 @riverpod
 GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
   final GlobalKey<NavigatorState> rootNavigator = GlobalKey(debugLabel: 'root');
-  final GlobalKey<NavigatorState> shellNavigator =
-  GlobalKey(debugLabel: 'shell');
+  final GlobalKey<NavigatorState> shellNavigator = GlobalKey(
+    debugLabel: 'shell',
+  );
 
   final authStatus = ref.watch(getAuthStatusProvider).value;
-  debugPrint("AuthStatus:::$authStatus");
+  final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
+
   bool isDuplicate = false;
 
   return GoRouter(
@@ -46,8 +49,7 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
     redirect: (context, state) {
       final isLoggedIn = authStatus == kAuthLoggedIn;
       final isGoingToLogin = state.matchedLocation == RoutePath.login.path;
-      final isGoingToSchoolCode =
-          state.matchedLocation == RoutePath.login.path;
+      final isGoingToSchoolCode = state.matchedLocation == RoutePath.login.path;
 
       if (!isLoggedIn && !isGoingToLogin && !isGoingToSchoolCode) {
         isDuplicate = true;
@@ -71,29 +73,40 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         parentNavigatorKey: rootNavigator,
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
-              context: context,
-              state: state,
-              child: LoginPage(
-                key: state.pageKey,
-              ));
+            context: context,
+            state: state,
+            child: LoginPage(key: state.pageKey),
+          );
         },
       ),
 
       ///home page
       GoRoute(
-          path: '/',
-          name: RoutePath.home.name,
-          parentNavigatorKey: rootNavigator,
-          pageBuilder: (context, state) {
-            return buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: SafeArea(
-                  child: HomePage(
-                    key: state.pageKey,
-                  ),
-                ));
-          },
+        path: '/',
+        name: RoutePath.home.name,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: loginUserRole == kLoginUserRoleCeo
+                ? AdminDashboardPage(key: state.pageKey)
+                : SafeArea(child: EmployeeHomePage(key: state.pageKey)),
+          );
+        },
+      ),
+
+      ///employee home page
+      GoRoute(
+        path: RoutePath.employeeHome.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: EmployeeHomePage(key: state.pageKey),
+          );
+        },
       ),
 
       ///my attendance page
@@ -102,11 +115,10 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         parentNavigatorKey: rootNavigator,
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
-              context: context,
-              state: state,
-              child: AttendancePage(
-                key: state.pageKey,
-              ));
+            context: context,
+            state: state,
+            child: AttendancePage(key: state.pageKey),
+          );
         },
       ),
 
@@ -116,11 +128,10 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         parentNavigatorKey: rootNavigator,
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
-              context: context,
-              state: state,
-              child: LeaveRequestPage(
-                key: state.pageKey,
-              ));
+            context: context,
+            state: state,
+            child: LeaveRequestPage(key: state.pageKey),
+          );
         },
       ),
 
@@ -130,11 +141,10 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         parentNavigatorKey: rootNavigator,
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
-              context: context,
-              state: state,
-              child: LeaveStatusPage(
-                key: state.pageKey,
-              ));
+            context: context,
+            state: state,
+            child: LeaveStatusPage(key: state.pageKey),
+          );
         },
       ),
 
@@ -144,18 +154,18 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
         parentNavigatorKey: rootNavigator,
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
-              context: context,
-              state: state,
-              child: SettingPage(
-                key: state.pageKey,
-              ));
+            context: context,
+            state: state,
+            child: SettingPage(key: state.pageKey),
+          );
         },
       ),
     ],
-    errorBuilder: (context, state) => RouteErrorScreen(
-      errorMsg: state.error.toString(),
-      key: state.pageKey,
-    ),
+    errorBuilder:
+        (context, state) => RouteErrorScreen(
+          errorMsg: state.error.toString(),
+          key: state.pageKey,
+        ),
   );
 }
 
@@ -168,12 +178,13 @@ CustomTransitionPage buildPageWithDefaultTransition<T>({
   return CustomTransitionPage<T>(
     key: state.pageKey,
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child),
+    transitionsBuilder:
+        (context, animation, secondaryAnimation, child) => SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
   );
 }

@@ -8,13 +8,15 @@ String loginResponseToJson(LoginResponse data) => json.encode(data.toJson());
 class LoginResponse {
   int? statusCode;
   String? message;
+  String? role;
   UserData? data;
 
-  LoginResponse({this.statusCode, this.message, this.data});
+  LoginResponse({this.statusCode, this.message, this.role, this.data});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
     statusCode: json["status_code"] as int?,
     message: json["message"] as String?,
+    role: json["role"] as String?,
     data:
         json["data"] != null
             ? UserData.fromJson(json["data"] as Map<String, dynamic>)
@@ -24,6 +26,7 @@ class LoginResponse {
   Map<String, dynamic> toJson() => {
     if (statusCode != null) "status_code": statusCode,
     if (message != null) "message": message,
+    if (role != null) "role": role,
     if (data != null) "data": data!.toJson(),
   };
 }
@@ -96,7 +99,7 @@ class UserVO {
             : null,
     phone: json["phone"] as String?,
     positionId: json["position_id"] as int?,
-    departmentId: json["department_id"] as int?,
+    //departmentId: json["department_id"] as int?,
     bussinessUnitId: json["bussiness_unit_id"] as int?,
     countryId: json["country_id"] as int?,
     isDepartmentHead: json["is_department_head"] as int?,
@@ -123,7 +126,7 @@ class UserVO {
     "email_verified_at": emailVerifiedAt?.toIso8601String(),
     if (phone != null) "phone": phone,
     if (positionId != null) "position_id": positionId,
-    if (departmentId != null) "department_id": departmentId,
+    //if (departmentId != null) "department_id": departmentId,
     if (bussinessUnitId != null) "bussiness_unit_id": bussinessUnitId,
     if (countryId != null) "country_id": countryId,
     if (isDepartmentHead != null) "is_department_head": isDepartmentHead,

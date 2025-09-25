@@ -26,7 +26,7 @@ class AuthRepository {
     }
     try {
       final baseOptions = BaseOptions(
-        baseUrl: kBaseUrl,
+        baseUrl: kStagingUrl,
         connectTimeout: const Duration(milliseconds: 5000),
         receiveTimeout: const Duration(milliseconds: 5000),
         responseType: ResponseType.json,
@@ -41,11 +41,14 @@ class AuthRepository {
       );
       final tokenBox = GetStorage();
 
-      debugPrint("UserData>>>>>>${response.data["data"]["user"]}");
       tokenBox.write(
         SecureDataList.token.name,
         response.data["data"]['access_token'],
       );
+
+      await ref
+          .read(secureStorageProvider)
+          .saveLoginUserRole(response.data["data"]["role"]);
       await ref
           .read(secureStorageProvider)
           .saveUser(UserVO.fromJson(response.data["data"]["user"]));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/common_widgets/show_common_dialog.dart';
+import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard_page.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
@@ -17,6 +18,7 @@ class CustomDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(getUserDataProvider).value;
+    final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       backgroundColor: kWhiteColor,
@@ -64,50 +66,109 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Home',
                   onTap: () {
                     Navigator.pop(context);
+
                   },
                 ),
+
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleCeo,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.access_time,
+                    title: 'Check-in/out',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.employeeHome.path);
+                    },
+                  ),
+                ),
+
                 _buildDrawerItem(
                   context,
-                  icon: Icons.access_time,
+                  icon: Icons.share_arrival_time,
                   title: 'My Attendance',
                   onTap: () {
                     Navigator.pop(context);
                     GoRouter.of(context).push(RoutePath.attendance.path);
                   },
                 ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.calendar_today,
-                  title: 'Leave Request',
-                  onTap: () {
-                    Navigator.pop(context);
-                    GoRouter.of(context).push(RoutePath.leaveRequest.path);
-                  },
+
+                Visibility(
+                    visible: loginUserRole == kLoginUserRoleCeo,
+                    child: Divider(height: 1, color: Colors.grey[300])),
+
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleCeo,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.person,
+                    title: 'Employee',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                 ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.payment,
-                  title: 'Leave Status',
-                  onTap: () {
-                    Navigator.pop(context);
-                    GoRouter.of(context).push(RoutePath.leaveStatus.path);
-                  },
+
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleCeo,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.person_outline,
+                    title: 'Leave',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                 ),
+
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleCeo,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.calendar_month,
+                    title: 'Holiday',
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+
+
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleEmployee,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.calendar_today,
+                    title: 'Leave Request',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.leaveRequest.path);
+                    },
+                  ),
+                ),
+                Visibility(
+                  visible: loginUserRole == kLoginUserRoleEmployee,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.payment,
+                    title: 'Leave Status',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.leaveStatus.path);
+                    },
+                  ),
+                ),
+
+                Divider(height: 1, color: Colors.grey[300]),
+
                 _buildDrawerItem(
                   context,
                   icon: Icons.settings,
                   title: 'Settings',
                   onTap: () {
                     Navigator.pop(context);
-                    GoRouter.of(context).push(RoutePath.settings.path);
+                    //GoRouter.of(context).push(RoutePath.settings.path);
                   },
-                ),
-                Divider(height: 1, color: Colors.grey[300]),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.help,
-                  title: 'Help & Support',
-                  onTap: () {},
                 ),
                 _buildDrawerItem(
                   context,

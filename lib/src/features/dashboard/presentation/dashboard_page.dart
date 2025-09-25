@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
-import 'package:hr_app/src/features/home/presentation/home_page.dart';
+import 'package:hr_app/src/features/home/presentation/employee_home_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
 import '../../../utils/colors.dart';
@@ -129,7 +129,7 @@ class _HomeScreenState extends ConsumerState<DashboardPage>
                     .setPosition(index);
               },
               children: const [
-                HomePage(),
+                EmployeeHomePage(),
                 AttendancePage(),
                 LeaveRequestPage(),
                 LeaveStatusPage(),

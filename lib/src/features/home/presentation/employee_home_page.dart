@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/src/common_widgets/circle_button.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
+import 'package:hr_app/src/common_widgets/custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/loading_view.dart';
 import 'package:hr_app/src/common_widgets/time_tracking_table.dart';
@@ -15,23 +16,25 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:hr_app/src/utils/strings.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../services/location_service.dart';
+import '../../../utils/secure_storage.dart';
 import '../model/attendance_response.dart';
 
 enum WorkLocation { workFromHome, office }
 
-class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
+class EmployeeHomePage extends ConsumerStatefulWidget {
+  const EmployeeHomePage({super.key});
 
   @override
-  ConsumerState<HomePage> createState() => _HomePageState();
+  ConsumerState<EmployeeHomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends ConsumerState<EmployeeHomePage> {
   WorkLocation? _selectedLocation;
   bool _isShowLoadingView = false;
 
@@ -118,10 +121,13 @@ class _HomePageState extends ConsumerState<HomePage> {
     final checkInState = ref.watch(checkInControllerProvider);
     final checkOutState = ref.watch(checkOutControllerProvider);
     final attendanceState = ref.watch(fetchAttendanceDataProvider);
+    
+    ///check in user role
+    final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: AppBar(
+      appBar:loginUserRole == kLoginUserRoleCeo ? CustomAppBarView(title: 'Check-in/out') : AppBar(
         backgroundColor: kWhiteColor,
         toolbarHeight: 50,
         bottom: PreferredSize(
@@ -129,7 +135,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Container(color: kGreyColor, height: 0.5),
         ),
       ),
-      drawer: const CustomDrawer(),
+      drawer:loginUserRole == kLoginUserRoleCeo ? SizedBox() : const CustomDrawer(),
       body: Stack(
         children: [
           /// Main content based on config and attendance states

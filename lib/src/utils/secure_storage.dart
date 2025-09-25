@@ -16,7 +16,8 @@ enum SecureDataList {
   userData,
   leaveTypes,allowDistance,
   businessLat,
-  businessLong
+  businessLong,
+  loginUserRole
 }
 
 class SecureStorage {
@@ -31,6 +32,17 @@ class SecureStorage {
     final res = await _box.read(SecureDataList.isSignedIn.name);
     return res;
   }
+
+
+  saveLoginUserRole(String status) async {
+    await _box.write(SecureDataList.loginUserRole.name, status);
+  }
+
+  Future<String?> getLoginUserRole() async {
+    final res = await _box.read(SecureDataList.loginUserRole.name);
+    return res;
+  }
+
 
   /// User Data Methods (new)
   Future<void> saveUser(UserVO user) async {
@@ -132,6 +144,12 @@ SecureStorage secureStorage(SecureStorageRef ref) {
 Future<String?> getAuthStatus(GetAuthStatusRef ref) {
   final provider = ref.watch(secureStorageProvider);
   return provider.getAuthStatus();
+}
+
+@riverpod
+Future<String?> getLoginUserRole(GetAuthStatusRef ref) {
+  final provider = ref.watch(secureStorageProvider);
+  return provider.getLoginUserRole();
 }
 
 @riverpod

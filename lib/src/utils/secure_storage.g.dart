@@ -42,6 +42,24 @@ final getAuthStatusProvider = AutoDisposeFutureProvider<String?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetAuthStatusRef = AutoDisposeFutureProviderRef<String?>;
+String _$getLoginUserRoleHash() => r'192f91daa66b28cb7ad6490534587c33662e3d18';
+
+/// See also [getLoginUserRole].
+@ProviderFor(getLoginUserRole)
+final getLoginUserRoleProvider = AutoDisposeFutureProvider<String?>.internal(
+  getLoginUserRole,
+  name: r'getLoginUserRoleProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$getLoginUserRoleHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetLoginUserRoleRef = AutoDisposeFutureProviderRef<String?>;
 String _$getUserDataHash() => r'c2a0ae5b1642bb8865c9f4b3d2c1b1f440d337b3';
 
 /// See also [getUserData].
