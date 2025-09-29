@@ -18,6 +18,11 @@ const String kEndPointLeaveStatus = "/leaves";
 const String kEndPointCreateLeave = "/create-leave";
 const String kEndPointGetConfig = "/get-config";
 
+///Admin End points
+const String kEndPointGetAdminDashboard = "/dashboard";
+const String kEndPointGetBusinessUnits = "/business-units";
+const String kEndPointGetEmployeeAttendancesByBU = '/attendance-bussiness-unit';
+
 ///Parameters
 const String kParamApiKey = "api_key";
 const String kParamLanguage = "language";

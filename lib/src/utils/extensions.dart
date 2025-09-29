@@ -114,4 +114,12 @@ extension DioExceptionX on DioException {
   }
 }
 
+extension HourAmPmDate on DateTime {
+  /// DateTime(...).toHourAmPm() -> "09:00 am"
+  String toHourAmPm({bool floorToHour = true}) {
+    final t = floorToHour ? DateTime(year, month, day, hour) : this;
+    final fmt = DateFormat(floorToHour ? 'hh:00 a' : 'hh:mm a');
+    return fmt.format(t).toLowerCase();
+  }
+}
 

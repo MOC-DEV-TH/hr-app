@@ -1,41 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/features/admin_dashboard/data/admin_dashboard_repository.dart';
+import 'package:hr_app/src/features/admin_dashboard/model/admin_dasbhoard_response.dart';
 import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
+import 'package:hr_app/src/features/employees_attendances/presentation/employees_attendances_page.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
-import 'package:intl/intl.dart';
+import 'package:hr_app/src/utils/extensions.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
+import '../../../common_widgets/error_retry_view.dart';
 
+final selectedBuIdProvider = StateProvider<int>((_) => 0);
 
-class AdminDashboardPage extends StatefulWidget {
+class AdminDashboardPage extends ConsumerStatefulWidget {
   const AdminDashboardPage({super.key});
 
   @override
-  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+  ConsumerState<AdminDashboardPage> createState() => _AdminDashboardPageState();
 }
 
-class _AdminDashboardPageState extends State<AdminDashboardPage> {
-  final _summary = const _Summary(clockIn: 7, leave: 2, clockOut: 5);
-  final _employees = List<_Employee>.generate(
-    10,
-    (i) => _Employee(
-      name: 'Kaung Myat San',
-      role: 'Backend Developer',
-      time: '09:00 AM',
-    ),
-  );
-
-  final _offices = const ['MOCi BKK', 'MOCi Myanmar', 'Brndwrx BKK'];
-  int _selectedOffice = 0;
-
-  late final List<DateTime> _days = List.generate(
-    7,
-    (i) => DateTime.now().add(Duration(days: i - 1)),
-  );
-  int _selectedDay = 1;
+class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
+  List<String> businessUnitTitles = [];
+  int selectedBusinessUintId = 1;
+  String selectedDate = "2025-09-16";
 
   @override
   Widget build(BuildContext context) {
+
+    ///provider states
+    final businessUnitsState = ref.watch(fetchBusinessUnitsProvider);
+
     return Scaffold(
       backgroundColor: kWhiteColor,
       drawer: const CustomDrawer(),
@@ -68,201 +63,190 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ),
 
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            /// Top spacing/padding
-            const SliverPadding(padding: EdgeInsets.only(top: 8)),
+        child: businessUnitsState.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: kPrimaryColor),
+          ),
+          error: (error, stackTrace) => ErrorRetryView(
+            title: 'Error business units data',
+            message: error.toString(),
+            onRetry: () => ref.invalidate(fetchBusinessUnitsProvider),
+          ),
+          data: (businessUnitsResponse) {
+            /// Build labels & ids
+            final buList  = businessUnitsResponse.data ?? [];
+            final buNames = buList.map((e) => e.name ?? '').toList();
+            final buIds   = buList.map((e) => e.id ?? 0).toList();
 
-            /// ── Horizontal day chips ───────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              sliver: SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 86,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _days.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, i) {
-                      final d = _days[i];
-                      final isSel = i == _selectedDay;
-                      return _DateChip(
-                        date: d,
-                        selected: isSel,
-                        onTap: () => setState(() => _selectedDay = i),
-                      );
-                    },
-                  ),
-                ),
+            /// Ensure selected BU has a value (first item fallback), but
+            /// do NOT write synchronously during build.
+            final selBuId = ref.watch(selectedBuIdProvider);
+            final initialBuId =
+            (selBuId == 0 && buIds.isNotEmpty) ? buIds.first : selBuId;
+
+            if (selBuId == 0 && initialBuId != 0) {
+              Future.microtask(() {
+                if (ref.read(selectedBuIdProvider) == 0) {
+                  ref.read(selectedBuIdProvider.notifier).state = initialBuId;
+                }
+              });
+            }
+
+            /// Watch dashboard with *current* BU id so it refetches automatically
+            final adminDashboardState = ref.watch(
+              fetchAdminDashboardDataProvider(
+                businessUnitId:
+                initialBuId == 0 ? (buIds.isNotEmpty ? buIds.first : 0) : initialBuId,
+                date: selectedDate,
               ),
-            ),
+            );
 
-            /// Small gap
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-            /// ── Title: Today Attendance ─────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  'Today Attendance',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800),
-                ),
+            return adminDashboardState.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: kPrimaryColor),
               ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-            /// ── Summary card (give it a fixed height) ──────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              sliver: SliverToBoxAdapter(
-                child: SizedBox(
-                  child: _SummaryCard(
-                    title: 'Leave',
-                    value: _summary.leave.toString(),
-                    border: kBlueColor,
-                    bg: kPrimaryColor.withOpacity(.08),
-                    textColor: kBlueColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => EmployeesLeavesPage()),
-                      );
-                    },
-                  ),
-                ),
+              error: (error, stack) => ErrorRetryView(
+                title: 'Error loading dashboard data',
+                message: error.toString(),
+                onRetry: () {
+                  final id = ref.read(selectedBuIdProvider);
+                  ref.invalidate(fetchAdminDashboardDataProvider(
+                    businessUnitId: id,
+                    date: selectedDate,
+                  ));
+                },
               ),
-            ),
+              data: (adminDashboardResponse) {
+                final selectedIndex = () {
+                  final idx = buIds.indexOf(initialBuId);
+                  if (idx < 0 && buIds.isNotEmpty) return 0;
+                  return idx;
+                }();
 
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                return CustomScrollView(
+                  slivers: [
+                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            /// ── Office segmented control ────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              sliver: SliverToBoxAdapter(
-                child: _OfficeSegmented(
-                  labels: _offices,
-                  selected: _selectedOffice,
-                  onChanged: (i) => setState(() => _selectedOffice = i),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-            /// View all (right aligned)
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              sliver: SliverToBoxAdapter(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'View All',
-                      style: TextStyle(
-                        color: kBlueColor,
-                        decoration: TextDecoration.underline,
-                        decorationColor: kBlueColor,
+                    // Title
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: Text(
+                          'Today Attendance',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-            /// Divider before list
-            const SliverToBoxAdapter(child: SizedBox(height: 4)),
+                    /// Summary Card
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: _SummaryCard(
+                          title: 'Leave',
+                          value: '2',
+                          border: kBlueColor,
+                          bg: kPrimaryColor.withOpacity(.08),
+                          textColor: kBlueColor,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EmployeesLeavesPage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
 
-            /// ── Employees list (real sliver list) ───────────────────
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-              sliver: SliverList.separated(
-                itemBuilder: (_, i) =>
-                    _EmployeeTile(employee: _employees[i], onTap: () {}),
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemCount: _employees.length,
-              ),
-            ),
-          ],
+                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+                    /// Segmented control
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: _BusinessUnitSegmented(
+                          labels: buNames,
+                          selected: (selectedIndex < 0) ? 0 : selectedIndex,
+                          onChanged: (i) {
+                            if (i >= 0 && i < buIds.length) {
+                              ref.read(selectedBuIdProvider.notifier).state =
+                              buIds[i];
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+                    /// View all
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => EmployeesAttendancePage(title: businessUnitsResponse.data?[ref.read(selectedBuIdProvider.notifier).state-1].name ?? '', date: selectedDate, businessUintId: ref.read(selectedBuIdProvider.notifier).state)),
+                              );
+                            },
+                            child: Text(
+                              'View All',
+                              style: TextStyle(
+                                color: kBlueColor,
+                                decoration: TextDecoration.underline,
+                                decorationColor: kBlueColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
+                    /// Employees List
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                      sliver: SliverList.separated(
+                        itemBuilder: (_, i) => _EmployeeTile(
+                          employee: adminDashboardResponse
+                              .data
+                              ?.attendanceData?[i],
+                          onTap: () {},
+                        ),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemCount: adminDashboardResponse
+                            .data
+                            ?.attendanceData
+                            ?.length ??
+                            0,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         ),
       ),
-
     );
   }
 }
+
+
 
 /// ──────────────────────────────────
 /// Widgets
 /// ──────────────────────────────────
-
-class _DateChip extends StatelessWidget {
-  const _DateChip({required this.date, this.selected = false, this.onTap});
-
-  final DateTime date;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final day = DateFormat('dd').format(date);
-    final wk = DateFormat('EEE').format(date); // Tue
-    final mo = DateFormat('MMM').format(date); // Sep
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 72,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: selected ? kBlueColor : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: selected ? kBlueColor : cs.outlineVariant),
-          boxShadow:
-              selected
-                  ? [
-                    BoxShadow(
-                      color: cs.primary.withOpacity(.2),
-                      blurRadius: 12,
-                    ),
-                  ]
-                  : null,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              day,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: selected ? Colors.white : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              wk,
-              style: TextStyle(
-                fontSize: 12,
-                color: selected ? Colors.white70 : Colors.black54,
-              ),
-            ),
-            // Text(mo,
-            //     style: TextStyle(
-            //       fontSize: 12,
-            //       color: selected ? Colors.white70 : Colors.black54,
-            //     )),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
     required this.title,
@@ -313,8 +297,8 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _OfficeSegmented extends StatelessWidget {
-  const _OfficeSegmented({
+class _BusinessUnitSegmented extends StatefulWidget {
+  const _BusinessUnitSegmented({
     required this.labels,
     required this.selected,
     required this.onChanged,
@@ -325,42 +309,109 @@ class _OfficeSegmented extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   @override
+  State<_BusinessUnitSegmented> createState() => _BusinessUnitSegmentedState();
+}
+
+class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
+  final _scrollCtrl = ScrollController();
+  late List<GlobalKey> _itemKeys;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemKeys = List.generate(widget.labels.length, (_) => GlobalKey());
+    // Center the initial selection after first layout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ensureVisible(widget.selected, jump: true);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _BusinessUnitSegmented oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.labels.length != widget.labels.length) {
+      _itemKeys = List.generate(widget.labels.length, (_) => GlobalKey());
+    }
+    if (oldWidget.selected != widget.selected) {
+      // When parent updates selection, bring it into view too
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _ensureVisible(widget.selected);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _ensureVisible(int index, {bool jump = false}) {
+    if (index < 0 || index >= _itemKeys.length) return;
+    final ctx = _itemKeys[index].currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      alignment: 0.4, // ~center-ish
+      duration: jump ? Duration.zero : const Duration(milliseconds: 280),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     return Container(
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: cs.outlineVariant, width: 0),
       ),
-      child: Row(
-        children: [
-          for (int i = 0; i < labels.length; i++) ...[
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: i == selected ? kBlueColor : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    labels[i],
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: i == selected ? Colors.white : Colors.black87,
+      child: SingleChildScrollView(
+        controller: _scrollCtrl,
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (int i = 0; i < widget.labels.length; i++) ...[
+              Padding(
+                key: _itemKeys[i],
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: GestureDetector(
+                  onTap: () {
+                    widget.onChanged(i);
+                    // After parent updates selection, make sure it’s visible
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _ensureVisible(i);
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: i == widget.selected ? kBlueColor : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      widget.labels[i],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: i == widget.selected ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (i != labels.length - 1) const SizedBox(width: 6),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -369,7 +420,7 @@ class _OfficeSegmented extends StatelessWidget {
 class _EmployeeTile extends StatelessWidget {
   const _EmployeeTile({required this.employee, this.onTap});
 
-  final _Employee employee;
+  final EmployeeAttendanceDataVO? employee;
   final VoidCallback? onTap;
 
   @override
@@ -391,19 +442,28 @@ class _EmployeeTile extends StatelessWidget {
           child: Icon(Icons.person, color: Colors.black54),
         ),
         title: Text(
-          employee.name,
+          employee?.name ?? '',
           style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
         subtitle: Text(
-          employee.role,
+          'Role missing',
           style: tt.bodySmall?.copyWith(color: cs.outline),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              employee.time,
-              style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  employee?.attendanceForDate?.checkIn?.toHourAmPm() ?? '',
+                  style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  employee?.attendanceForDate?.checkOut?.toHourAmPm() ?? '',
+                  style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
             const SizedBox(width: 8),
             const Icon(Icons.chevron_right, color: Colors.black45),
@@ -415,25 +475,4 @@ class _EmployeeTile extends StatelessWidget {
   }
 }
 
-/// ──────────────────────────────────
-/// Simple models for the demo
-/// ──────────────────────────────────
-class _Summary {
-  final int clockIn;
-  final int leave;
-  final int clockOut;
 
-  const _Summary({
-    required this.clockIn,
-    required this.leave,
-    required this.clockOut,
-  });
-}
-
-class _Employee {
-  final String name;
-  final String role;
-  final String time;
-
-  const _Employee({required this.name, required this.role, required this.time});
-}
