@@ -4,15 +4,20 @@ import 'package:hr_app/src/features/home/model/attendance_response.dart';
 
 class TimeTrackingTable extends StatelessWidget {
   final List<AttendanceDataVO> records;
+  final bool isFromHomePage;
 
-  const TimeTrackingTable({super.key, required this.records});
+  const TimeTrackingTable({
+    super.key,
+    required this.records,
+    required this.isFromHomePage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+          scrollDirection: isFromHomePage ? Axis.horizontal : Axis.vertical,
           child: ConstrainedBox(
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             child: DataTable(
@@ -37,17 +42,28 @@ class TimeTrackingTable extends StatelessWidget {
                   ),
                 ),
               ],
-              rows: records.map((record) {
-                final date = DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now());
-                final checkIn = record.attendances.isNotEmpty ? record.attendances.first.checkIn ?? '' : '';
-                final checkOut = record.attendances.isNotEmpty ? record.attendances.first.checkOut ?? '' : '';
+              rows:
+                  records.map((record) {
+                    final date = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(record.date ?? DateTime.now());
+                    final checkIn =
+                        record.attendances.isNotEmpty
+                            ? record.attendances.first.checkIn ?? ''
+                            : '';
+                    final checkOut =
+                        record.attendances.isNotEmpty
+                            ? record.attendances.first.checkOut ?? ''
+                            : '';
 
-                return DataRow(cells: [
-                  DataCell(Text(date)),
-                  DataCell(Text(checkIn)),
-                  DataCell(Text(checkOut)),
-                ]);
-              }).toList(),
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(date)),
+                        DataCell(Text(checkIn)),
+                        DataCell(Text(checkOut)),
+                      ],
+                    );
+                  }).toList(),
             ),
           ),
         );

@@ -1,25 +1,24 @@
 import 'dart:convert';
 
-AdminDashboardResponse adminDashboardResponseFromJson(String str) => AdminDashboardResponse.fromJson(json.decode(str));
+AdminDashboardResponse adminDashboardResponseFromJson(String str) =>
+    AdminDashboardResponse.fromJson(json.decode(str));
 
-String adminDashboardResponseToJson(AdminDashboardResponse data) => json.encode(data.toJson());
+String adminDashboardResponseToJson(AdminDashboardResponse data) =>
+    json.encode(data.toJson());
 
 class AdminDashboardResponse {
   int? statusCode;
   String? message;
   Data? data;
 
-  AdminDashboardResponse({
-    this.statusCode,
-    this.message,
-    this.data,
-  });
+  AdminDashboardResponse({this.statusCode, this.message, this.data});
 
-  factory AdminDashboardResponse.fromJson(Map<String, dynamic> json) => AdminDashboardResponse(
-    statusCode: json["status_code"],
-    message: json["message"],
-    data: json["data"] == null ? null : Data.fromJson(json["data"]),
-  );
+  factory AdminDashboardResponse.fromJson(Map<String, dynamic> json) =>
+      AdminDashboardResponse(
+        statusCode: json["status_code"],
+        message: json["message"],
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      );
 
   Map<String, dynamic> toJson() => {
     "status_code": statusCode,
@@ -33,22 +32,36 @@ class Data {
   int? selectedBuId;
   List<EmployeeAttendanceDataVO>? attendanceData;
 
-  Data({
-    this.businessUnits,
-    this.selectedBuId,
-    this.attendanceData,
-  });
+  Data({this.businessUnits, this.selectedBuId, this.attendanceData});
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    businessUnits: json["businessUnits"] == null ? [] : List<BusinessUnit>.from(json["businessUnits"]!.map((x) => BusinessUnit.fromJson(x))),
+    businessUnits:
+        json["businessUnits"] == null
+            ? []
+            : List<BusinessUnit>.from(
+              json["businessUnits"]!.map((x) => BusinessUnit.fromJson(x)),
+            ),
     selectedBuId: json["selected_bu_id"],
-    attendanceData: json["attendanceData"] == null ? [] : List<EmployeeAttendanceDataVO>.from(json["attendanceData"]!.map((x) => EmployeeAttendanceDataVO.fromJson(x))),
+    attendanceData:
+        json["attendanceData"] == null
+            ? []
+            : List<EmployeeAttendanceDataVO>.from(
+              json["attendanceData"]!.map(
+                (x) => EmployeeAttendanceDataVO.fromJson(x),
+              ),
+            ),
   );
 
   Map<String, dynamic> toJson() => {
-    "businessUnits": businessUnits == null ? [] : List<dynamic>.from(businessUnits!.map((x) => x.toJson())),
+    "businessUnits":
+        businessUnits == null
+            ? []
+            : List<dynamic>.from(businessUnits!.map((x) => x.toJson())),
     "selected_bu_id": selectedBuId,
-    "attendanceData": attendanceData == null ? [] : List<dynamic>.from(attendanceData!.map((x) => x.toJson())),
+    "attendanceData":
+        attendanceData == null
+            ? []
+            : List<dynamic>.from(attendanceData!.map((x) => x.toJson())),
   };
 }
 
@@ -56,26 +69,37 @@ class EmployeeAttendanceDataVO {
   int? id;
   String? name;
   int? bussinessUnitId;
+  EmployeePosition? employeePosition;
   AttendanceForDateVO? attendanceForDate;
 
   EmployeeAttendanceDataVO({
     this.id,
     this.name,
     this.bussinessUnitId,
+    this.employeePosition,
     this.attendanceForDate,
   });
 
-  factory EmployeeAttendanceDataVO.fromJson(Map<String, dynamic> json) => EmployeeAttendanceDataVO(
-    id: json["id"],
-    name: json["name"],
-    bussinessUnitId: json["bussiness_unit_id"],
-    attendanceForDate: json["attendance_for_date"] == null ? null : AttendanceForDateVO.fromJson(json["attendance_for_date"]),
-  );
+  factory EmployeeAttendanceDataVO.fromJson(Map<String, dynamic> json) =>
+      EmployeeAttendanceDataVO(
+        id: json["id"],
+        name: json["name"],
+        bussinessUnitId: json["bussiness_unit_id"],
+        employeePosition:
+            json["position"] == null
+                ? null
+                : EmployeePosition.fromJson(json["position"]),
+        attendanceForDate:
+            json["attendance_for_date"] == null
+                ? null
+                : AttendanceForDateVO.fromJson(json["attendance_for_date"]),
+      );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "name": name,
     "bussiness_unit_id": bussinessUnitId,
+    "position": employeePosition?.toJson(),
     "attendance_for_date": attendanceForDate?.toJson(),
   };
 }
@@ -95,12 +119,16 @@ class AttendanceForDateVO {
     this.createdAt,
   });
 
-  factory AttendanceForDateVO.fromJson(Map<String, dynamic> json) => AttendanceForDateVO(
+  factory AttendanceForDateVO.fromJson(
+    Map<String, dynamic> json,
+  ) => AttendanceForDateVO(
     id: json["id"],
     userId: json["user_id"],
     checkIn: json["check_in"] == null ? null : DateTime.parse(json["check_in"]),
-    checkOut: json["check_out"] == null ? null : DateTime.parse(json["check_out"]),
-    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
+    checkOut:
+        json["check_out"] == null ? null : DateTime.parse(json["check_out"]),
+    createdAt:
+        json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -116,18 +144,22 @@ class BusinessUnit {
   int? id;
   String? name;
 
-  BusinessUnit({
-    this.id,
-    this.name,
-  });
+  BusinessUnit({this.id, this.name});
 
-  factory BusinessUnit.fromJson(Map<String, dynamic> json) => BusinessUnit(
-    id: json["id"],
-    name: json["name"],
-  );
+  factory BusinessUnit.fromJson(Map<String, dynamic> json) =>
+      BusinessUnit(id: json["id"], name: json["name"]);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-  };
+  Map<String, dynamic> toJson() => {"id": id, "name": name};
+}
+
+class EmployeePosition {
+  int? id;
+  String? name;
+
+  EmployeePosition({this.id, this.name});
+
+  factory EmployeePosition.fromJson(Map<String, dynamic> json) =>
+      EmployeePosition(id: json["id"], name: json["name"]);
+
+  Map<String, dynamic> toJson() => {"id": id, "name": name};
 }

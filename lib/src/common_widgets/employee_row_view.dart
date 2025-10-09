@@ -1,32 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:hr_app/src/features/employees_attendances/model/employees_attendances_response.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
-class EmployeeRow extends StatelessWidget {
-  const EmployeeRow({required this.employeeAttendanceVO});
 
-  final EmployeesAttendancesVO employeeAttendanceVO;
+import '../features/admin_dashboard/model/admin_dasbhoard_response.dart';
+import '../utils/colors.dart';
+
+class EmployeeRow extends StatelessWidget {
+  const EmployeeRow({super.key, required this.employee, this.onTap});
+
+  final EmployeeAttendanceDataVO? employee;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey.withOpacity(0.3),
-        radius: 18,
-        child: Icon(Icons.person, size: 18,color: Colors.grey,),
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      decoration: BoxDecoration(
+        color: kWhiteColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.outlineVariant),
       ),
-      title: Text(employeeAttendanceVO.name ?? '', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-      subtitle: Text('Role missing'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(employeeAttendanceVO.attendanceDateVO?.checkIn?.toHourAmPm() ?? '',style: TextStyle(fontSize: kTextRegular), ),
-          Text(employeeAttendanceVO.attendanceDateVO?.checkOut?.toHourAmPm() ?? '',style: TextStyle(fontSize: kTextRegular)),
-        ],
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.grey.withOpacity(0.3),
+          radius: 18,
+          child: Icon(Icons.person, size: 18, color: Colors.grey),
+        ),
+        title: Text(
+          employee?.name ?? '',
+          style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(employee?.employeePosition?.name ?? ''),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  employee?.attendanceForDate?.checkIn?.toHourAmPm() ?? '',
+                  style: TextStyle(
+                    fontSize: kTextRegular,
+                    color:
+                        (employee?.attendanceForDate?.checkIn).isLateAfter930
+                            ? Colors.red
+                            : Colors.green,
+                  ),
+                ),
+                Text(
+                  employee?.attendanceForDate?.checkOut?.toHourAmPm() ?? '',
+                  style: TextStyle(fontSize: kTextRegular),
+                ),
+              ],
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
       ),
-      onTap: () {},
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 }

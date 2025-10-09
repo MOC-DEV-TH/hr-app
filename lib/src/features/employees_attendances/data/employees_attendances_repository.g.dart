@@ -28,7 +28,7 @@ final employeesAttendancesRepositoryProvider =
 typedef EmployeesAttendancesRepositoryRef =
     AutoDisposeProviderRef<EmployeesAttendancesRepository>;
 String _$fetchEmployeesAttendancesHash() =>
-    r'b87e58658d349271b0855a65b85eec83d0e79821';
+    r'cf5b6036b8181eee96649eceaa8548c793013dd3';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/employee_row_view.dart';
 import 'package:hr_app/src/features/admin_dashboard/data/admin_dashboard_repository.dart';
-import 'package:hr_app/src/features/admin_dashboard/model/admin_dasbhoard_response.dart';
 import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
 import 'package:hr_app/src/features/employees_attendances/presentation/employees_attendances_page.dart';
 import 'package:hr_app/src/utils/colors.dart';
@@ -10,8 +10,10 @@ import 'package:hr_app/src/utils/extensions.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
 import '../../../common_widgets/error_retry_view.dart';
+import '../../employee_details/presentation/employee_details_page.dart';
 
 final selectedBuIdProvider = StateProvider<int>((_) => 0);
+final selectedDateProvider = StateProvider<DateTime?>((_) => null);
 
 class AdminDashboardPage extends ConsumerStatefulWidget {
   const AdminDashboardPage({super.key});
@@ -23,11 +25,9 @@ class AdminDashboardPage extends ConsumerStatefulWidget {
 class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
   List<String> businessUnitTitles = [];
   int selectedBusinessUintId = 1;
-  String selectedDate = "2025-09-16";
 
   @override
   Widget build(BuildContext context) {
-
     ///provider states
     final businessUnitsState = ref.watch(fetchBusinessUnitsProvider);
 
@@ -64,25 +64,29 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
 
       body: SafeArea(
         child: businessUnitsState.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: kPrimaryColor),
-          ),
-          error: (error, stackTrace) => ErrorRetryView(
-            title: 'Error business units data',
-            message: error.toString(),
-            onRetry: () => ref.invalidate(fetchBusinessUnitsProvider),
-          ),
+          loading:
+              () => const Center(
+                child: CircularProgressIndicator(color: kPrimaryColor),
+              ),
+          error:
+              (error, stackTrace) => ErrorRetryView(
+                title: 'Error business units data',
+                message: error.toString(),
+                onRetry: () => ref.invalidate(fetchBusinessUnitsProvider),
+              ),
           data: (businessUnitsResponse) {
             /// Build labels & ids
-            final buList  = businessUnitsResponse.data ?? [];
+            final buList = businessUnitsResponse.data ?? [];
             final buNames = buList.map((e) => e.name ?? '').toList();
-            final buIds   = buList.map((e) => e.id ?? 0).toList();
+            final buIds = buList.map((e) => e.id ?? 0).toList();
+
+            final selectedDate = ref.watch(selectedDateProvider);
 
             /// Ensure selected BU has a value (first item fallback), but
             /// do NOT write synchronously during build.
             final selBuId = ref.watch(selectedBuIdProvider);
             final initialBuId =
-            (selBuId == 0 && buIds.isNotEmpty) ? buIds.first : selBuId;
+                (selBuId == 0 && buIds.isNotEmpty) ? buIds.first : selBuId;
 
             if (selBuId == 0 && initialBuId != 0) {
               Future.microtask(() {
@@ -96,26 +100,34 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
             final adminDashboardState = ref.watch(
               fetchAdminDashboardDataProvider(
                 businessUnitId:
-                initialBuId == 0 ? (buIds.isNotEmpty ? buIds.first : 0) : initialBuId,
-                date: selectedDate,
+                    initialBuId == 0
+                        ? (buIds.isNotEmpty ? buIds.first : 0)
+                        : initialBuId,
+                date: selectedDate?.ymd() ?? DateTime.now().ymd().toString(),
               ),
             );
 
             return adminDashboardState.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: kPrimaryColor),
-              ),
-              error: (error, stack) => ErrorRetryView(
-                title: 'Error loading dashboard data',
-                message: error.toString(),
-                onRetry: () {
-                  final id = ref.read(selectedBuIdProvider);
-                  ref.invalidate(fetchAdminDashboardDataProvider(
-                    businessUnitId: id,
-                    date: selectedDate,
-                  ));
-                },
-              ),
+              loading:
+                  () => const Center(
+                    child: CircularProgressIndicator(color: kPrimaryColor),
+                  ),
+              error:
+                  (error, stack) => ErrorRetryView(
+                    title: 'Error loading dashboard data',
+                    message: error.toString(),
+                    onRetry: () {
+                      final id = ref.read(selectedBuIdProvider);
+                      ref.invalidate(
+                        fetchAdminDashboardDataProvider(
+                          businessUnitId: id,
+                          date:
+                              selectedDate?.ymd() ??
+                              DateTime.now().ymd().toString(),
+                        ),
+                      );
+                    },
+                  ),
               data: (adminDashboardResponse) {
                 final selectedIndex = () {
                   final idx = buIds.indexOf(initialBuId);
@@ -127,19 +139,59 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                   slivers: [
                     const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                    // Title
+                    /// Title
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       sliver: SliverToBoxAdapter(
-                        child: Text(
-                          'Today Attendance',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                        child: Consumer(
+                          builder: (context, ref, _) {
+                            final title =
+                                selectedDate == null
+                                    ? 'Today Attendance'
+                                    : selectedDate.uiLong();
+
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.calendar_month,
+                                    color:
+                                        Theme.of(context).colorScheme.outline,
+                                  ),
+                                  onPressed: () async {
+                                    final now = DateTime.now();
+                                    final initial = selectedDate ?? now;
+
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: initial,
+                                      firstDate: DateTime(now.year - 2),
+                                      lastDate: DateTime(now.year + 2),
+                                    );
+
+                                    if (picked != null) {
+                                      ref
+                                          .read(selectedDateProvider.notifier)
+                                          .state = picked;
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
+
                     const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
                     /// Summary Card
@@ -153,12 +205,12 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                           bg: kPrimaryColor.withOpacity(.08),
                           textColor: kBlueColor,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const EmployeesLeavesPage(),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => const EmployeesLeavesPage(),
+                            //   ),
+                            // );
                           },
                         ),
                       ),
@@ -176,7 +228,7 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                           onChanged: (i) {
                             if (i >= 0 && i < buIds.length) {
                               ref.read(selectedBuIdProvider.notifier).state =
-                              buIds[i];
+                                  buIds[i];
                             }
                           },
                         ),
@@ -195,7 +247,30 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => EmployeesAttendancePage(title: businessUnitsResponse.data?[ref.read(selectedBuIdProvider.notifier).state-1].name ?? '', date: selectedDate, businessUintId: ref.read(selectedBuIdProvider.notifier).state)),
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => EmployeesAttendancePage(
+                                        title:
+                                            businessUnitsResponse
+                                                .data?[ref
+                                                        .read(
+                                                          selectedBuIdProvider
+                                                              .notifier,
+                                                        )
+                                                        .state -
+                                                    1]
+                                                .name ??
+                                            '',
+                                        date:
+                                        ref.read(selectedDateProvider.notifier).state,
+                                        businessUintId:
+                                            ref
+                                                .read(
+                                                  selectedBuIdProvider.notifier,
+                                                )
+                                                .state,
+                                      ),
+                                ),
                               );
                             },
                             child: Text(
@@ -217,17 +292,27 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
                       sliver: SliverList.separated(
-                        itemBuilder: (_, i) => _EmployeeTile(
-                          employee: adminDashboardResponse
-                              .data
-                              ?.attendanceData?[i],
-                          onTap: () {},
-                        ),
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: adminDashboardResponse
-                            .data
-                            ?.attendanceData
-                            ?.length ??
+                        itemBuilder:
+                            (_, i) => EmployeeRow(
+                              employee:
+                                  adminDashboardResponse
+                                      .data
+                                      ?.attendanceData?[i],
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EmployeeDetailsPage.demo(),
+                                  ),
+                                );
+                              },
+                            ),
+                        separatorBuilder: (_, __) => const SizedBox(height: 0),
+                        itemCount:
+                            adminDashboardResponse
+                                .data
+                                ?.attendanceData
+                                ?.length ??
                             0,
                       ),
                     ),
@@ -241,8 +326,6 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
     );
   }
 }
-
-
 
 /// ──────────────────────────────────
 /// Widgets
@@ -333,7 +416,6 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
       _itemKeys = List.generate(widget.labels.length, (_) => GlobalKey());
     }
     if (oldWidget.selected != widget.selected) {
-      // When parent updates selection, bring it into view too
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _ensureVisible(widget.selected);
       });
@@ -381,7 +463,6 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                 child: GestureDetector(
                   onTap: () {
                     widget.onChanged(i);
-                    // After parent updates selection, make sure it’s visible
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       _ensureVisible(i);
                     });
@@ -393,7 +474,10 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                       horizontal: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: i == widget.selected ? kBlueColor : Colors.transparent,
+                      color:
+                          i == widget.selected
+                              ? kBlueColor
+                              : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
@@ -403,7 +487,10 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: i == widget.selected ? Colors.white : Colors.black87,
+                        color:
+                            i == widget.selected
+                                ? Colors.white
+                                : Colors.black87,
                       ),
                     ),
                   ),
@@ -416,63 +503,3 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
     );
   }
 }
-
-class _EmployeeTile extends StatelessWidget {
-  const _EmployeeTile({required this.employee, this.onTap});
-
-  final EmployeeAttendanceDataVO? employee;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.only(top: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: BoxDecoration(
-        color: kWhiteColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-        leading: const CircleAvatar(
-          backgroundColor: Color(0xFFE9ECEF),
-          child: Icon(Icons.person, color: Colors.black54),
-        ),
-        title: Text(
-          employee?.name ?? '',
-          style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        subtitle: Text(
-          'Role missing',
-          style: tt.bodySmall?.copyWith(color: cs.outline),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  employee?.attendanceForDate?.checkIn?.toHourAmPm() ?? '',
-                  style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  employee?.attendanceForDate?.checkOut?.toHourAmPm() ?? '',
-                  style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: Colors.black45),
-          ],
-        ),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-

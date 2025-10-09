@@ -116,10 +116,28 @@ extension DioExceptionX on DioException {
 
 extension HourAmPmDate on DateTime {
   /// DateTime(...).toHourAmPm() -> "09:00 am"
-  String toHourAmPm({bool floorToHour = true}) {
-    final t = floorToHour ? DateTime(year, month, day, hour) : this;
-    final fmt = DateFormat(floorToHour ? 'hh:00 a' : 'hh:mm a');
-    return fmt.format(t).toLowerCase();
+  String toHourAmPm({bool floorToHour = false}) {
+    final t = floorToHour ? DateTime(year, month, day, hour, 0) : this;
+    return DateFormat('hh:mm a').format(t).toLowerCase();
+  }
+}
+
+extension DateUiFmt on DateTime {
+  String uiLong() => DateFormat('d MMMM yyyy').format(this); /// 29 September 2025
+  String apiYmd()  => DateFormat('yyyy-MM-dd').format(this); /// 2025-09-29
+}
+
+extension DateFmt on DateTime {
+  String ymd() => DateFormat('yyyy-MM-dd').format(this);
+}
+
+extension CheckInRules on DateTime? {
+  /// true when this time is strictly after 09:30 of the same day
+  bool get isLateAfter930 {
+    final dt = this;
+    if (dt == null) return false;
+    final threshold = DateTime(dt.year, dt.month, dt.day, 9, 30);
+    return dt.isAfter(threshold);
   }
 }
 

@@ -127,7 +127,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar:loginUserRole == kLoginUserRoleCeo ? CustomAppBarView(title: 'Check-in/out') : AppBar(
+      appBar:(loginUserRole == kLoginUserRoleCeo ||
+          loginUserRole == kLoginUserRoleDirector ||
+          loginUserRole == kLoginUserRoleManager) ? CustomAppBarView(title: 'Check-in/out') : AppBar(
         backgroundColor: kWhiteColor,
         toolbarHeight: 50,
         bottom: PreferredSize(
@@ -135,7 +137,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
           child: Container(color: kGreyColor, height: 0.5),
         ),
       ),
-      drawer:loginUserRole == kLoginUserRoleCeo ? SizedBox() : const CustomDrawer(),
+      drawer:(loginUserRole == kLoginUserRoleCeo ||
+          loginUserRole == kLoginUserRoleDirector ||
+          loginUserRole == kLoginUserRoleManager) ? SizedBox() : const CustomDrawer(),
       body: Stack(
         children: [
           /// Main content based on config and attendance states
@@ -363,6 +367,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                   Visibility(
                                     visible: todayDatum.date != null,
                                     child: TimeTrackingTable(
+                                      isFromHomePage: true,
                                       records: [todayDatum],
                                     ),
                                   ),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
-import 'package:hr_app/src/features/employees_attendances/data/employees_attendances_repository.dart';
+import 'package:hr_app/src/utils/extensions.dart';
 
+import '../../../common_widgets/custom_app_bar_view.dart';
 import '../../../common_widgets/employee_row_view.dart';
 import '../../../utils/colors.dart';
+import '../../admin_dashboard/model/admin_dasbhoard_response.dart';
+import '../../employees_attendances/data/employees_attendances_repository.dart';
 
 class EmployeesAttendancePage extends ConsumerStatefulWidget {
   const EmployeesAttendancePage({
@@ -16,7 +19,7 @@ class EmployeesAttendancePage extends ConsumerStatefulWidget {
 
   final String title;
   final int businessUintId;
-  final String date;
+  final DateTime? date;
 
   @override
   ConsumerState<EmployeesAttendancePage> createState() =>
@@ -25,103 +28,34 @@ class EmployeesAttendancePage extends ConsumerStatefulWidget {
 
 class _EmployeesAttendancePageState
     extends ConsumerState<EmployeesAttendancePage> {
-
-  static const int _pageSize = 15;
-  final _scrollCtrl = ScrollController();
+  static const _pageSize = 20;
   int _pageNo = 1;
-  bool _initialLoading = true;
-  bool _loadingMore = false;
+  bool _isLoading = false;
   bool _hasMore = true;
-  String? _error;
+  String? _bottomError;
 
-  final List<dynamic> _items = [];
+  final List<EmployeeAttendanceDataVO> _entries = [];
+  DateTime? _selectedDate;
+
+  late final ScrollController _scrollController = ScrollController()
+    ..addListener(_onScrollEnd);
 
   @override
   void initState() {
     super.initState();
-    _scrollCtrl.addListener(_onScroll);
+    try {
+      _selectedDate = widget.date;
+    } catch (_) {}
     _loadFirstPage();
   }
 
   @override
   void dispose() {
-    _scrollCtrl.removeListener(_onScroll);
-    _scrollCtrl.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (!_scrollCtrl.hasClients || _loadingMore || !_hasMore) return;
-    final pos = _scrollCtrl.position;
-    if (pos.pixels >= pos.maxScrollExtent - 200) {
-      _loadNextPage();
-    }
-  }
-
-  Future<void> _loadFirstPage() async {
-    setState(() {
-      _initialLoading = true;
-      _loadingMore = false;
-      _hasMore = true;
-      _pageNo = 1;
-      _items.clear();
-      _error = null;
-    });
-    await _fetchPage(_pageNo);
-    if (mounted) {
-      setState(() => _initialLoading = false);
-    }
-  }
-
-  Future<void> _loadNextPage() async {
-    if (_loadingMore || !_hasMore) return;
-    setState(() {
-      _loadingMore = true;
-      _error = null;
-    });
-    await _fetchPage(_pageNo + 1);
-    if (mounted) {
-      setState(() => _loadingMore = false);
-    }
-  }
-
-  Future<void> _fetchPage(int page) async {
-    try {
-      final resp = await ref
-          .read(
-        fetchEmployeesAttendancesProvider(
-          businessUnitId: widget.businessUintId,
-          date: widget.date,
-          pageNo: page,
-        ).future,
-      );
-
-      /// Adapt this to your real response structure
-      final newItems = resp.data?.data ?? <dynamic>[];
-
-      setState(() {
-        _items.addAll(newItems);
-        _pageNo = page;
-        _hasMore = newItems.length >= _pageSize;
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _hasMore = true; 
-        });
-      }
-    }
-  }
-
-  Future<void> _retry() async {
-    if (_items.isEmpty) {
-      await _loadFirstPage();
-    } else {
-      await _loadNextPage();
-    }
-  }
-
+  /// ──────────────────────────────────── UI ────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,53 +63,188 @@ class _EmployeesAttendancePageState
       appBar: AdminCustomAppBarView(title: widget.title),
       body: Column(
         children: [
-          const SizedBox(height: 8),
-
-          /// Body
-          Expanded(
-            child: _initialLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _items.isEmpty
-                ? _EmptyOrErrorView(
-              message: _error ?? 'No attendance found.',
-              onRetry: _retry,
-            )
-                : RefreshIndicator(
-              onRefresh: _loadFirstPage,
-              child: ListView.separated(
-                controller: _scrollCtrl,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: _items.length + 1,
-                separatorBuilder: (_, __) => const SizedBox(),
-                itemBuilder: (_, i) {
-                  if (i == _items.length) {
-                    if (_loadingMore) {
-                      return const _BottomLoader();
-                    }
-                    if (_error != null) {
-                      return _BottomError(
-                        message: _error!,
-                        onRetry: _loadNextPage,
-                      );
-                    }
-                    if (!_hasMore) {
-                      return const _EndOfListLabel();
-                    }
-                    return const SizedBox.shrink();
-                  }
-                  return EmployeeRow(employeeAttendanceVO: _items[i]);
-                },
-              ),
+          const SizedBox(height: 6),
+          /// Date filter row
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _DateFilterRow(
+              dateLabel: _selectedDate == null
+                  ? 'Today Attendance'
+                  : _selectedDate?.uiLong() ?? '',
+              onPickDate: _pickDate,
             ),
+          ),
+          const SizedBox(height: 4),
+
+          Expanded(
+            child: _buildList(),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildList() {
+    if (_isLoading && _entries.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_bottomError != null && _entries.isEmpty) {
+      return _EmptyOrErrorView(
+        message: _bottomError!,
+        onRetry: _loadFirstPage,
+      );
+    }
+
+    if (_entries.isEmpty) {
+      return const _EndOfListLabel();
+    }
+
+    return ListView.separated(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+      itemCount: _entries.length + 1,
+      separatorBuilder: (_, __) => const SizedBox(height: 0),
+      itemBuilder: (context, index) {
+        if (index < _entries.length) {
+          return EmployeeRow(employee: _entries[index]);
+        }
+
+        if (_isLoading) return const _BottomLoader();
+        if (_bottomError != null) {
+          return _BottomError(
+            message: _bottomError!,
+            onRetry: _loadNextPage,
+          );
+        }
+        if (!_hasMore) return const _EndOfListLabel();
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(now.year - 5),
+      lastDate: DateTime(now.year + 5),
+      helpText: 'Select date',
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _selectedDate = picked;
+    });
+    _loadFirstPage();
+  }
+
+  void _onScrollEnd() {
+    if (!_hasMore || _isLoading) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 200) {
+      _loadNextPage();
+    }
+  }
+
+  /// ─────────────────────────────── Data load ──────────────────────────────────
+  Future<void> _loadFirstPage() async {
+    setState(() {
+      _entries.clear();
+      _pageNo = 1;
+      _hasMore = true;
+      _bottomError = null;
+    });
+    await _fetchAndAppend();
+  }
+
+  Future<void> _loadNextPage() async {
+    if (!_hasMore) return;
+    await _fetchAndAppend();
+  }
+
+  Future<void> _fetchAndAppend() async {
+    setState(() {
+      _isLoading = true;
+      _bottomError = null;
+    });
+
+    try {
+      final resp = await ref.read(
+        fetchEmployeesAttendancesProvider(
+          businessUnitId: widget.businessUintId,
+          date: _selectedDate?.ymd() ?? DateTime.now().ymd(),
+          pageNo: _pageNo,
+        ).future,
+      );
+
+      final page = resp.data;
+      final List<EmployeeAttendanceDataVO> newItems =
+          page?.data ?? const <EmployeeAttendanceDataVO>[];
+
+      setState(() {
+        _entries.addAll(newItems);
+
+        if ((page?.current ?? 0) > 0) {
+          _pageNo = (page!.current ?? _pageNo) + 1;
+        } else {
+          _pageNo += 1;
+        }
+
+        if ((page?.lastPage ?? 0) > 0 && (page?.current ?? 0) > 0) {
+          _hasMore = (page!.current ?? 1) < (page.lastPage ?? 1);
+        } else {
+          _hasMore = newItems.length >= _pageSize;
+        }
+      });
+    } catch (e) {
+      setState(() => _bottomError = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 }
 
-/// bottom widgets
+/// ─────────────────────────────── Date row ─────────────────────────────────────
+class _DateFilterRow extends StatelessWidget {
+  const _DateFilterRow({
+    required this.dateLabel,
+    required this.onPickDate,
+  });
 
+  final String dateLabel;
+  final VoidCallback onPickDate;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            dateLabel,
+            style: tt.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF2D3B4C),
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: onPickDate,
+          icon: const Icon(Icons.calendar_month_rounded),
+          color: cs.outline,
+          tooltip: 'Pick date',
+        ),
+      ],
+    );
+  }
+}
+
+/// ─────────────────────── your bottom widgets (kept) ──────────────────────────
 class _BottomLoader extends StatelessWidget {
   const _BottomLoader();
 
@@ -240,7 +309,8 @@ class _EmptyOrErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
+            Text(message,
+                textAlign: TextAlign.center, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
             FilledButton(onPressed: onRetry, child: const Text('Retry')),
           ],

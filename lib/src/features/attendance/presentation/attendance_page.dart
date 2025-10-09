@@ -18,7 +18,7 @@ class AttendancePage extends ConsumerWidget {
     body:attendanceState.when(data: (attendData){
       return Visibility(
           visible: attendData.data.isNotEmpty,
-          child: TimeTrackingTable(records: attendData.data));
+          child: TimeTrackingTable(records: attendData.data,isFromHomePage: false,));
     },loading:
         () => const Center(
       child: CircularProgressIndicator(color: kPrimaryColor),

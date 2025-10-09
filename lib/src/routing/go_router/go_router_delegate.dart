@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard_page.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
+import 'package:hr_app/src/features/employee_list/presentation/employee_list_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
 import 'package:hr_app/src/features/setting/presentation/setting_page.dart';
@@ -24,6 +25,7 @@ enum RoutePath {
   checkInCheckOut(path: '/checkInCheckOut'),
   leaveStatus(path: '/leaveStatus'),
   leaveRequest(path: '/leaveRequest'),
+  employeeList(path: '/employeeList'),
   settings(path: '/settings');
 
   const RoutePath({required this.path});
@@ -89,9 +91,12 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
           return buildPageWithDefaultTransition(
             context: context,
             state: state,
-            child: loginUserRole == kLoginUserRoleCeo
-                ? AdminDashboardPage(key: state.pageKey)
-                : SafeArea(child: EmployeeHomePage(key: state.pageKey)),
+            child:
+                (loginUserRole == kLoginUserRoleCeo ||
+                        loginUserRole == kLoginUserRoleDirector ||
+                        loginUserRole == kLoginUserRoleManager)
+                    ? AdminDashboardPage(key: state.pageKey)
+                    : SafeArea(child: EmployeeHomePage(key: state.pageKey)),
           );
         },
       ),
@@ -144,6 +149,19 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
             context: context,
             state: state,
             child: LeaveStatusPage(key: state.pageKey),
+          );
+        },
+      ),
+
+      ///Employee list page
+      GoRoute(
+        path: RoutePath.employeeList.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: EmployeeListPage(key: state.pageKey),
           );
         },
       ),

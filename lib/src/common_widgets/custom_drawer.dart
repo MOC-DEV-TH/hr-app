@@ -71,7 +71,9 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                  visible: loginUserRole == kLoginUserRoleCeo,
+                  visible: (loginUserRole == kLoginUserRoleCeo ||
+                      loginUserRole == kLoginUserRoleDirector ||
+                      loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.access_time,
@@ -94,23 +96,30 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                    visible: loginUserRole == kLoginUserRoleCeo,
+                    visible: (loginUserRole == kLoginUserRoleCeo ||
+                        loginUserRole == kLoginUserRoleDirector ||
+                        loginUserRole == kLoginUserRoleManager),
                     child: Divider(height: 1, color: Colors.grey[300])),
 
                 Visibility(
-                  visible: loginUserRole == kLoginUserRoleCeo,
+                  visible: (loginUserRole == kLoginUserRoleCeo ||
+                      loginUserRole == kLoginUserRoleDirector ||
+                      loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.person,
                     title: 'Employee',
                     onTap: () {
                       Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.employeeList.path);
                     },
                   ),
                 ),
 
                 Visibility(
-                  visible: loginUserRole == kLoginUserRoleCeo,
+                  visible: (loginUserRole == kLoginUserRoleCeo ||
+                      loginUserRole == kLoginUserRoleDirector ||
+                      loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.person_outline,
@@ -122,7 +131,9 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                  visible: loginUserRole == kLoginUserRoleCeo,
+                  visible: (loginUserRole == kLoginUserRoleCeo ||
+                      loginUserRole == kLoginUserRoleDirector ||
+                      loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.calendar_month,

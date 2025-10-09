@@ -17,6 +17,7 @@ const String kEndPointLeaveTypes = "/leave-types";
 const String kEndPointLeaveStatus = "/leaves";
 const String kEndPointCreateLeave = "/create-leave";
 const String kEndPointGetConfig = "/get-config";
+const String kEndPointGetEmployees = "/employees";
 
 ///Admin End points
 const String kEndPointGetAdminDashboard = "/dashboard";
