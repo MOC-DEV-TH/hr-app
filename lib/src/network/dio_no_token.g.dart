@@ -6,7 +6,7 @@ part of 'dio_no_token.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dioNoTokenHash() => r'5cf6ae8e466b58449a2ad97bf062606d85a36b89';
+String _$dioNoTokenHash() => r'c0b865b6815fe907ee70883233bd4c05a1b9eb64';
 
 /// See also [dioNoToken].
 @ProviderFor(dioNoToken)

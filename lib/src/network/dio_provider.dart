@@ -17,7 +17,7 @@ Dio dio(DioRef ref) {
   };
 
   final client = Dio(BaseOptions(
-    baseUrl: kStagingUrl,
+    baseUrl: kBaseUrl,
     connectTimeout: const Duration(seconds: 12),
     receiveTimeout: const Duration(seconds: 20),
     responseType: ResponseType.json,
