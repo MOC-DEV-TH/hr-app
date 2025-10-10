@@ -32,15 +32,18 @@ class ConfigResponse {
 
 class ConfigData {
   int? allowDistance;
+  int? allowLogoutDistance;
   BusinessUnit? businessUnit;
 
   ConfigData({
     this.allowDistance,
+    this.allowLogoutDistance,
     this.businessUnit,
   });
 
   factory ConfigData.fromJson(Map<String, dynamic> json) => ConfigData(
     allowDistance: json["allow_distance"],
+    allowLogoutDistance: json["allow_log_out_distance"],
     businessUnit: json["bussiness_unit"] != null
         ? BusinessUnit.fromJson(json["bussiness_unit"])
         : null,
@@ -48,6 +51,7 @@ class ConfigData {
 
   Map<String, dynamic> toJson() => {
     "allow_distance": allowDistance,
+    "allow_log_out_distance": allowLogoutDistance,
     "bussiness_unit": businessUnit?.toJson(),
   };
 }

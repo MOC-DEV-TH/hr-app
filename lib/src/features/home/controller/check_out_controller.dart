@@ -10,7 +10,7 @@ class CheckOutController extends _$CheckOutController {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> checkOut() async {
+  Future<bool> checkOut({String? reason}) async {
     final homeRepository = ref.read(homeRepositoryProvider);
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(() =>

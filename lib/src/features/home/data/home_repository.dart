@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/home/model/attendance_response.dart';
 import 'package:hr_app/src/features/home/model/config_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
+import 'package:hr_app/src/utils/extensions.dart';
+import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../network/dio_provider.dart';
 import '../../../network/error_handler.dart';
@@ -17,22 +19,31 @@ class HomeRepository {
   final Dio dio;
   final Ref ref;
 
+  ///compute period working hour
+  ({String clockInText, String clockOutText, String periodText}) computeWorkingPeriod(
+      List<Attendance> attendances, {
+        DateTime? now,
+      }) {
+    final first = attendances.firstOrNull;
+    final checkInDt  = (first?.checkIn)?.asDateTimeFlex();
+    final checkOutDt = (first?.checkOut)?.asDateTimeFlex();
+
+    final end = checkOutDt ?? (now ?? DateTime.now());
+    final dur = (checkInDt == null) ? Duration.zero : end.difference(checkInDt);
+
+    final clockInText  = (checkInDt != null) ? DateFormat('hh:mm a').format(checkInDt) : '--:--';
+    final clockOutText = (checkOutDt != null) ? DateFormat('hh:mm a').format(checkOutDt) : DateFormat('hh:mm a').format(end);
+    final periodText   = dur.toHrsLabel();
+
+    return (clockInText: clockInText, clockOutText: clockOutText, periodText: periodText);
+  }
+
   ///get config data
   Future<ConfigResponse> fetchConfig() async {
     try {
       final response = await dio
           .get(kEndPointGetConfig);
       ConfigResponse data = ConfigResponse.fromJson(response.data);
-
-      // ///save lat , long , allow distance
-      // double? userLat = double.tryParse(data.data?.businessUnit?.lat ?? '');
-      // double? userLong = double.tryParse(data.data?.businessUnit?.long ?? '');
-      // int? allowDistanceRadius = data.data?.allowDistance;
-      //
-      // // await ref
-      // //     .read(secureStorageProvider).saveBusinessUnitConfig(lat: userLat , long: userLong , allowDistance: allowDistanceRadius);
-      // debugPrint("Config Response Data::${response.data}");
-
       return data;
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
@@ -46,18 +57,20 @@ class HomeRepository {
       final response = await dio.post(kEndPointCheckIn, data: {"type": type});
       debugPrint("CheckIn response::${response.data}");
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
   ///check out
-  Future<void> checkOut() async {
+  Future<void> checkOut({String? reason}) async {
     debugPrint("CheckOut");
     try {
-      final response = await dio.post(kEndPointCheckOut);
+      final response = await dio.post(kEndPointCheckOut,data: {"log_out_reason" : reason});
       debugPrint("CheckOut response::${response.data}");
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
@@ -76,6 +89,8 @@ class HomeRepository {
           ErrorHandler.handle(e).failure.message;
     }
   }
+
+
 }
 
 @riverpod

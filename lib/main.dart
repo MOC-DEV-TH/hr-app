@@ -13,7 +13,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
 
-
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

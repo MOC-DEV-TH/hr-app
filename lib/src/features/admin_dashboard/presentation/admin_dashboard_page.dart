@@ -299,12 +299,12 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                                       .data
                                       ?.attendanceData?[i],
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => EmployeeDetailsPage.demo(),
-                                  ),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (_) => EmployeeDetailsPage.demo(),
+                                //   ),
+                                // );
                               },
                             ),
                         separatorBuilder: (_, __) => const SizedBox(height: 0),
