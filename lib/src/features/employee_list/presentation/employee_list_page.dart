@@ -216,13 +216,13 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF6F9CF3),
-        onPressed: () {
-          // TODO: add employee
-        },
-        child: const Icon(Icons.add, size: 28),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: const Color(0xFF6F9CF3),
+      //   onPressed: () {
+      //     // TODO: add employee
+      //   },
+      //   child: const Icon(Icons.add, size: 28),
+      // ),
     );
   }
 }

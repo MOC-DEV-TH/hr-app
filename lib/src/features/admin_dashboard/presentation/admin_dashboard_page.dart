@@ -10,7 +10,7 @@ import 'package:hr_app/src/utils/extensions.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
 import '../../../common_widgets/error_retry_view.dart';
-import '../../employee_details/presentation/employee_details_page.dart';
+import '../../employee_details/presentation/admin_employee_details_page.dart';
 
 final selectedBuIdProvider = StateProvider<int>((_) => 0);
 final selectedDateProvider = StateProvider<DateTime?>((_) => null);

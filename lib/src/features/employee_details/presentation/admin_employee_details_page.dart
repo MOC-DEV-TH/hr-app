@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
-import 'package:hr_app/src/utils/gap.dart';
 import 'package:intl/intl.dart';
 
 import 'leave_summary_page.dart';
 
 
-class EmployeeDetailsPage extends StatefulWidget {
-  const EmployeeDetailsPage({super.key, required this.employee});
+class AdminEmployeeDetailsPage extends StatefulWidget {
+  const AdminEmployeeDetailsPage({super.key, required this.employee});
 
   /// Quick demo
-  factory EmployeeDetailsPage.demo() => EmployeeDetailsPage(
+  factory AdminEmployeeDetailsPage.demo() => AdminEmployeeDetailsPage(
     employee: Employee(
       name: 'Ya Thaw Myat Noe',
       position: 'Solution Manager',
@@ -32,14 +31,14 @@ class EmployeeDetailsPage extends StatefulWidget {
   final Employee employee;
 
   @override
-  State<EmployeeDetailsPage> createState() => _EmployeeDetailsPageState();
+  State<AdminEmployeeDetailsPage> createState() => _AdminEmployeeDetailsPageState();
 }
 
 /// ===============================================================
 ///  PAGE
 /// ===============================================================
 
-class _EmployeeDetailsPageState extends State<EmployeeDetailsPage>
+class _AdminEmployeeDetailsPageState extends State<AdminEmployeeDetailsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
 

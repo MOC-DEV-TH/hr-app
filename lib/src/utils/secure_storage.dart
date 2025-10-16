@@ -17,7 +17,8 @@ enum SecureDataList {
   leaveTypes,allowDistance,
   businessLat,
   businessLong,
-  loginUserRole
+  loginUserRole,
+  isRemoteLogin
 }
 
 class SecureStorage {
@@ -40,6 +41,17 @@ class SecureStorage {
 
   Future<String?> getLoginUserRole() async {
     final res = await _box.read(SecureDataList.loginUserRole.name);
+    return res;
+  }
+
+
+  ///remote login status
+  saveIsRemoteLogin(String status) async {
+    await _box.write(SecureDataList.isRemoteLogin.name, status);
+  }
+
+  Future<String?> getRemoteLoginStatus() async {
+    final res = await _box.read(SecureDataList.isRemoteLogin.name);
     return res;
   }
 
@@ -147,9 +159,15 @@ Future<String?> getAuthStatus(GetAuthStatusRef ref) {
 }
 
 @riverpod
-Future<String?> getLoginUserRole(GetAuthStatusRef ref) {
+Future<String?> getLoginUserRole(GetLoginUserRoleRef ref) {
   final provider = ref.watch(secureStorageProvider);
   return provider.getLoginUserRole();
+}
+
+@riverpod
+Future<String?> getRemoteLoginStatus(GetRemoteLoginStatusRef ref) {
+  final provider = ref.watch(secureStorageProvider);
+  return provider.getRemoteLoginStatus();
 }
 
 @riverpod

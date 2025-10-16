@@ -49,6 +49,12 @@ class AuthRepository {
       await ref
           .read(secureStorageProvider)
           .saveLoginUserRole(response.data["data"]["role"]);
+
+      tokenBox.write(
+        SecureDataList.isRemoteLogin.name,
+        response.data["data"]["user"]["allow_remote_login"].toString(),
+      );
+
       await ref
           .read(secureStorageProvider)
           .saveUser(UserVO.fromJson(response.data["data"]["user"]));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:hr_app/src/common_widgets/circle_button.dart';
 import 'package:hr_app/src/common_widgets/clock_out_restricte_bottom_sheet.dart';
 import 'package:hr_app/src/common_widgets/clock_out_successful_dialog.dart';
@@ -420,7 +421,22 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
       _isShowLoadingView = true;
     });
 
+    final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
+
+    debugPrint("RemoteLoginStatus===>$isAllowRemoteLoginStatus");
+
     try {
+      final bool isRemoteAllowed =
+          isAllowRemoteLoginStatus.toString() == '1';
+
+      if (isRemoteAllowed) {
+        final ok = await ref
+            .read(checkInControllerProvider.notifier)
+            .checkIn(type: kTypeOffice);
+        if (ok) ref.invalidate(fetchAttendanceDataProvider);
+        return;
+      }
+
       /// Check location services
       if (!await LocationService.isLocationServiceEnabled()) {
         context.showErrorDialog(
@@ -486,8 +502,25 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     setState(() {
       _isShowLoadingView = true;
     });
+    final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
 
     try {
+
+      final bool isRemoteAllowed =
+          isAllowRemoteLoginStatus.toString() == '1';
+
+      if (isRemoteAllowed) {
+        final bool isSuccess = await ref
+            .read(checkOutControllerProvider.notifier)
+            .checkOut();
+
+        if (isSuccess) {
+          ref.invalidate(fetchAttendanceDataProvider);
+          await showClockOutSuccessDialog(context);
+        }
+        return;
+      }
+
       /// Check location services
       if (!await LocationService.isLocationServiceEnabled()) {
         context.showErrorDialog(
