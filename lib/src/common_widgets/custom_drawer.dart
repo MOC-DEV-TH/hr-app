@@ -7,6 +7,7 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
 
+import '../features/employee_details/presentation/employee_details_page.dart';
 import '../routing/go_router/go_router_delegate.dart';
 import '../utils/secure_storage.dart';
 import '../utils/strings.dart';
@@ -19,6 +20,7 @@ class CustomDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(getUserDataProvider).value;
     final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
+    final  userId = ref.watch(getUserDataProvider).value?.id;
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       backgroundColor: kWhiteColor,
@@ -32,10 +34,20 @@ class CustomDrawer extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: kPrimaryColor.withOpacity(0.2),
-                    child: Icon(Icons.person, size: 40, color: kPrimaryColor),
+                  InkWell(
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EmployeeDetailsPage(userID: userId,),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: kPrimaryColor.withOpacity(0.2),
+                      child: Icon(Icons.person, size: 40, color: kPrimaryColor),
+                    ),
                   ),
                   10.vGap,
                   Text(
@@ -85,15 +97,15 @@ class CustomDrawer extends ConsumerWidget {
                   ),
                 ),
 
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.share_arrival_time,
-                  title: 'My Attendance',
-                  onTap: () {
-                    Navigator.pop(context);
-                    GoRouter.of(context).push(RoutePath.attendance.path);
-                  },
-                ),
+                // _buildDrawerItem(
+                //   context,
+                //   icon: Icons.share_arrival_time,
+                //   title: 'My Attendance',
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     GoRouter.of(context).push(RoutePath.attendance.path);
+                //   },
+                // ),
 
                 Visibility(
                     visible: (loginUserRole == kLoginUserRoleCeo ||
@@ -126,6 +138,7 @@ class CustomDrawer extends ConsumerWidget {
                     title: 'Leave',
                     onTap: () {
                       Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.employeeLeaves.path);
                     },
                   ),
                 ),

@@ -14,3 +14,7 @@ const Color kGreyColor = Color(0XFF808080);
 const Color kWhiteColor = Color(0XFFFFFFFF);
 const Color kLightGreyColor = Color(0XFFCFCFCF);
 const Color kEmeraldGreenColor= Color(0XFF1Cb08F);
+final kBlue = const Color(0xFF4F8BFF);
+final kGreen = const Color(0xFF2DBE7B);
+final kRed = const Color(0xFFE05555);
+final kGrey = Colors.grey.shade600;

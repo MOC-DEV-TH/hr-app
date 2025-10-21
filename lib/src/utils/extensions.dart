@@ -179,5 +179,11 @@ extension DurationHrsLabelX on Duration {
   }
 }
 
+extension _Weight on TextStyle {
+  TextStyle w600() => copyWith(fontWeight: FontWeight.w600);
+
+  TextStyle w700() => copyWith(fontWeight: FontWeight.w700);
+}
+
 
 

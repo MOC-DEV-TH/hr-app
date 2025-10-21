@@ -1,6 +1,6 @@
 ///Base Url
-const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
-//const String kStagingUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
+//const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
+const String kBaseUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
 const String kImageBaseUrlHttp = "";
 
 
@@ -23,6 +23,7 @@ const String kEndPointGetEmployees = "/employees";
 const String kEndPointGetAdminDashboard = "/dashboard";
 const String kEndPointGetBusinessUnits = "/business-units";
 const String kEndPointGetEmployeeAttendancesByBU = '/attendance-bussiness-unit';
+const String kEndPointGetEmployeeDetails = "/profile";
 
 ///Parameters
 const String kParamApiKey = "api_key";

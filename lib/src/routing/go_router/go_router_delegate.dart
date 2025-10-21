@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard_page.dart';
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
+import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
 import 'package:hr_app/src/features/employee_list/presentation/employee_list_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
@@ -26,6 +27,7 @@ enum RoutePath {
   leaveStatus(path: '/leaveStatus'),
   leaveRequest(path: '/leaveRequest'),
   employeeList(path: '/employeeList'),
+  employeeLeaves(path: '/employeeLeaves'),
   settings(path: '/settings');
 
   const RoutePath({required this.path});
@@ -162,6 +164,19 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
             context: context,
             state: state,
             child: EmployeeListPage(key: state.pageKey),
+          );
+        },
+      ),
+
+      ///Employee leaves page
+      GoRoute(
+        path: RoutePath.employeeLeaves.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: EmployeesLeavesPage(key: state.pageKey),
           );
         },
       ),

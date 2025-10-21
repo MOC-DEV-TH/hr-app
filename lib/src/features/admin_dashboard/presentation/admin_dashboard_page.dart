@@ -10,7 +10,7 @@ import 'package:hr_app/src/utils/extensions.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
 import '../../../common_widgets/error_retry_view.dart';
-import '../../employee_details/presentation/admin_employee_details_page.dart';
+import '../../employee_details/presentation/employee_details_page.dart';
 
 final selectedBuIdProvider = StateProvider<int>((_) => 0);
 final selectedDateProvider = StateProvider<DateTime?>((_) => null);
@@ -205,12 +205,12 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                           bg: kPrimaryColor.withOpacity(.08),
                           textColor: kBlueColor,
                           onTap: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => const EmployeesLeavesPage(),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EmployeesLeavesPage(),
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -262,7 +262,11 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                                                 .name ??
                                             '',
                                         date:
-                                        ref.read(selectedDateProvider.notifier).state,
+                                            ref
+                                                .read(
+                                                  selectedDateProvider.notifier,
+                                                )
+                                                .state,
                                         businessUintId:
                                             ref
                                                 .read(
@@ -299,12 +303,19 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                                       .data
                                       ?.attendanceData?[i],
                               onTap: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (_) => EmployeeDetailsPage.demo(),
-                                //   ),
-                                // );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => EmployeeDetailsPage(
+                                          userID:
+                                              adminDashboardResponse
+                                                  .data
+                                                  ?.attendanceData?[i]
+                                                  .id,
+                                        ),
+                                  ),
+                                );
                               },
                             ),
                         separatorBuilder: (_, __) => const SizedBox(height: 0),

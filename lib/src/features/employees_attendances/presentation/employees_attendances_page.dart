@@ -7,6 +7,7 @@ import '../../../common_widgets/custom_app_bar_view.dart';
 import '../../../common_widgets/employee_row_view.dart';
 import '../../../utils/colors.dart';
 import '../../admin_dashboard/model/admin_dasbhoard_response.dart';
+import '../../employee_details/presentation/employee_details_page.dart';
 import '../../employees_attendances/data/employees_attendances_repository.dart';
 
 class EmployeesAttendancePage extends ConsumerStatefulWidget {
@@ -107,7 +108,18 @@ class _EmployeesAttendancePageState
       separatorBuilder: (_, __) => const SizedBox(height: 0),
       itemBuilder: (context, index) {
         if (index < _entries.length) {
-          return EmployeeRow(employee: _entries[index]);
+          return EmployeeRow(employee: _entries[index],onTap: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => EmployeeDetailsPage(
+                  userID:
+                  _entries[index].id,
+                ),
+              ),
+            );
+          },);
         }
 
         if (_isLoading) return const _BottomLoader();

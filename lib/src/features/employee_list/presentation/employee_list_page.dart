@@ -5,6 +5,7 @@ import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/features/employee_list/data/employee_list_repository.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 
+import '../../employee_details/presentation/employee_details_page.dart';
 import '../model/employee_list_response.dart';
 class EmployeeListPage extends ConsumerStatefulWidget {
   const EmployeeListPage({super.key});
@@ -206,6 +207,16 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
                         name: e.name ?? '—',
                         role: e.position?.name ?? '—',
                         onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => EmployeeDetailsPage(
+                                userID:
+                                e.id,
+                              ),
+                            ),
+                          );
                         },
                       );
                     },
