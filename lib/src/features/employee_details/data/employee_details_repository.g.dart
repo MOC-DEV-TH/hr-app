@@ -502,5 +502,138 @@ class _FetchEmployeeAttendancesDataProviderElement
   String get month => (origin as FetchEmployeeAttendancesDataProvider).month;
 }
 
+String _$fetchEmployeeLeaveSummaryDataHash() =>
+    r'b9a7822c12071e680fb988e58ed2abaa8798e027';
+
+/// See also [fetchEmployeeLeaveSummaryData].
+@ProviderFor(fetchEmployeeLeaveSummaryData)
+const fetchEmployeeLeaveSummaryDataProvider =
+    FetchEmployeeLeaveSummaryDataFamily();
+
+/// See also [fetchEmployeeLeaveSummaryData].
+class FetchEmployeeLeaveSummaryDataFamily
+    extends Family<AsyncValue<LeaveSummaryResponse>> {
+  /// See also [fetchEmployeeLeaveSummaryData].
+  const FetchEmployeeLeaveSummaryDataFamily();
+
+  /// See also [fetchEmployeeLeaveSummaryData].
+  FetchEmployeeLeaveSummaryDataProvider call({required int userID}) {
+    return FetchEmployeeLeaveSummaryDataProvider(userID: userID);
+  }
+
+  @override
+  FetchEmployeeLeaveSummaryDataProvider getProviderOverride(
+    covariant FetchEmployeeLeaveSummaryDataProvider provider,
+  ) {
+    return call(userID: provider.userID);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchEmployeeLeaveSummaryDataProvider';
+}
+
+/// See also [fetchEmployeeLeaveSummaryData].
+class FetchEmployeeLeaveSummaryDataProvider
+    extends AutoDisposeFutureProvider<LeaveSummaryResponse> {
+  /// See also [fetchEmployeeLeaveSummaryData].
+  FetchEmployeeLeaveSummaryDataProvider({required int userID})
+    : this._internal(
+        (ref) => fetchEmployeeLeaveSummaryData(
+          ref as FetchEmployeeLeaveSummaryDataRef,
+          userID: userID,
+        ),
+        from: fetchEmployeeLeaveSummaryDataProvider,
+        name: r'fetchEmployeeLeaveSummaryDataProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$fetchEmployeeLeaveSummaryDataHash,
+        dependencies: FetchEmployeeLeaveSummaryDataFamily._dependencies,
+        allTransitiveDependencies:
+            FetchEmployeeLeaveSummaryDataFamily._allTransitiveDependencies,
+        userID: userID,
+      );
+
+  FetchEmployeeLeaveSummaryDataProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userID,
+  }) : super.internal();
+
+  final int userID;
+
+  @override
+  Override overrideWith(
+    FutureOr<LeaveSummaryResponse> Function(
+      FetchEmployeeLeaveSummaryDataRef provider,
+    )
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchEmployeeLeaveSummaryDataProvider._internal(
+        (ref) => create(ref as FetchEmployeeLeaveSummaryDataRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userID: userID,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<LeaveSummaryResponse> createElement() {
+    return _FetchEmployeeLeaveSummaryDataProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchEmployeeLeaveSummaryDataProvider &&
+        other.userID == userID;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userID.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchEmployeeLeaveSummaryDataRef
+    on AutoDisposeFutureProviderRef<LeaveSummaryResponse> {
+  /// The parameter `userID` of this provider.
+  int get userID;
+}
+
+class _FetchEmployeeLeaveSummaryDataProviderElement
+    extends AutoDisposeFutureProviderElement<LeaveSummaryResponse>
+    with FetchEmployeeLeaveSummaryDataRef {
+  _FetchEmployeeLeaveSummaryDataProviderElement(super.provider);
+
+  @override
+  int get userID => (origin as FetchEmployeeLeaveSummaryDataProvider).userID;
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,123 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
+import 'package:hr_app/src/features/employee_details/data/employee_details_repository.dart';
+import 'package:hr_app/src/utils/dimens.dart';
+
+import '../../../common_widgets/error_retry_view.dart';
+import '../../../utils/colors.dart';
 
 /// --- Demo entry --------------------------------------------------------------
-class LeaveSummaryPage extends StatelessWidget {
-  const LeaveSummaryPage({super.key, required this.data});
+class LeaveSummaryPage extends ConsumerWidget {
+  const LeaveSummaryPage({super.key, required this.userId});
 
-  final LeaveSummaryData data;
+  final int userId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final employeeLeaveSummary = ref.watch(
+      fetchEmployeeLeaveSummaryDataProvider(userID: userId),
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AdminCustomAppBarView(title: 'Leave Summary'),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+        child: employeeLeaveSummary.when(
+          data: (data) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kMarginMedium2),
+              child: CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            /// Total leave (green)
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: _TotalCard(
-                  title: 'Total Leave',
-                  periodText:
-                  'Period ${_fmtDate(data.periodStart)} - ${_fmtDate(data.periodEnd)}',
-                  leftLabel: 'Available',
-                  leftValue: data.totalAvailable.toString(),
-                  rightLabel: 'Leave Used',
-                  rightValue: data.totalUsed.toString(),
-                ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index.isOdd) return const SizedBox(height: 12);
+                      return _LeaveTypeCard(
+                        title: data.data?[index].name ?? "",
+                        leftLabel: 'Total',
+                        leftValue: data.data?[index].total.toString() ?? "",
+                        rightLabel: 'Remaining',
+                        rightValue: data.data?[index].available.toString() ?? "",
+                      );
+                    }, childCount: data.data?.length),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                ],
               ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-            /// Casual
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: _LeaveTypeCard(
-                  title: 'Casual Leave',
-                  leftLabel: 'Total',
-                  leftValue: data.casualTotal.toString(),
-                  rightLabel: 'Remaining',
-                  rightValue: data.casualRemaining.toString(),
-                ),
+            );
+          },
+          loading:
+              () => const Center(
+                child: CircularProgressIndicator(color: kPrimaryColor),
               ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-            /// Medical
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: _LeaveTypeCard(
-                  title: 'Medical Leave',
-                  leftLabel: 'Total',
-                  leftValue: data.medicalTotal.toString(),
-                  rightLabel: 'Remaining',
-                  rightValue: data.medicalRemaining.toString(),
-                ),
+          error:
+              (error, stack) => ErrorRetryView(
+                title: 'Error loading employee leave summary',
+                message: error.toString(),
+                onRetry: () {
+                  ref.invalidate(
+                    fetchEmployeeLeaveSummaryDataProvider(userID: userId),
+                  );
+                },
               ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-            /// Annual
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverToBoxAdapter(
-                child: _LeaveTypeCard(
-                  title: 'Annual Leave',
-                  leftLabel: 'Remaining',
-                  leftValue: data.annualRemainingLeft.toString(),
-                  rightLabel: 'Remaining',
-                  rightValue: data.annualRemainingRight.toString(),
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          ],
         ),
       ),
     );
   }
-}
-
-/// --- Data model --------------------------------------------------------------
-class LeaveSummaryData {
-  LeaveSummaryData({
-    required this.periodStart,
-    required this.periodEnd,
-    required this.totalAvailable,
-    required this.totalUsed,
-    required this.casualTotal,
-    required this.casualRemaining,
-    required this.medicalTotal,
-    required this.medicalRemaining,
-    required this.annualRemainingLeft,
-    required this.annualRemainingRight,
-  });
-
-  final DateTime periodStart;
-  final DateTime periodEnd;
-
-  final int totalAvailable;
-  final int totalUsed;
-
-  final int casualTotal;
-  final int casualRemaining;
-
-  final int medicalTotal;
-  final int medicalRemaining;
-
-  final int annualRemainingLeft;
-  final int annualRemainingRight;
 }
 
 /// --- Widgets -----------------------------------------------------------------
@@ -154,19 +103,18 @@ class _TotalCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-                color: Color(0xFF2FA36B),
-              )),
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              color: Color(0xFF2FA36B),
+            ),
+          ),
           const SizedBox(height: 6),
           Text(
             periodText,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Color(0xFF2FA36B),
-            ),
+            style: const TextStyle(fontSize: 15, color: Color(0xFF2FA36B)),
           ),
           const SizedBox(height: 18),
           Row(
@@ -228,12 +176,14 @@ class _LeaveTypeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-                color: titleColor,
-              )),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              color: titleColor,
+            ),
+          ),
           const SizedBox(height: 18),
           Row(
             children: [
@@ -283,33 +233,39 @@ class _MetricBlock extends StatelessWidget {
     final textAlign = alignRight ? TextAlign.right : TextAlign.left;
     return Column(
       crossAxisAlignment:
-      alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Text(label,
-            textAlign: textAlign,
-            style: TextStyle(
-              color: color.withOpacity(.85),
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            )),
+        Text(
+          label,
+          textAlign: textAlign,
+          style: TextStyle(
+            color: color.withOpacity(.85),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 6),
         Row(
           mainAxisAlignment:
-          alignRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+              alignRight ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
-            Text(value,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
-                )),
+            Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+              ),
+            ),
             const SizedBox(width: 6),
-            Text(unit,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                )),
+            Text(
+              unit,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ],
@@ -320,7 +276,18 @@ class _MetricBlock extends StatelessWidget {
 /// --- Small helpers -----------------------------------------------------------
 String _fmtDate(DateTime d) {
   const months = [
-    'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }

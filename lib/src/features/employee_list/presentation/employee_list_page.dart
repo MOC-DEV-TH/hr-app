@@ -265,7 +265,16 @@ class _SearchResults extends StatelessWidget {
               name: e.name ?? '—',
               role: e.position?.name ?? '—',
               onTap: () {
-                // TODO: open detail (e.id)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => EmployeeDetailsPage(
+                      userID:
+                      e.id,
+                    ),
+                  ),
+                );
               },
             );
           },

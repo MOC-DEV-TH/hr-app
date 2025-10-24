@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/admin_dashboard/model/admin_dasbhoard_response.dart';
 import 'package:hr_app/src/features/admin_dashboard/model/business_unit_response.dart';
 import 'package:hr_app/src/features/employee_details/model/employee_profile_response.dart';
+import 'package:hr_app/src/features/employee_details/model/leave_summary_response.dart';
 import 'package:hr_app/src/features/home/model/attendance_response.dart';
 import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
@@ -77,6 +78,21 @@ class EmployeeDetailsRepository {
           ErrorHandler.handle(e).failure.message;
     }
   }
+
+  ///fetch leave summary
+  Future<LeaveSummaryResponse> fetchEmployeeLeaveSummary({required int userId}) async {
+    try {
+      final response = await dio.post(
+        kEndPointGetEmployeeDetails,
+        data: {"user_id": userId, "type": 'leave-summary'},
+      );
+      LeaveSummaryResponse data = LeaveSummaryResponse.fromJson(response.data);
+      return data;
+    } on DioException catch (e) {
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
+    }
+  }
 }
 
 @riverpod
@@ -114,4 +130,13 @@ Future<AttendanceResponse> fetchEmployeeAttendancesData(
     }) async {
   final provider = ref.watch(employeeDetailsRepositoryProvider);
   return provider.fetchEmployeeAttendances(userId: userID,year:year,month:month);
+}
+
+@riverpod
+Future<LeaveSummaryResponse> fetchEmployeeLeaveSummaryData(
+    FetchEmployeeLeaveSummaryDataRef ref, {
+      required int userID,
+    }) async {
+  final provider = ref.watch(employeeDetailsRepositoryProvider);
+  return provider.fetchEmployeeLeaveSummary(userId: userID);
 }

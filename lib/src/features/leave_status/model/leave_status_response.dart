@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../../admin_dashboard/model/admin_dasbhoard_response.dart';
+
 LeaveStatusResponse leaveStatusResponseFromJson(String str) => LeaveStatusResponse.fromJson(json.decode(str));
 
 String leaveStatusResponseToJson(LeaveStatusResponse data) => json.encode(data.toJson());
@@ -38,6 +40,7 @@ class LeaveStatusVO {
   String status;
   DateTime createdAt;
   DateTime updatedAt;
+  User? user;
 
   LeaveStatusVO({
     required this.id,
@@ -49,6 +52,7 @@ class LeaveStatusVO {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.user
   });
 
   factory LeaveStatusVO.fromJson(Map<String, dynamic> json) => LeaveStatusVO(
@@ -61,6 +65,7 @@ class LeaveStatusVO {
     status: json["status"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
+    user: json["user"] == null ? null : User.fromJson(json["user"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -73,6 +78,7 @@ class LeaveStatusVO {
     "status": status,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
+    "user": user?.toJson(),
   };
 }
 
@@ -95,3 +101,35 @@ class LeaveType {
     "name": name,
   };
 }
+
+class User {
+  int? id;
+  String? name;
+  String? email;
+  EmployeePosition? employeePosition;
+
+  User({
+    this.id,
+    this.name,
+    this.email,
+    this.employeePosition
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) => User(
+    id: json["id"],
+    name: json["name"],
+    email: json["email"],
+    employeePosition:
+    json["position"] == null
+        ? null
+        : EmployeePosition.fromJson(json["position"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "email": email,
+    "position": employeePosition?.toJson(),
+  };
+}
+

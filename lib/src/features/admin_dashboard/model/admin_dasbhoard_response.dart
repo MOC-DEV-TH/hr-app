@@ -30,9 +30,10 @@ class AdminDashboardResponse {
 class Data {
   List<BusinessUnit>? businessUnits;
   int? selectedBuId;
+  int? leaveCount;
   List<EmployeeAttendanceDataVO>? attendanceData;
 
-  Data({this.businessUnits, this.selectedBuId, this.attendanceData});
+  Data({this.businessUnits, this.selectedBuId, this.attendanceData,this.leaveCount});
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     businessUnits:
@@ -42,6 +43,7 @@ class Data {
               json["businessUnits"]!.map((x) => BusinessUnit.fromJson(x)),
             ),
     selectedBuId: json["selected_bu_id"],
+    leaveCount: json["leaveCount"],
     attendanceData:
         json["attendanceData"] == null
             ? []
@@ -58,6 +60,7 @@ class Data {
             ? []
             : List<dynamic>.from(businessUnits!.map((x) => x.toJson())),
     "selected_bu_id": selectedBuId,
+    "leaveCount": leaveCount,
     "attendanceData":
         attendanceData == null
             ? []

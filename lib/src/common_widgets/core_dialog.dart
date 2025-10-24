@@ -32,6 +32,17 @@ class CoreDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            /// Title
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: tt.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             Container(
               width: 66,
               height: 66,
@@ -43,16 +54,7 @@ class CoreDialog extends StatelessWidget {
                 child: Icon(Icons.info, size: 32,color: Colors.white,),
               ),
             ),
-            const SizedBox(height: 16),
 
-            /// Title
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: tt.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
             const SizedBox(height: 10),
 
             /// Body

@@ -200,15 +200,26 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                       sliver: SliverToBoxAdapter(
                         child: _SummaryCard(
                           title: 'Leave',
-                          value: '2',
+                          value:
+                              adminDashboardResponse.data?.leaveCount
+                                  .toString() ??
+                              '',
                           border: kBlueColor,
                           bg: kPrimaryColor.withOpacity(.08),
                           textColor: kBlueColor,
                           onTap: () {
+                              ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const EmployeesLeavesPage(),
+                                builder:
+                                    (_) => EmployeesLeavesPage(
+                                      leaveCount:
+                                          adminDashboardResponse
+                                              .data
+                                              ?.leaveCount,
+                                      date: selectedDate ?? DateTime.now(),
+                                    ),
                               ),
                             );
                           },

@@ -24,6 +24,9 @@ const String kEndPointGetAdminDashboard = "/dashboard";
 const String kEndPointGetBusinessUnits = "/business-units";
 const String kEndPointGetEmployeeAttendancesByBU = '/attendance-bussiness-unit';
 const String kEndPointGetEmployeeDetails = "/profile";
+const String kEndPointUpdateLeaveRequest = "/leaves/update";
+const String kEndPointGetAllEmployeeLeaves = "/leaves/all";
+
 
 ///Parameters
 const String kParamApiKey = "api_key";
@@ -35,3 +38,5 @@ const String kApiKey = "3495fbca2612a77c31afe40405a6a4c4";
 const String kLanguageENUS = "en-US";
 const String kTypeWfh = "work_from_home";
 const String kTypeOffice = "office";
+const String kLeaveStatusReject ="reject";
+const String kLeaveStatusApproved="approved";

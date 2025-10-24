@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/employee_details/presentation/employee_details_page.dart';
 import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
+import 'package:hr_app/src/utils/gap.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/dimens.dart';
@@ -12,7 +13,8 @@ class EmployeeLeaveItemView extends ConsumerWidget {
   final LeaveStatusVO? leaveStatusVO;
   final ValueChanged<int> onApprove;
   final ValueChanged<int> onReject;
-  const EmployeeLeaveItemView({super.key,this.leaveStatusVO,required this.onApprove,required this.onReject});
+  final bool showMemberHeader;
+  const EmployeeLeaveItemView({super.key,this.leaveStatusVO,required this.onApprove,required this.onReject,required this.showMemberHeader});
 
   @override
   Widget build(BuildContext context,WidgetRef ref) {
@@ -23,8 +25,20 @@ class EmployeeLeaveItemView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          Visibility(
+              visible: showMemberHeader == true,
+              child: MemberHeader(name: leaveStatusVO?.user?.name ?? '', role: leaveStatusVO?.user?.employeePosition?.name ?? '',
+              leaveStatus: leaveStatusVO?.status,)),
+
+          Visibility(
+              visible: showMemberHeader == true,
+              child: 10.vGap),
+
           Row(
             children: [
+              Icon(Icons.date_range,color: Colors.grey,size: 14,),
+              2.hGap,
               Text(
                 leaveStatusVO?.date.yMMMMd() ?? '',
                 style: tt.bodyMedium?.copyWith(
@@ -32,11 +46,13 @@ class EmployeeLeaveItemView extends ConsumerWidget {
                 ),
               ),
               const Spacer(),
-              _StatusBadge(status: leaveStatusVO?.status ?? ''),
+              Visibility(
+                  visible: showMemberHeader == false,
+                  child: _StatusBadge(status: leaveStatusVO?.status ?? '')),
             ],
           ),
           const SizedBox(height: 8),
-          _InfoRow('Leave Type', leaveStatusVO?.leaveType.name ?? ''),
+          _InfoRow('Leave Type:', leaveStatusVO?.leaveType.name ?? ''),
           const SizedBox(height: 6),
           Text(
             'Message:',
@@ -153,14 +169,78 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(label, style: tt.labelMedium?.copyWith(color: Colors.black)),
+        6.hGap,
         Text(value, style: tt.bodyMedium?.copyWith(color: kGreyColor)),
       ],
+    );
+  }
+}
+
+
+class MemberHeader extends StatelessWidget {
+  const MemberHeader({
+    super.key,
+    required this.name,
+    required this.role,
+    this.imageUrl,
+    this.onTap,
+    this.leaveStatus
+  });
+
+  final String name;
+  final String role;
+  final String? imageUrl;
+  final VoidCallback? onTap;
+  final String? leaveStatus;
+
+  @override
+  Widget build(BuildContext context) {
+    const avatarBg = Color(0xFFE5E7EB);
+    final nameStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+      fontWeight: FontWeight.w700,
+      color: const Color(0xFF2E3A4A),
+    );
+    final roleStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: const Color(0xFF7B8794),
+      height: 1.2,
+    );
+
+    Widget avatar = CircleAvatar(
+      radius: 18,
+      backgroundColor: avatarBg,
+      backgroundImage:
+      (imageUrl != null && imageUrl!.isNotEmpty) ? NetworkImage(imageUrl!) : null,
+      child: (imageUrl == null || imageUrl!.isEmpty)
+          ? const Icon(Icons.person, color: Colors.grey, size: 20)
+          : null,
+    );
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          avatar,
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: nameStyle),
+                Text(role, maxLines: 1, overflow: TextOverflow.ellipsis, style: roleStyle),
+              ],
+            ),
+          ),
+          _StatusBadge(status: leaveStatus ?? '')
+        ],
+      ),
     );
   }
 }

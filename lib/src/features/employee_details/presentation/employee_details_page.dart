@@ -7,15 +7,19 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../common_widgets/approve_confirm_dialog.dart';
 import '../../../common_widgets/approve_success_dialog.dart';
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../common_widgets/leave_filter_bottom_sheet.dart';
+import '../../../common_widgets/loading_view.dart';
 import '../../../common_widgets/reject_confirm_dialog.dart';
 import '../../../common_widgets/reject_success_dialog.dart';
+import '../../../network/api_constants.dart';
 import '../../../utils/secure_storage.dart';
 import '../../../utils/strings.dart';
+import '../../employee_leaves/controller/employee_leaves_controller.dart';
 import 'leave_summary_page.dart';
 
 class EmployeeDetailsPage extends StatefulWidget {
@@ -69,18 +73,6 @@ class _EmployeeDetailsPageState extends State<EmployeeDetailsPage>
                   _PersonalTab(userId: widget.userID ?? 0),
                   _AttendanceTab(userId: widget.userID ?? 0),
                   _LeaveTab(
-                    onApprove: (val) async{
-                      final ok = await showApproveConfirmDialog(context);
-                      if (ok) {
-                        await showApproveSuccessDialog(context);
-                      }
-                    },
-                    onReject: (val) async{
-                      final no = await showRejectConfirmDialog(context);
-                      if (no) {
-                        await showRejectSuccessDialog(context);
-                      }
-                    },
                     userId: widget.userID ?? 0,
                   ),
                   const _PayrollTab(),
@@ -501,13 +493,8 @@ String _statusToLabel(LeaveStatus? s) {
 
 class _LeaveTab extends ConsumerWidget {
   const _LeaveTab({
-    required this.onApprove,
-    required this.onReject,
     required this.userId,
   });
-
-  final ValueChanged<int> onApprove;
-  final ValueChanged<int> onReject;
   final int userId;
 
   @override
@@ -521,144 +508,181 @@ class _LeaveTab extends ConsumerWidget {
       fetchEmployeeLeavesDataProvider(userID: userId, leaveStatus: statusParam),
     );
 
-    return employeeLeavesState.when(
-      data: (leaves) {
-        return CustomScrollView(
-          slivers: [
-            /// View summary
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              sliver: SliverToBoxAdapter(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => LeaveSummaryPage(
-                              data: LeaveSummaryData(
-                                periodStart: DateTime(2025, 1, 1),
-                                periodEnd: DateTime(2025, 12, 30),
-                                totalAvailable: 20,
-                                totalUsed: 2,
-                                casualTotal: 6,
-                                casualRemaining: 1,
-                                medicalTotal: 5,
-                                medicalRemaining: 6,
-                                annualRemainingLeft: 5,
-                                annualRemainingRight: 6,
-                              ),
+    final allEmployeeLeavesControllerState = ref.watch(employeeLeavesControllerProvider);
+
+    return Stack(
+      children: [
+        employeeLeavesState.when(
+          data: (leaves) {
+            return CustomScrollView(
+              slivers: [
+                /// View summary
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => LeaveSummaryPage(userId: userId,
+                                ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.2),
+                          border: Border.all(color: kBlueColor, width: 1.5),
+                          borderRadius: BorderRadius.circular(kMarginMedium),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Text(
+                            'View Summary',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: kBlueColor,
                             ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.2),
-                      border: Border.all(color: kBlueColor, width: 1.5),
-                      borderRadius: BorderRadius.circular(kMarginMedium),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text(
-                        'View Summary',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: kBlueColor,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+                /// Filter row
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: Row(
+                      children: [
+                        Text(
+                          _statusToLabel(selectedStatus),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: kTextRegular2x,
+                          ),
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () async {
+                            final LeaveStatus? result =
+                                await showLeaveFilterBottomSheet(
+                                  context,
+                                  initial: selectedStatus ?? LeaveStatus.all,
+                                );
+                            if (result != null) {
+                              ref.read(leaveFilterProvider(userId).notifier).state =
+                                  result;
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(Icons.filter_list),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+                if (leaves.data.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Text('No leave requests', style: tt.bodyMedium),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        if (index.isOdd) return const SizedBox(height: 12);
+                        final i = index ~/ 2;
+                        final leaveStatusVO = leaves.data[i];
+
+                        return EmployeeLeaveItemView(
+                          showMemberHeader: false,
+                          onApprove: (id) async{
+                            final ok = await showApproveConfirmDialog(context);
+                            if (ok) {
+                              if (!allEmployeeLeavesControllerState.isLoading) {
+                                final bool isSuccess = await ref
+                                    .read(employeeLeavesControllerProvider.notifier)
+                                    .updateLeaveRequest(leaveId: id,leaveStatus: kLeaveStatusApproved);
+
+                                ///is success
+                                  ref.invalidate(
+                                    fetchEmployeeLeavesDataProvider,
+                                  );
+                                  await showApproveSuccessDialog(context);
+
+                              }
+                            }
+                          },
+                          onReject: (id) async{
+                            final ok = await showRejectConfirmDialog(context);
+                            if (ok) {
+                              if (!allEmployeeLeavesControllerState.isLoading) {
+                                final bool isSuccess = await ref
+                                    .read(employeeLeavesControllerProvider.notifier)
+                                    .updateLeaveRequest(leaveId: id,leaveStatus: kLeaveStatusReject);
+
+                                ///is success
+                                  ref.invalidate(
+                                    fetchEmployeeLeavesDataProvider,
+                                  );
+                                  await showRejectSuccessDialog(context);
+                              }
+                            }
+                          },
+                          leaveStatusVO: leaveStatusVO,
+                        );
+                      }, childCount: leaves.data.length * 2 - 1),
+                    ),
+                  ),
+              ],
+            );
+          },
+          loading:
+              () => const Center(
+                child: CircularProgressIndicator(color: kPrimaryColor),
+              ),
+          error:
+              (error, stack) => ErrorRetryView(
+                title: 'Error loading employee leave data',
+                message: error.toString(),
+                onRetry: () {
+                  ref.invalidate(
+                    fetchEmployeeLeavesDataProvider(
+                      userID: userId,
+                      leaveStatus: statusParam,
+                    ),
+                  );
+                },
+              ),
+        ),
+
+        ///loading view
+        if (allEmployeeLeavesControllerState.isLoading)
+          Container(
+            color: Colors.black12,
+            child: const Center(
+              child: LoadingView(
+                indicatorColor: Colors.white,
+                indicator: Indicator.ballRotate,
               ),
             ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-            /// Filter row
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  children: [
-                    Text(
-                      _statusToLabel(selectedStatus),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: kTextRegular2x,
-                      ),
-                    ),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () async {
-                        final LeaveStatus? result =
-                            await showLeaveFilterBottomSheet(
-                              context,
-                              initial: selectedStatus ?? LeaveStatus.all,
-                            );
-                        if (result != null) {
-                          ref.read(leaveFilterProvider(userId).notifier).state =
-                              result;
-                        }
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(Icons.filter_list),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
-            if (leaves.data.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Text('No leave requests', style: tt.bodyMedium),
-                ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    if (index.isOdd) return const SizedBox(height: 12);
-                    final i = index ~/ 2;
-                    final leaveStatusVO = leaves.data[i];
-
-                    return EmployeeLeaveItemView(
-                      onApprove: onApprove,
-                      onReject: onReject,
-                      leaveStatusVO: leaveStatusVO,
-                    );
-                  }, childCount: leaves.data.length * 2 - 1),
-                ),
-              ),
-          ],
-        );
-      },
-      loading:
-          () => const Center(
-            child: CircularProgressIndicator(color: kPrimaryColor),
           ),
-      error:
-          (error, stack) => ErrorRetryView(
-            title: 'Error loading employee leave data',
-            message: error.toString(),
-            onRetry: () {
-              // Invalidate the *current* filtered instance
-              ref.invalidate(
-                fetchEmployeeLeavesDataProvider(
-                  userID: userId,
-                  leaveStatus: statusParam,
-                ),
-              );
-            },
-          ),
+      ],
     );
   }
 }
@@ -785,16 +809,8 @@ class _AttachmentPill extends StatelessWidget {
 /// ===============================================================
 ///
 extension _Weight on TextStyle {
-  TextStyle w600() => copyWith(fontWeight: FontWeight.w600);
-
   TextStyle w700() => copyWith(fontWeight: FontWeight.w700);
 }
-
-BoxDecoration _cardDecoration(BuildContext context) => BoxDecoration(
-  color: Colors.white,
-  borderRadius: BorderRadius.circular(12),
-  border: Border.all(color: Colors.grey, width: 0.2),
-);
 
 /// Date → "29 September 2025"
 extension FancyDate on DateTime {
