@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
+import 'package:hr_app/src/features/add_new_employee/presentation/add_new_employee_page.dart';
 import 'package:hr_app/src/features/employee_list/data/employee_list_repository.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 
@@ -126,7 +127,7 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const AdminCustomAppBarView(title: 'Employees'),
+      appBar: const AdminCustomAppBarView(title: 'Employees',isShowRightIcon: false,),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(kMarginMedium),
@@ -227,13 +228,19 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
           ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: const Color(0xFF6F9CF3),
-      //   onPressed: () {
-      //     // TODO: add employee
-      //   },
-      //   child: const Icon(Icons.add, size: 28),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF6F9CF3),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => AddNewEmployeePage(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add, size: 28),
+      ),
     );
   }
 }

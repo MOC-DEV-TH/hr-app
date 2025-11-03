@@ -57,7 +57,8 @@ class _EmployeeDetailsPageState extends State<EmployeeDetailsPage>
       length: 4,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AdminCustomAppBarView(title: 'Detail Employee'),
+        appBar: AdminCustomAppBarView(title: 'Detail Employee',isShowRightIcon: true,
+        onTap: (){},),
         body: Column(
           children: [
             const SizedBox(height: 20),

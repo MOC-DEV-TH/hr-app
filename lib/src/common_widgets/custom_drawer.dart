@@ -159,7 +159,7 @@ class CustomDrawer extends ConsumerWidget {
 
 
                 Visibility(
-                  visible: loginUserRole == kLoginUserRoleEmployee,
+                  visible: true,
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.calendar_today,

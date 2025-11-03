@@ -21,7 +21,7 @@ class LeaveSummaryPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AdminCustomAppBarView(title: 'Leave Summary'),
+      appBar: AdminCustomAppBarView(title: 'Leave Summary',isShowRightIcon: false,),
       body: SafeArea(
         child: employeeLeaveSummary.when(
           data: (data) {

@@ -70,7 +70,7 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: AdminCustomAppBarView(title: 'Leave(${widget.leaveCount})'),
+      appBar: AdminCustomAppBarView(title: 'Leave(${widget.leaveCount ?? 0})',isShowRightIcon: false,),
       body: Stack(
         children: [
           allEmployeeLeavesState.when(

@@ -5,8 +5,10 @@ import 'package:hr_app/src/utils/gap.dart';
 
 class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-
-  const AdminCustomAppBarView({super.key, required this.title});
+  final Color? bgColor;
+  final VoidCallback? onTap;
+  final bool isShowRightIcon;
+  const AdminCustomAppBarView({super.key, required this.title,this.bgColor,this.onTap, required this.isShowRightIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,7 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
       centerTitle: true,
       automaticallyImplyLeading: false,
       leadingWidth: 40,
-      backgroundColor: Colors.transparent,
+      backgroundColor:bgColor ?? Colors.transparent,
       toolbarHeight: 40,
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.0),
@@ -34,6 +36,12 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
             style: TextStyle(color: kPrimaryColor, fontSize: kTextRegular18,fontWeight: FontWeight.bold),
           ),
           Spacer(),
+          Visibility(
+            visible: isShowRightIcon,
+            child: InkWell(
+                onTap: onTap,
+                child: Icon(Icons.more_vert)),
+          )
         ],
       ),
     );

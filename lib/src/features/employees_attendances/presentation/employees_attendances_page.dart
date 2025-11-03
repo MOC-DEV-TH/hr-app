@@ -61,7 +61,7 @@ class _EmployeesAttendancePageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: AdminCustomAppBarView(title: widget.title),
+      appBar: AdminCustomAppBarView(title: widget.title,isShowRightIcon: false,),
       body: Column(
         children: [
           const SizedBox(height: 6),
