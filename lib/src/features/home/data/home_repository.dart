@@ -62,15 +62,26 @@ class HomeRepository {
     }
   }
 
-  ///check out
-  Future<void> checkOut({String? reason}) async {
-    debugPrint("CheckOut");
+  Future<bool> checkOut({String? reason}) async {
     try {
-      final response = await dio.post(kEndPointCheckOut,data: {"log_out_reason" : reason});
-      debugPrint("CheckOut response::${response.data}");
+      final res = await dio.post(kEndPointCheckOut, data: {
+        if (reason != null && reason.trim().isNotEmpty) 'log_out_reason': reason.trim(),
+      });
+
+      final ok = res.statusCode != null && res.statusCode! >= 200 && res.statusCode! < 300;
+      if (!ok) {
+        final msg = (res.data is Map && res.data['message'] is String)
+            ? res.data['message'] as String
+            : 'Checkout failed (${res.statusCode}).';
+        throw msg;
+      }
+      debugPrint("Checkout response::${res.data}");
+      return true;
     } on DioException catch (e) {
-      throw e.response?.data["message"] ??
-          ErrorHandler.handle(e).failure.message;
+      final msg = e.response?.data is Map && e.response?.data['message'] is String
+          ? e.response?.data['message'] as String
+          : (e.message ?? 'Network error');
+      throw msg;
     }
   }
 

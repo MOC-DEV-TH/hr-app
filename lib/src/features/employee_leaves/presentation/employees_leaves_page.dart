@@ -110,6 +110,7 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                         final leaveStatusVO = allLeaves.data[i];
 
                         return EmployeeLeaveItemView(
+                          userId: leaveStatusVO.userId,
                           showMemberHeader: true,
                           onApprove: (id) async {
                             final ok = await showApproveConfirmDialog(context);

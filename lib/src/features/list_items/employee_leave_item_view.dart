@@ -14,11 +14,13 @@ class EmployeeLeaveItemView extends ConsumerWidget {
   final ValueChanged<int> onApprove;
   final ValueChanged<int> onReject;
   final bool showMemberHeader;
-  const EmployeeLeaveItemView({super.key,this.leaveStatusVO,required this.onApprove,required this.onReject,required this.showMemberHeader});
+  final int userId;
+  const EmployeeLeaveItemView({super.key,this.leaveStatusVO,required this.onApprove,required this.onReject,required this.showMemberHeader,required this.userId});
 
   @override
   Widget build(BuildContext context,WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
+    final loginUserId = ref.watch(getUserDataProvider).value?.id;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: _cardDecoration(context),
@@ -67,7 +69,7 @@ class EmployeeLeaveItemView extends ConsumerWidget {
               visible: ref
                   .watch(getLoginUserRoleProvider)
                   .value !=
-                  kLoginUserRoleEmployee,
+                  kLoginUserRoleEmployee && loginUserId != userId,
               child: Row(
                 children: [
                   Expanded(

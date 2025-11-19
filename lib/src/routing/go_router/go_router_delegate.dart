@@ -4,6 +4,7 @@ import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
 import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
 import 'package:hr_app/src/features/employee_list/presentation/employee_list_page.dart';
+import 'package:hr_app/src/features/holiday/presentation/holiday_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
 import 'package:hr_app/src/features/setting/presentation/setting_page.dart';
@@ -28,6 +29,7 @@ enum RoutePath {
   leaveRequest(path: '/leaveRequest'),
   employeeList(path: '/employeeList'),
   employeeLeaves(path: '/employeeLeaves'),
+  holiday(path: '/holiday'),
   settings(path: '/settings');
 
   const RoutePath({required this.path});
@@ -177,6 +179,19 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
             context: context,
             state: state,
             child: EmployeesLeavesPage(key: state.pageKey),
+          );
+        },
+      ),
+
+      ///Holiday page
+      GoRoute(
+        path: RoutePath.holiday.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: HolidayPage(key: state.pageKey),
           );
         },
       ),

@@ -20,49 +20,50 @@ class CustomDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(getUserDataProvider).value;
     final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
-    final  userId = ref.watch(getUserDataProvider).value?.id;
+    final userId = ref.watch(getUserDataProvider).value?.id;
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       backgroundColor: kWhiteColor,
       child: Column(
         children: [
           /// Drawer Header
-          Container(
-            height: 150,
-            decoration: BoxDecoration(color: kPrimaryColor.withOpacity(0.1)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => EmployeeDetailsPage(userID: userId,),
-                        ),
-                      );
-                    },
-                    child: CircleAvatar(
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EmployeeDetailsPage(userID: userId),
+                ),
+              );
+            },
+            child: Container(
+              height: 150,
+              decoration: BoxDecoration(color: kPrimaryColor.withOpacity(0.1)),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
                       radius: 40,
                       backgroundColor: kPrimaryColor.withOpacity(0.2),
                       child: Icon(Icons.person, size: 40, color: kPrimaryColor),
                     ),
-                  ),
-                  10.vGap,
-                  Text(
-                    userData?.name ?? "",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kPrimaryColor,
+
+                    10.vGap,
+                    Text(
+                      userData?.name ?? "",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kPrimaryColor,
+                      ),
                     ),
-                  ),
-                  Text(
-                    userData?.email ?? "",
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
+                    Text(
+                      userData?.email ?? "",
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -78,14 +79,14 @@ class CustomDrawer extends ConsumerWidget {
                   title: 'Home',
                   onTap: () {
                     Navigator.pop(context);
-
                   },
                 ),
 
                 Visibility(
-                  visible: (loginUserRole == kLoginUserRoleCeo ||
-                      loginUserRole == kLoginUserRoleDirector ||
-                      loginUserRole == kLoginUserRoleManager),
+                  visible:
+                      (loginUserRole == kLoginUserRoleCeo ||
+                          loginUserRole == kLoginUserRoleDirector ||
+                          loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.access_time,
@@ -106,17 +107,19 @@ class CustomDrawer extends ConsumerWidget {
                 //     GoRouter.of(context).push(RoutePath.attendance.path);
                 //   },
                 // ),
+                Visibility(
+                  visible:
+                      (loginUserRole == kLoginUserRoleCeo ||
+                          loginUserRole == kLoginUserRoleDirector ||
+                          loginUserRole == kLoginUserRoleManager),
+                  child: Divider(height: 1, color: Colors.grey[300]),
+                ),
 
                 Visibility(
-                    visible: (loginUserRole == kLoginUserRoleCeo ||
-                        loginUserRole == kLoginUserRoleDirector ||
-                        loginUserRole == kLoginUserRoleManager),
-                    child: Divider(height: 1, color: Colors.grey[300])),
-
-                Visibility(
-                  visible: (loginUserRole == kLoginUserRoleCeo ||
-                      loginUserRole == kLoginUserRoleDirector ||
-                      loginUserRole == kLoginUserRoleManager),
+                  visible:
+                      (loginUserRole == kLoginUserRoleCeo ||
+                          loginUserRole == kLoginUserRoleDirector ||
+                          loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.person,
@@ -129,9 +132,10 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                  visible: (loginUserRole == kLoginUserRoleCeo ||
-                      loginUserRole == kLoginUserRoleDirector ||
-                      loginUserRole == kLoginUserRoleManager),
+                  visible:
+                      (loginUserRole == kLoginUserRoleCeo ||
+                          loginUserRole == kLoginUserRoleDirector ||
+                          loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.person_outline,
@@ -144,19 +148,20 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                  visible: (loginUserRole == kLoginUserRoleCeo ||
-                      loginUserRole == kLoginUserRoleDirector ||
-                      loginUserRole == kLoginUserRoleManager),
+                  visible:
+                      (loginUserRole == kLoginUserRoleCeo ||
+                          loginUserRole == kLoginUserRoleDirector ||
+                          loginUserRole == kLoginUserRoleManager),
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.calendar_month,
                     title: 'Holiday',
                     onTap: () {
                       Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.holiday.path);
                     },
                   ),
                 ),
-
 
                 Visibility(
                   visible: true,

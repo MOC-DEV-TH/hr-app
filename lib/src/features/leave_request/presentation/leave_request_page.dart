@@ -5,12 +5,14 @@ import 'package:hr_app/src/common_widgets/custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/dynamic_drop_down_widget.dart';
 import 'package:hr_app/src/features/leave_request/controller/send_leave_request_controller.dart';
 import 'package:hr_app/src/features/leave_request/data/leave_request_repository.dart';
+import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/leave_request_successful_dialog.dart';
 import '../../../common_widgets/loading_view.dart';
 
 class LeaveRequestPage extends ConsumerStatefulWidget {
@@ -23,8 +25,12 @@ class LeaveRequestPage extends ConsumerStatefulWidget {
 class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+
   DateTime? _selectedDate;
   int? leaveType;
+
+  /// used to force rebuild dropdown to its initial state after success
+  int _dropdownResetToken = 0;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -37,32 +43,49 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        _dateController.text = "${picked.year}-${picked.month}-${picked.day}";
+        _dateController.text =
+        "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
+  }
+
+  void _resetForm() {
+    setState(() {
+      _selectedDate = null;
+      leaveType = null;
+      _dateController.clear();
+      _messageController.clear();
+      _dropdownResetToken++;
+    });
   }
 
   @override
   void dispose() {
     _dateController.dispose();
+    _messageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    ///show error dialog when network response error
+    ref.listen<AsyncValue>(
+      sendLeaveRequestControllerProvider,
+          (_, state) => state.showAlertDialogOnError(context),
+    );
     ///states
     final leaveTypesState = ref.watch(fetchLeaveTypesDataProvider);
     final sendLeaveRequestState = ref.watch(sendLeaveRequestControllerProvider);
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: CustomAppBarView(title: 'Leave Request'),
+      appBar: const CustomAppBarView(title: 'Leave Request'),
       body: Stack(
         children: [
           ///body view
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(kMarginXXLarge),
+              padding: const EdgeInsets.all(kMarginXLarge),
               child: leaveTypesState.when(
                 data: (leaveTypesData) {
                   return Column(
@@ -76,19 +99,22 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                         controller: _dateController,
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           hintText: 'Choose Date',
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintStyle: const TextStyle(color: Colors.grey),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.calendar_today),
                             onPressed: () => _selectDate(context),
@@ -101,20 +127,16 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                       20.vGap,
 
                       ///leave type dropdown
-                      Text(
-                        'Leave Type',
-                        style: TextStyle(fontSize: kTextRegular2x),
-                      ),
+                      Text('Leave Type', style: TextStyle(fontSize: kTextRegular2x)),
                       10.vGap,
                       SizedBox(
                         height: 60,
                         child: DynamicDropDownWidget(
+                          key: ValueKey(_dropdownResetToken),
                           hintText: 'Choose Leave Type',
                           items: leaveTypesData.data,
                           onSelect: (value) {
-                            setState(() {
-                              leaveType = value.id;
-                            });
+                            setState(() => leaveType = value.id);
                             debugPrint("LeaveType::::::>>>>${value.id}");
                           },
                         ),
@@ -130,19 +152,22 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                         controller: _messageController,
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           disabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(width: 1, color: Colors.grey),
+                            borderSide:
+                            const BorderSide(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           hintText: 'Type reason for leave',
-                          hintStyle: TextStyle(color: Colors.grey),
+                          hintStyle: const TextStyle(color: Colors.grey),
                         ),
                       ),
 
@@ -155,37 +180,37 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                           containerVPadding: 10,
                           text: 'Send',
                           onTap: () async {
-                            if(_dateController.text.isEmpty){
+                            if (_dateController.text.isEmpty) {
                               context.showErrorSnackBar('Please select date');
+                              return;
                             }
-                            else if(leaveType == null){
+                            if (leaveType == null) {
                               context.showErrorSnackBar('Please select leave type');
+                              return;
                             }
-                            else if(_messageController.text.isEmpty){
-                              context.showErrorSnackBar('Please type the reason for leave.');
+                            if (_messageController.text.isEmpty) {
+                              context.showErrorSnackBar(
+                                  'Please type the reason for leave.');
+                              return;
                             }
-                            else{
-                              final bool isSuccess = await ref
-                                  .read(sendLeaveRequestControllerProvider.notifier)
-                                  .sendLeaveRequest(
-                                date: _dateController.text,
-                                leaveType: leaveType,
-                                message: _messageController.text,
-                              );
 
-                              ///is success
-                              if (isSuccess) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '✅ Leave request sent.!',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green[700],
-                                    duration: Duration(seconds: 4),
-                                  ),
-                                );
-                              }
+                            final bool isSuccess = await ref
+                                .read(sendLeaveRequestControllerProvider.notifier)
+                                .sendLeaveRequest(
+                              date: _dateController.text,
+                              leaveType: leaveType,
+                              message: _messageController.text,
+                            );
+
+                            if (!mounted) return;
+                            debugPrint("IsSuccess>>>>$isSuccess");
+
+                            /// on success -> clear everything the user entered
+                            if (isSuccess) {
+                              _resetForm();
+                              await leaveRequestSuccessDialog(
+                                  context);
+
                             }
                           },
                           bgColor: kPrimaryColor,
@@ -195,12 +220,11 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                     ],
                   );
                 },
-                loading:
-                    () => const Center(
-                      child: CircularProgressIndicator(color: kPrimaryColor),
-                    ),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: kPrimaryColor),
+                ),
                 error: (Object error, StackTrace stackTrace) {
-                  return Container();
+                  return const SizedBox.shrink();
                 },
               ),
             ),
@@ -222,3 +246,4 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
     );
   }
 }
+

@@ -19,23 +19,27 @@ import '../../../common_widgets/reject_success_dialog.dart';
 import '../../../network/api_constants.dart';
 import '../../../utils/secure_storage.dart';
 import '../../../utils/strings.dart';
+import '../../admin_dashboard/model/employee_dropdown_response.dart';
+import '../../edit_employee/presentation/edit_employee_page.dart';
 import '../../employee_leaves/controller/employee_leaves_controller.dart';
+import '../model/employee_profile_response.dart';
 import 'leave_summary_page.dart';
 
-class EmployeeDetailsPage extends StatefulWidget {
+class EmployeeDetailsPage extends ConsumerStatefulWidget {
   const EmployeeDetailsPage({super.key, required this.userID});
 
   final int? userID;
 
   @override
-  State<EmployeeDetailsPage> createState() => _EmployeeDetailsPageState();
+  ConsumerState<EmployeeDetailsPage> createState() =>
+      _EmployeeDetailsPageState();
 }
 
 /// ===============================================================
 ///  PAGE
 /// ===============================================================
 
-class _EmployeeDetailsPageState extends State<EmployeeDetailsPage>
+class _EmployeeDetailsPageState extends ConsumerState<EmployeeDetailsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
 
@@ -53,36 +57,71 @@ class _EmployeeDetailsPageState extends State<EmployeeDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AdminCustomAppBarView(title: 'Detail Employee',isShowRightIcon: true,
-        onTap: (){},),
-        body: Column(
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: _TopTabs(controller: _tabs),
-            ),
-            const SizedBox(height: 6),
-            Expanded(
-              child: TabBarView(
-                controller: _tabs,
-                children: [
-                  _PersonalTab(userId: widget.userID ?? 0),
-                  _AttendanceTab(userId: widget.userID ?? 0),
-                  _LeaveTab(
-                    userId: widget.userID ?? 0,
+    ///provider states
+    final employeeProfileState = ref.watch(
+      fetchEmployeeProfileDataProvider(userID: widget.userID ?? 0),
+    );
+    return employeeProfileState.when(
+      data: (profile) {
+        return DefaultTabController(
+          length: 4,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AdminCustomAppBarView(
+              title: 'Detail Employee',
+              isShowRightIcon: false,
+              isShowEditIcon: true,
+              onTapEdit: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => EditEmployeePage(
+                          profile: profile.data ?? ProfileVO(),
+                        ),
                   ),
-                  const _PayrollTab(),
-                ],
-              ),
+                );
+              },
             ),
-          ],
-        ),
-      ),
+            body: Column(
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: _TopTabs(controller: _tabs),
+                ),
+                const SizedBox(height: 6),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabs,
+                    children: [
+                      _PersonalTab(profile: profile.data ?? ProfileVO()),
+                      _AttendanceTab(userId: widget.userID ?? 0),
+                      _LeaveTab(userId: widget.userID ?? 0),
+                      const _PayrollTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading:
+          () => Scaffold(
+            backgroundColor: Colors.white,
+            body: const Center(
+              child: CircularProgressIndicator(color: kPrimaryColor),
+            ),
+          ),
+      error:
+          (error, stack) => ErrorRetryView(
+            title: 'Error loading profile data',
+            message: error.toString(),
+            onRetry: () {
+              ref.invalidate(fetchEmployeeProfileDataProvider);
+            },
+          ),
     );
   }
 }
@@ -144,78 +183,48 @@ class _TopTabs extends StatelessWidget {
 /// ===============================================================
 
 class _PersonalTab extends ConsumerWidget {
-  const _PersonalTab({required this.userId});
+  const _PersonalTab({required this.profile});
 
-  final int userId;
+  final ProfileVO profile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
 
-    ///provider states
-    final employeeProfileState = ref.watch(
-      fetchEmployeeProfileDataProvider(userID: userId),
-    );
-
-    return employeeProfileState.when(
-      data: (profileData) {
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          children: [
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: cs.surfaceVariant,
-                    child: const Icon(Icons.person, size: 42),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    profileData.data?.name ?? '',
-                    style: tt.titleMedium?.w700(),
-                  ),
-                ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [
+        Center(
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 36,
+                backgroundColor: cs.surfaceVariant,
+                child: const Icon(Icons.person, size: 42),
               ),
+              const SizedBox(height: 8),
+              Text(profile.name ?? '', style: tt.titleMedium?.w700()),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _InfoBlock(
+          items: [
+            _InfoRow('Position', profile.position?.name ?? ''),
+            _InfoRow('Employee Type', profile.position?.name ?? ''),
+            _InfoRow('Country', profile.country?.name ?? ''),
+            _InfoRow('Business Unit', profile.bussinessUnit?.name ?? ''),
+            _InfoRow('Department', profile.departments ?? ''),
+            _InfoRow(
+              'Department Head',
+              profile.isDepartmentHead == 1 ? 'Yes' : 'No',
             ),
-            const SizedBox(height: 16),
-            _InfoBlock(
-              items: [
-                _InfoRow('Position', profileData.data?.position?.name ?? ''),
-                _InfoRow(
-                  'Employee Type',
-                  profileData.data?.position?.name ?? '',
-                ),
-                _InfoRow('Country', profileData.data?.country?.name ?? ''),
-                _InfoRow(
-                  'Business Unit',
-                  profileData.data?.bussinessUnit?.name ?? '',
-                ),
-                _InfoRow('Department', profileData.data?.departments ?? ''),
-                _InfoRow(
-                  'Department Head',
-                  profileData.data?.isDepartmentHead == 1 ? 'Yes' : 'No',
-                ),
-                _InfoRow('Email Address', profileData.data?.email ?? ''),
-                _InfoRow('Phone Number', profileData.data?.phone ?? ''),
-              ],
-            ),
+            _InfoRow('Email Address', profile.email ?? ''),
+            _InfoRow('Phone Number', profile.phone ?? ''),
           ],
-        );
-      },
-      loading:
-          () => const Center(
-            child: CircularProgressIndicator(color: kPrimaryColor),
-          ),
-      error:
-          (error, stack) => ErrorRetryView(
-            title: 'Error loading profile data',
-            message: error.toString(),
-            onRetry: () {
-              ref.invalidate(fetchEmployeeProfileDataProvider(userID: userId));
-            },
-          ),
+        ),
+      ],
     );
   }
 }
@@ -493,9 +502,8 @@ String _statusToLabel(LeaveStatus? s) {
 }
 
 class _LeaveTab extends ConsumerWidget {
-  const _LeaveTab({
-    required this.userId,
-  });
+  const _LeaveTab({required this.userId});
+
   final int userId;
 
   @override
@@ -509,7 +517,9 @@ class _LeaveTab extends ConsumerWidget {
       fetchEmployeeLeavesDataProvider(userID: userId, leaveStatus: statusParam),
     );
 
-    final allEmployeeLeavesControllerState = ref.watch(employeeLeavesControllerProvider);
+    final allEmployeeLeavesControllerState = ref.watch(
+      employeeLeavesControllerProvider,
+    );
 
     return Stack(
       children: [
@@ -526,9 +536,7 @@ class _LeaveTab extends ConsumerWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (_) => LeaveSummaryPage(userId: userId,
-                                ),
+                            builder: (_) => LeaveSummaryPage(userId: userId),
                           ),
                         );
                       },
@@ -578,8 +586,9 @@ class _LeaveTab extends ConsumerWidget {
                                   initial: selectedStatus ?? LeaveStatus.all,
                                 );
                             if (result != null) {
-                              ref.read(leaveFilterProvider(userId).notifier).state =
-                                  result;
+                              ref
+                                  .read(leaveFilterProvider(userId).notifier)
+                                  .state = result;
                             }
                           },
                           child: const Padding(
@@ -611,37 +620,43 @@ class _LeaveTab extends ConsumerWidget {
                         final leaveStatusVO = leaves.data[i];
 
                         return EmployeeLeaveItemView(
+                          userId: userId,
                           showMemberHeader: false,
-                          onApprove: (id) async{
+                          onApprove: (id) async {
                             final ok = await showApproveConfirmDialog(context);
                             if (ok) {
                               if (!allEmployeeLeavesControllerState.isLoading) {
                                 final bool isSuccess = await ref
-                                    .read(employeeLeavesControllerProvider.notifier)
-                                    .updateLeaveRequest(leaveId: id,leaveStatus: kLeaveStatusApproved);
+                                    .read(
+                                      employeeLeavesControllerProvider.notifier,
+                                    )
+                                    .updateLeaveRequest(
+                                      leaveId: id,
+                                      leaveStatus: kLeaveStatusApproved,
+                                    );
 
                                 ///is success
-                                  ref.invalidate(
-                                    fetchEmployeeLeavesDataProvider,
-                                  );
-                                  await showApproveSuccessDialog(context);
-
+                                ref.invalidate(fetchEmployeeLeavesDataProvider);
+                                await showApproveSuccessDialog(context);
                               }
                             }
                           },
-                          onReject: (id) async{
+                          onReject: (id) async {
                             final ok = await showRejectConfirmDialog(context);
                             if (ok) {
                               if (!allEmployeeLeavesControllerState.isLoading) {
                                 final bool isSuccess = await ref
-                                    .read(employeeLeavesControllerProvider.notifier)
-                                    .updateLeaveRequest(leaveId: id,leaveStatus: kLeaveStatusReject);
+                                    .read(
+                                      employeeLeavesControllerProvider.notifier,
+                                    )
+                                    .updateLeaveRequest(
+                                      leaveId: id,
+                                      leaveStatus: kLeaveStatusReject,
+                                    );
 
                                 ///is success
-                                  ref.invalidate(
-                                    fetchEmployeeLeavesDataProvider,
-                                  );
-                                  await showRejectSuccessDialog(context);
+                                ref.invalidate(fetchEmployeeLeavesDataProvider);
+                                await showRejectSuccessDialog(context);
                               }
                             }
                           },

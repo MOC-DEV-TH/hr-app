@@ -11,15 +11,15 @@ class CheckOutController extends _$CheckOutController {
   FutureOr<void> build() {}
 
   Future<bool> checkOut({String? reason}) async {
-    final homeRepository = ref.read(homeRepositoryProvider);
-    state = const AsyncValue.loading();
-    final result = await AsyncValue.guard(() =>
-        homeRepository.checkOut());
-        if (mounted)
-    {
-      state = result;
-    }
+    state = const AsyncLoading();
 
-    return state.hasError == false;
+    final repo = ref.read(homeRepositoryProvider);
+    final result = await AsyncValue.guard(() => repo.checkOut(reason: reason));
+    if (!mounted) return false;
+    state = result;
+    
+    return !result.hasError;
   }
+
+
 }

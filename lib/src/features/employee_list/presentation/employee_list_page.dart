@@ -50,7 +50,7 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
   }
 
   void _onScroll() {
-    if (_query.isNotEmpty) return; // disable paging when searching
+    if (_query.isNotEmpty) return;
     if (_isLoading || !_hasMore || _bottomError != null) return;
     if (_scrollCtrl.position.pixels >=
         _scrollCtrl.position.maxScrollExtent - 200) {

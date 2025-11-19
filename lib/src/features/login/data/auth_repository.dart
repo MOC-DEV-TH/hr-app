@@ -42,7 +42,7 @@ class AuthRepository {
       final tokenBox = GetStorage();
 
       tokenBox.write(
-        SecureDataList.token.name,
+        SecureDataList.authToken.name,
         response.data["data"]['access_token'],
       );
 

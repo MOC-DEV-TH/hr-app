@@ -1,28 +1,28 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'add_new_employee_controller.dart';
+part of 'edit_employee_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$addNewEmployeeControllerHash() =>
-    r'8e76bc26a53b68886936e9f175c7146d7db27686';
+String _$editEmployeeControllerHash() =>
+    r'f2bf7025caccc1fd3ad5af79728676f88af37eec';
 
-/// See also [AddNewEmployeeController].
-@ProviderFor(AddNewEmployeeController)
-final addNewEmployeeControllerProvider =
-    AutoDisposeAsyncNotifierProvider<AddNewEmployeeController, void>.internal(
-      AddNewEmployeeController.new,
-      name: r'addNewEmployeeControllerProvider',
+/// See also [EditEmployeeController].
+@ProviderFor(EditEmployeeController)
+final editEmployeeControllerProvider =
+    AutoDisposeAsyncNotifierProvider<EditEmployeeController, void>.internal(
+      EditEmployeeController.new,
+      name: r'editEmployeeControllerProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$addNewEmployeeControllerHash,
+              : _$editEmployeeControllerHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$AddNewEmployeeController = AutoDisposeAsyncNotifier<void>;
+typedef _$EditEmployeeController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

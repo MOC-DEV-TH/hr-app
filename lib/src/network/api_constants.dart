@@ -26,6 +26,13 @@ const String kEndPointGetEmployeeAttendancesByBU = '/attendance-bussiness-unit';
 const String kEndPointGetEmployeeDetails = "/profile";
 const String kEndPointUpdateLeaveRequest = "/leaves/update";
 const String kEndPointGetAllEmployeeLeaves = "/leaves/all";
+const String kEndPointGetEmployeeDropdownData = "/employee-dropdown-data";
+const String kEndPointCreateEmployee = "/create-employees";
+const String kEndPointUpdateEmployee = "/update-employees";
+const String kEndPointHolidayList = "/get-holiday-list";
+const String kEndPointAllBusinessUnitList = "/get-business-unit-list";
+
+
 
 
 ///Parameters

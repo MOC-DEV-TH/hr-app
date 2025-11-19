@@ -48,11 +48,11 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     ///show error dialog when network response error
     ref.listen<AsyncValue>(
       checkOutControllerProvider,
-      (_, state) => state.showAlertDialogOnError(context),
+          (_, state) => state.showAlertDialogOnError(context),
     );
     ref.listen<AsyncValue>(
       checkInControllerProvider,
-      (_, state) => state.showAlertDialogOnError(context),
+          (_, state) => state.showAlertDialogOnError(context),
     );
 
     ///provider states
@@ -60,15 +60,18 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     final checkInState = ref.watch(checkInControllerProvider);
     final checkOutState = ref.watch(checkOutControllerProvider);
     final attendanceState = ref.watch(fetchAttendanceDataProvider);
-    
+
     ///check in user role
-    final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
+    final loginUserRole = ref
+        .watch(getLoginUserRoleProvider)
+        .value;
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar:(loginUserRole == kLoginUserRoleCeo ||
+      appBar: (loginUserRole == kLoginUserRoleCeo ||
           loginUserRole == kLoginUserRoleDirector ||
-          loginUserRole == kLoginUserRoleManager) ? CustomAppBarView(title: 'Check-in/out') : AppBar(
+          loginUserRole == kLoginUserRoleManager) ? CustomAppBarView(
+          title: 'Check-in/out') : AppBar(
         backgroundColor: kWhiteColor,
         toolbarHeight: 50,
         bottom: PreferredSize(
@@ -76,11 +79,14 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
           child: Container(color: kGreyColor, height: 0.5),
         ),
       ),
-      drawer:(loginUserRole == kLoginUserRoleCeo ||
+      drawer: (loginUserRole == kLoginUserRoleCeo ||
           loginUserRole == kLoginUserRoleDirector ||
-          loginUserRole == kLoginUserRoleManager) ? SizedBox() : const CustomDrawer(),
+          loginUserRole == kLoginUserRoleManager)
+          ? SizedBox()
+          : const CustomDrawer(),
       body: Stack(
         children: [
+
           /// Main content based on config and attendance states
           configState.when(
             data: (configData) {
@@ -91,8 +97,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                   ).format(DateTime.now());
 
                   final todayDatum = attendanceData.data.firstWhere(
-                    (datum) =>
-                        DateFormat('yyyy-MM-dd').format(datum.date!) ==
+                        (datum) =>
+                    DateFormat('yyyy-MM-dd').format(datum.date!) ==
                         currentDate,
                     orElse: () => AttendanceDataVO(date: null, attendances: []),
                   );
@@ -104,16 +110,18 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                   return StreamBuilder<DateTime>(
                     stream: Stream.periodic(
                       const Duration(seconds: 1),
-                      (_) => DateTime.now(),
+                          (_) => DateTime.now(),
                     ),
                     builder: (context, snapshot) {
                       final currentTime = snapshot.data ?? DateTime.now();
 
                       ///calculate working period
-                      final wp = ref.read(homeRepositoryProvider).computeWorkingPeriod(todayDatum.attendances);
-                      final clockInText  = wp.clockInText;
+                      final wp = ref
+                          .read(homeRepositoryProvider)
+                          .computeWorkingPeriod(todayDatum.attendances);
+                      final clockInText = wp.clockInText;
                       final clockOutText = wp.clockOutText;
-                      final periodText   = wp.periodText;
+                      final periodText = wp.periodText;
 
                       return SafeArea(
                         child: SingleChildScrollView(
@@ -140,10 +148,10 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                       containerVPadding: 10,
                                       text: 'Work From Home',
                                       buttonTextColor:
-                                          _selectedLocation ==
-                                                  WorkLocation.workFromHome
-                                              ? Colors.white
-                                              : kPrimaryColor,
+                                      _selectedLocation ==
+                                          WorkLocation.workFromHome
+                                          ? Colors.white
+                                          : kPrimaryColor,
                                       onTap: () {
                                         setState(() {
                                           _selectedLocation =
@@ -151,10 +159,10 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                         });
                                       },
                                       bgColor:
-                                          _selectedLocation ==
-                                                  WorkLocation.workFromHome
-                                              ? kPrimaryColor
-                                              : kWhiteColor,
+                                      _selectedLocation ==
+                                          WorkLocation.workFromHome
+                                          ? kPrimaryColor
+                                          : kWhiteColor,
                                       isShowBorderColor: true,
                                     ),
                                   ),
@@ -168,10 +176,10 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                       containerVPadding: 10,
                                       text: 'Office',
                                       buttonTextColor:
-                                          _selectedLocation ==
-                                                  WorkLocation.office
-                                              ? Colors.white
-                                              : kPrimaryColor,
+                                      _selectedLocation ==
+                                          WorkLocation.office
+                                          ? Colors.white
+                                          : kPrimaryColor,
                                       onTap: () {
                                         setState(() {
                                           _selectedLocation =
@@ -179,10 +187,10 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                         });
                                       },
                                       bgColor:
-                                          _selectedLocation ==
-                                                  WorkLocation.office
-                                              ? kPrimaryColor
-                                              : kWhiteColor,
+                                      _selectedLocation ==
+                                          WorkLocation.office
+                                          ? kPrimaryColor
+                                          : kWhiteColor,
                                       isShowBorderColor: true,
                                     ),
                                   ),
@@ -201,7 +209,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                   4.vGap,
 
                                   Text(
-                                    DateTime.now().formattedFullDate,
+                                    DateTime
+                                        .now()
+                                        .formattedFullDate,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.normal,
@@ -227,6 +237,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+
                                       /// CHECK-IN BUTTON
                                       if (!hasCheckedIn)
                                         CircleActionButton(
@@ -243,9 +254,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                               if (!checkInState.isLoading) {
                                                 final isSuccess = await ref
                                                     .read(
-                                                      checkInControllerProvider
-                                                          .notifier,
-                                                    )
+                                                  checkInControllerProvider
+                                                      .notifier,
+                                                )
                                                     .checkIn(type: kTypeWfh);
 
                                                 if (isSuccess) {
@@ -259,16 +270,16 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                                 context,
                                                 double.tryParse(
                                                   configData
-                                                          .data
-                                                          ?.businessUnit
-                                                          ?.lat ??
+                                                      .data
+                                                      ?.businessUnit
+                                                      ?.lat ??
                                                       '',
                                                 ),
                                                 double.tryParse(
                                                   configData
-                                                          .data
-                                                          ?.businessUnit
-                                                          ?.long ??
+                                                      .data
+                                                      ?.businessUnit
+                                                      ?.long ??
                                                       '',
                                                 ),
                                                 configData.data?.allowDistance,
@@ -284,7 +295,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                       if (hasCheckedIn || hasCheckedOut)
                                         CircleActionButton(
                                           onTap: () async {
-                                            if(hasCheckedOut == true){
+                                            if (hasCheckedOut == true) {
                                               return;
                                             }
                                             if (_selectedLocation == null) {
@@ -295,56 +306,60 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                             }
 
                                             await showClockOutConfirmBottomSheet(
-                                              context,
-                                              clockInText: clockInText,
-                                              clockOutText: clockOutText,
-                                              periodText: periodText,
-                                              onConfirm: () async {
+                                                context,
+                                                clockInText: clockInText,
+                                                clockOutText: clockOutText,
+                                                periodText: periodText,
+                                                onConfirm: () async {
+                                                  if (_selectedLocation ==
+                                                      WorkLocation
+                                                          .workFromHome) {
+                                                    if (!checkOutState
+                                                        .isLoading) {
+                                                      final isSuccess = await ref
+                                                          .read(
+                                                        checkOutControllerProvider
+                                                            .notifier,
+                                                      )
+                                                          .checkOut();
 
-                                                if (_selectedLocation ==
-                                                    WorkLocation.workFromHome) {
-                                                  if (!checkOutState.isLoading) {
-                                                    final isSuccess = await ref
-                                                        .read(
-                                                      checkOutControllerProvider
-                                                          .notifier,
-                                                    )
-                                                        .checkOut();
-
-                                                    if (isSuccess) {
-                                                      await showClockOutSuccessDialog(context);
-                                                      ref.invalidate(
-                                                        fetchAttendanceDataProvider,
-                                                      );
+                                                      if (isSuccess) {
+                                                        await showClockOutSuccessDialog(
+                                                            context);
+                                                        ref.invalidate(
+                                                          fetchAttendanceDataProvider,
+                                                        );
+                                                      }
                                                     }
+                                                  } else {
+                                                    _handleOfficeCheckOut(
+                                                      context,
+                                                      double.tryParse(
+                                                        configData
+                                                            .data
+                                                            ?.businessUnit
+                                                            ?.lat ??
+                                                            '',
+                                                      ),
+                                                      double.tryParse(
+                                                        configData
+                                                            .data
+                                                            ?.businessUnit
+                                                            ?.long ??
+                                                            '',
+                                                      ),
+                                                      configData.data
+                                                          ?.allowLogoutDistance,
+                                                    );
                                                   }
-                                                } else {
-                                                  _handleOfficeCheckOut(
-                                                    context,
-                                                    double.tryParse(
-                                                      configData
-                                                          .data
-                                                          ?.businessUnit
-                                                          ?.lat ??
-                                                          '',
-                                                    ),
-                                                    double.tryParse(
-                                                      configData
-                                                          .data
-                                                          ?.businessUnit
-                                                          ?.long ??
-                                                          '',
-                                                    ),
-                                                    configData.data?.allowLogoutDistance,
-                                                  );
                                                 }
-                                              }
                                             );
-
                                           },
                                           label: 'Check-Out',
                                           icon: Icons.logout,
-                                          backgroundColor:hasCheckedOut ? Colors.grey : Colors.orange,
+                                          backgroundColor: hasCheckedOut
+                                              ? Colors.grey
+                                              : Colors.orange,
                                         ),
                                     ],
                                   ),
@@ -369,26 +384,31 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                   );
                 },
                 loading:
-                    () => const Center(
-                      child: CircularProgressIndicator(color: kPrimaryColor),
-                    ),
-                error: (error, stackTrace) => ErrorRetryView(
-                  title: 'Error loading attendance',
-                  message: error.toString(),
-                  onRetry: () => ref.invalidate(fetchAttendanceDataProvider),
+                    () =>
+                const Center(
+                  child: CircularProgressIndicator(color: kPrimaryColor),
                 ),
+                error: (error, stackTrace) =>
+                    ErrorRetryView(
+                      title: 'Error loading attendance',
+                      message: error.toString(),
+                      onRetry: () =>
+                          ref.invalidate(fetchAttendanceDataProvider),
+                    ),
 
               );
             },
             loading:
-                () => const Center(
-                  child: CircularProgressIndicator(color: kPrimaryColor),
-                ),
-            error: (error, stackTrace) => ErrorRetryView(
-              title: 'Error loading config',
-              message: error.toString(),
-              onRetry: () => ref.invalidate(fetchConfigDataProvider),
+                () =>
+            const Center(
+              child: CircularProgressIndicator(color: kPrimaryColor),
             ),
+            error: (error, stackTrace) =>
+                ErrorRetryView(
+                  title: 'Error loading config',
+                  message: error.toString(),
+                  onRetry: () => ref.invalidate(fetchConfigDataProvider),
+                ),
           ),
 
           /// Overlay loading indicator when any loading is active
@@ -411,17 +431,16 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
 
 
   ///handle office check in
-  Future<void> _handleOfficeCheckIn(
-      BuildContext context,
+  Future<void> _handleOfficeCheckIn(BuildContext context,
       double? lat,
       double? long,
-      int? allowDistanceRadius,
-      ) async {
+      int? allowDistanceRadius,) async {
     setState(() {
       _isShowLoadingView = true;
     });
 
-    final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
+    final isAllowRemoteLoginStatus = GetStorage().read(
+        SecureDataList.isRemoteLogin.name) as String?;
 
     debugPrint("RemoteLoginStatus===>$isAllowRemoteLoginStatus");
 
@@ -491,102 +510,215 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     }
   }
 
-
-  ///handle office check out
-  Future<void> _handleOfficeCheckOut(
-      BuildContext context,
+  /// Handle office check-out
+  Future<void> _handleOfficeCheckOut(BuildContext context,
       double? lat,
       double? long,
-      int? allowDistanceRadius,
-      ) async {
-    setState(() {
-      _isShowLoadingView = true;
-    });
-    final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
+      int? allowDistanceRadius,) async {
+    if (_isShowLoadingView) return;
 
+    setState(() => _isShowLoadingView = true);
     try {
+      if (!mounted) return;
 
-      final bool isRemoteAllowed =
-          isAllowRemoteLoginStatus.toString() == '1';
+      final raw = GetStorage().read(SecureDataList.isRemoteLogin.name);
+      final isRemoteAllowed = (raw?.toString() ?? '0') == '1';
 
+      /// ---- Remote-allowed path (no location check) ----
       if (isRemoteAllowed) {
-        final bool isSuccess = await ref
+        final ok = await ref
             .read(checkOutControllerProvider.notifier)
-            .checkOut();
-
-        if (isSuccess) {
-          ref.invalidate(fetchAttendanceDataProvider);
-          await showClockOutSuccessDialog(context);
-        }
+            .checkOut().then((val){
+          if(val == true){
+            ref.invalidate(fetchAttendanceDataProvider);
+            showClockOutSuccessDialog(context);
+          }
+          else{
+            context.showErrorDialog('Something went wrong', 'Check-Out Failed');
+          }
+        });
+        if (!mounted) return;
         return;
       }
 
-      /// Check location services
-      if (!await LocationService.isLocationServiceEnabled()) {
+      /// ---- Local-only path: require location services & permission ----
+      final serviceEnabled = await LocationService.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
         context.showErrorDialog(
           'Please enable location services',
-          'Check-In Failed',
+          'Check-Out Failed',
         );
         return;
       }
 
-      /// Check permissions
       var permission = await LocationService.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await LocationService.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
+        final granted = permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always;
+        if (!granted) {
+          if (!mounted) return;
           context.showErrorDialog(
             'Location permission required',
-            'Check-In Failed',
+            'Check-Out Failed',
           );
           return;
         }
       }
 
-      /// Check out within office radius
+      /// ---- Radius gate ----
       final isWithinRadius = await LocationService.isWithinOfficeRadius(
         lat,
         long,
         allowDistanceRadius?.toDouble(),
       );
-      if (!isWithinRadius) {
-        await showClockOutNotAllowedDialog(context,onUnderstand: (){
-          showClockOutRestrictedBottomSheet(context,onSubmit: (clockOutReason) async{
-            final isSuccess = await ref
-                .read(
-              checkOutControllerProvider
-                  .notifier,
-            )
-                .checkOut(reason: clockOutReason);
 
-            if (isSuccess) {
-              await showClockOutSuccessDialog(context);
-              ref.invalidate(
-                fetchAttendanceDataProvider,
-              );
-            }
-          });
-        });
+      if (!isWithinRadius) {
+        if (!mounted) return;
+        await showClockOutNotAllowedDialog(
+          context,
+          onUnderstand: () {
+            showClockOutRestrictedBottomSheet(
+              context,
+              onSubmit: (clockOutReason) async {
+                final ok = await ref
+                    .read(checkOutControllerProvider.notifier)
+                    .checkOut(reason: clockOutReason).then((val){
+                  if(val == true){
+                    ref.invalidate(fetchAttendanceDataProvider);
+                    showClockOutSuccessDialog(context);
+                  }
+                  else{
+                    context.showErrorDialog('Something went wrong', 'Check-Out Failed');
+                  }
+                });
+
+                if (!mounted) return;
+              },
+            );
+          },
+        );
         return;
       }
 
-      /// Proceed with office check-in
-      final bool isSuccess = await ref
-          .read(checkOutControllerProvider.notifier)
-          .checkOut();
-
-      if (isSuccess) {
-        ref.invalidate(fetchAttendanceDataProvider);
-        await showClockOutSuccessDialog(context);
-      }
-    } catch (e) {
-      context.showErrorDialog('Something went wrong', 'Check-In Failed');
-    } finally {
-      setState(() {
-        _isShowLoadingView = false;
+      /// ---- Normal in-radius checkout ----
+      final ok = await ref.read(checkOutControllerProvider.notifier).checkOut()
+      .then((val){
+        if(val == true){
+          ref.invalidate(fetchAttendanceDataProvider);
+          showClockOutSuccessDialog(context);
+        }
+        else{
+          context.showErrorDialog('Something went wrong', 'Check-Out Failed');
+        }
       });
+      if (!mounted) return;
+    } catch (e) {
+      if (!mounted) return;
+    } finally {
+      if (mounted) {
+        setState(() => _isShowLoadingView = false);
+      }
     }
   }
 }
+
+//   ///handle office check out
+//   Future<void> _handleOfficeCheckOut(
+//       BuildContext context,
+//       double? lat,
+//       double? long,
+//       int? allowDistanceRadius,
+//       ) async {
+//     setState(() {
+//       _isShowLoadingView = true;
+//     });
+//     final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
+//
+//     try {
+//
+//       final bool isRemoteAllowed =
+//           isAllowRemoteLoginStatus.toString() == '1';
+//
+//       if (isRemoteAllowed) {
+//         final bool isSuccess = await ref
+//             .read(checkOutControllerProvider.notifier)
+//             .checkOut();
+//
+//         if (isSuccess) {
+//           ref.invalidate(fetchAttendanceDataProvider);
+//           await showClockOutSuccessDialog(context);
+//         }
+//         return;
+//       }
+//
+//       /// Check location services
+//       if (!await LocationService.isLocationServiceEnabled()) {
+//         context.showErrorDialog(
+//           'Please enable location services',
+//           'Check-In Failed',
+//         );
+//         return;
+//       }
+//
+//       /// Check permissions
+//       var permission = await LocationService.checkPermission();
+//       if (permission == LocationPermission.denied) {
+//         permission = await LocationService.requestPermission();
+//         if (permission != LocationPermission.whileInUse &&
+//             permission != LocationPermission.always) {
+//           context.showErrorDialog(
+//             'Location permission required',
+//             'Check-In Failed',
+//           );
+//           return;
+//         }
+//       }
+//
+//       /// Check out within office radius
+//       final isWithinRadius = await LocationService.isWithinOfficeRadius(
+//         lat,
+//         long,
+//         allowDistanceRadius?.toDouble(),
+//       );
+//       if (!isWithinRadius) {
+//         await showClockOutNotAllowedDialog(context,onUnderstand: (){
+//           showClockOutRestrictedBottomSheet(context,onSubmit: (clockOutReason) async{
+//             final isSuccess = await ref
+//                 .read(
+//               checkOutControllerProvider
+//                   .notifier,
+//             )
+//                 .checkOut(reason: clockOutReason);
+//
+//             if (isSuccess) {
+//               await showClockOutSuccessDialog(context);
+//               ref.invalidate(
+//                 fetchAttendanceDataProvider,
+//               );
+//             }
+//           });
+//         });
+//         return;
+//       }
+//
+//       /// Proceed with office check-in
+//       final bool isSuccess = await ref
+//           .read(checkOutControllerProvider.notifier)
+//           .checkOut();
+//
+//       if (isSuccess) {
+//         ref.invalidate(fetchAttendanceDataProvider);
+//         await showClockOutSuccessDialog(context);
+//       }
+//     } catch (e) {
+//       context.showErrorDialog('Something went wrong', 'Check-In Failed');
+//     } finally {
+//       setState(() {
+//         _isShowLoadingView = false;
+//       });
+//     }
+//   }
+// }
 

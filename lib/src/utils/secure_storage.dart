@@ -4,10 +4,12 @@ import 'package:hr_app/src/features/leave_request/model/leave_type_response.dart
 import 'package:hr_app/src/features/login/model/login_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../features/admin_dashboard/model/business_unit_response.dart';
+import '../features/admin_dashboard/model/employee_dropdown_response.dart';
+
 part 'secure_storage.g.dart';
 
 enum SecureDataList {
-  token,
   fCMToken,
   isAlreadyLogin,
   isSignedIn,
@@ -18,7 +20,9 @@ enum SecureDataList {
   businessLat,
   businessLong,
   loginUserRole,
-  isRemoteLogin
+  isRemoteLogin,
+  employeeDropdown,
+  businessUnits
 }
 
 class SecureStorage {
@@ -127,6 +131,44 @@ class SecureStorage {
     }
   }
 
+  Future<void> saveEmployeeDropdown(EmployeeDropdownVO data) async {
+    await _box.write(SecureDataList.employeeDropdown.name, data.toJson());
+  }
+
+  /// Read entire dropdowns
+  Future<EmployeeDropdownVO?> getEmployeeDropdown() async {
+    final raw = _box.read(SecureDataList.employeeDropdown.name);
+    if (raw == null) return null;
+    try {
+      return EmployeeDropdownVO.fromJson(Map<String, dynamic>.from(raw));
+    } catch (e) {
+      debugPrint('Error parsing employee dropdown: $e');
+      return null;
+    }
+  }
+
+  Future<void> saveBusinessUnits(List<BusinessUnitVO> units) async {
+    final jsonList = units.map((u) => u.toJson()).toList();
+    await _box.write(SecureDataList.businessUnits.name, jsonList);
+  }
+
+  /// Get ALL business units list
+  Future<List<BusinessUnitVO>> getBusinessUnitsAll() async {
+    final data = _box.read(SecureDataList.businessUnits.name);
+    if (data == null) return [];
+
+    try {
+      return (data as List)
+          .map((e) => BusinessUnitVO.fromJson(
+        Map<String, dynamic>.from(e as Map),
+      ))
+          .toList();
+    } catch (e) {
+      debugPrint('Error parsing business units: $e');
+      return [];
+    }
+  }
+
   ///fcm token
   saveFCMToken(String fcmToken) async {
     await _box.write(SecureDataList.fCMToken.name, fcmToken);
@@ -144,6 +186,37 @@ class SecureStorage {
 
   getAuthToken() {
     return _box.read(SecureDataList.authToken.name);
+  }
+
+  /// Convenience getters
+  Future<List<IDNameVO>> getCountries() async {
+    final d = await getEmployeeDropdown();
+    return d?.countries ?? const <IDNameVO>[];
+  }
+
+  Future<List<IDNameVO>> getBusinessUnits() async {
+    final d = await getEmployeeDropdown();
+    return d?.businessUnits ?? const <IDNameVO>[];
+  }
+
+  Future<List<IDNameVO>> getDepartments() async {
+    final d = await getEmployeeDropdown();
+    return d?.departments ?? const <IDNameVO>[];
+  }
+
+  Future<List<IDNameVO>> getPositions() async {
+    final d = await getEmployeeDropdown();
+    return d?.positions ?? const <IDNameVO>[];
+  }
+
+  Future<List<IDNameVO>> getRoles() async {
+    final d = await getEmployeeDropdown();
+    return d?.roles ?? const <IDNameVO>[];
+  }
+
+  Future<List<IDNameVO>> getEmployeeTypes() async {
+    final d = await getEmployeeDropdown();
+    return d?.employeeTypes ?? const <IDNameVO>[];
   }
 }
 
@@ -181,3 +254,53 @@ Future<List<LeaveTypeVO>?> getLeaveTypes(GetLeaveTypesRef ref) {
   final provider = ref.watch(secureStorageProvider);
   return provider.getLeaveTypes();
 }
+
+@riverpod
+Future<EmployeeDropdownVO?> employeeDropdownLocal(EmployeeDropdownLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getEmployeeDropdown();
+}
+
+@riverpod
+Future<List<IDNameVO>> countriesLocal(CountriesLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getCountries();
+}
+
+@riverpod
+Future<List<IDNameVO>> businessUnitsLocal(BusinessUnitsLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getBusinessUnits();
+}
+
+@riverpod
+Future<List<IDNameVO>> departmentsLocal(DepartmentsLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getDepartments();
+}
+
+@riverpod
+Future<List<IDNameVO>> positionsLocal(PositionsLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getPositions();
+}
+
+@riverpod
+Future<List<IDNameVO>> rolesLocal(RolesLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getRoles();
+}
+
+@riverpod
+Future<List<IDNameVO>> employeeTypesLocal(EmployeeTypesLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getEmployeeTypes();
+}
+
+@riverpod
+Future<List<BusinessUnitVO>> businessUnitsAllLocal(
+    BusinessUnitsAllLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getBusinessUnitsAll();
+}
+

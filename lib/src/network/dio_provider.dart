@@ -10,9 +10,10 @@ part 'dio_provider.g.dart';
 
 @riverpod
 Dio dio(DioRef ref) {
-  final token = GetStorage().read(SecureDataList.token.name) as String?;
+  final token = GetStorage().read(SecureDataList.authToken.name) as String?;
   final headers = <String, String>{
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
     if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
   };
 

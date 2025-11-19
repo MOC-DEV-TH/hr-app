@@ -33,20 +33,56 @@ class LeaveRequestRepository {
 
   ///send leave request
   Future<void> sendLeaveRequest({
-    required date,
-    required leaveType,
-    required message,
+    required String date,
+    required int leaveType,
+    required String message,
   }) async {
+    Response<dynamic> response;
+
     try {
-      final response = await dio.post(
+      response = await dio.post(
         kEndPointCreateLeave,
-        data: {"date": date, "leave_type": leaveType, "message": message},
+        data: {
+          "date": date,
+          "leave_type": leaveType,
+          "message": message,
+        },
+        options: Options(validateStatus: (s) => s != null && s < 400),
       );
-      debugPrint("Send Leave Request response::${response.data}");
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+
+      final msg = _extractServerMessage(e.response?.data) ??
+          e.message ??
+          'Network error';
+      throw msg;
+    } catch (e) {
+      throw 'Unexpected error: $e';
+    }
+
+    final sc = response.statusCode ?? 0;
+    if (sc >= 400) {
+      final msg = _extractServerMessage(response.data) ??
+          'HTTP $sc: ${response.statusMessage ?? 'Server error'}';
+      throw msg;
     }
   }
+
+  String? _extractServerMessage(dynamic data) {
+    try {
+      if (data == null) return null;
+      if (data is String) return data;
+      if (data is Map && data['message'] is String) {
+        return data['message'] as String;
+      }
+      if (data is Map && data['error'] is String) {
+        return data['error'] as String;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
 }
 
 @riverpod

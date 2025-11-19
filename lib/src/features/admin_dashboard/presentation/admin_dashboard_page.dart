@@ -27,6 +27,15 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
   int selectedBusinessUintId = 1;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await ref.read(adminDashboardRepositoryProvider).fetchEmployeeDropdownData();
+      await ref.read(adminDashboardRepositoryProvider).fetchAllBusinessUnitList();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     ///provider states
     final businessUnitsState = ref.watch(fetchBusinessUnitsProvider);
@@ -201,9 +210,8 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                         child: _SummaryCard(
                           title: 'Leave',
                           value:
-                              adminDashboardResponse.data?.leaveCount
-                                  .toString() ??
-                              '',
+                              adminDashboardResponse.data?.leaveCount.toString() ?? '0'
+                          ,
                           border: kBlueColor,
                           bg: kPrimaryColor.withOpacity(.08),
                           textColor: kBlueColor,

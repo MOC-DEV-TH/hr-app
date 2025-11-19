@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
-import 'package:hr_app/src/utils/gap.dart';
 
 class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final Color? bgColor;
   final VoidCallback? onTap;
+  final VoidCallback? onTapEdit;
   final bool isShowRightIcon;
-  const AdminCustomAppBarView({super.key, required this.title,this.bgColor,this.onTap, required this.isShowRightIcon});
+  final bool? isShowEditIcon;
+  const AdminCustomAppBarView({super.key, required this.title,this.bgColor,this.onTap, required this.isShowRightIcon,this.isShowEditIcon,this.onTapEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,12 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
             child: InkWell(
                 onTap: onTap,
                 child: Icon(Icons.more_vert)),
+          ),
+          Visibility(
+            visible: isShowEditIcon == true,
+            child: InkWell(
+                onTap: onTapEdit,
+                child: Icon(Icons.edit_note_rounded)),
           )
         ],
       ),
