@@ -12,10 +12,10 @@ class EditEmployeeController extends _$EditEmployeeController {
     ref.onDispose(() => _mounted = false);
   }
 
-  Future<bool> updateEmployee(dynamic payload) async {
+  Future<bool> updateEmployee(dynamic payload,String employeeId) async {
     final editEmployeeRepo = ref.read(editEmployeeRepositoryProvider);
     state = const AsyncValue.loading();
-    final result = await AsyncValue.guard(() => editEmployeeRepo.updateEmployee(payload));
+    final result = await AsyncValue.guard(() => editEmployeeRepo.updateEmployee(payload,employeeId));
     if (_mounted) {
       state = result;
     }

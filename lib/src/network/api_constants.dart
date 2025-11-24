@@ -31,6 +31,8 @@ const String kEndPointCreateEmployee = "/create-employees";
 const String kEndPointUpdateEmployee = "/update-employees";
 const String kEndPointHolidayList = "/get-holiday-list";
 const String kEndPointAllBusinessUnitList = "/get-business-unit-list";
+const String kEndPointAnnouncementList = "/get-announcement-list";
+
 
 
 

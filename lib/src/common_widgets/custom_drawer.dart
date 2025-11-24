@@ -148,10 +148,7 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
-                  visible:
-                      (loginUserRole == kLoginUserRoleCeo ||
-                          loginUserRole == kLoginUserRoleDirector ||
-                          loginUserRole == kLoginUserRoleManager),
+                  visible:true,
                   child: _buildDrawerItem(
                     context,
                     icon: Icons.calendar_month,
@@ -159,6 +156,19 @@ class CustomDrawer extends ConsumerWidget {
                     onTap: () {
                       Navigator.pop(context);
                       GoRouter.of(context).push(RoutePath.holiday.path);
+                    },
+                  ),
+                ),
+
+                Visibility(
+                  visible:true,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.announcement_outlined,
+                    title: 'Announcement',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.announcement.path);
                     },
                   ),
                 ),

@@ -34,6 +34,7 @@ class AnnouncementVO {
   int? announcementTypeId;
   String? description;
   List<int>? businessUnits;
+  DateTime? createdAt;
 
   AnnouncementVO({
     this.id,
@@ -41,6 +42,7 @@ class AnnouncementVO {
     this.announcementTypeId,
     this.description,
     this.businessUnits,
+    this.createdAt
   });
 
   factory AnnouncementVO.fromJson(Map<String, dynamic> json) => AnnouncementVO(
@@ -49,6 +51,8 @@ class AnnouncementVO {
     announcementTypeId: json["announcement_type_id"],
     description: json["description"],
     businessUnits: json["business_units"] == null ? [] : List<int>.from(json["business_units"]!.map((x) => x)),
+    createdAt:
+    json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -57,5 +61,6 @@ class AnnouncementVO {
     "announcement_type_id": announcementTypeId,
     "description": description,
     "business_units": businessUnits == null ? [] : List<dynamic>.from(businessUnits!.map((x) => x)),
+    "created_at": createdAt?.toIso8601String(),
   };
 }

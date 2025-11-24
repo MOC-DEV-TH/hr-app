@@ -11,16 +11,15 @@ class EditEmployeeRepository {
 
   final Dio dio;
 
-  Future<void> updateEmployee(dynamic payload) async {
-    final formData = FormData.fromMap(payload);
-
-    final res = await dio.post(
-      kEndPointUpdateEmployee,
-      data: formData,
+  Future<void> updateEmployee(dynamic payload, String employeeId) async {
+    final res = await dio.put(
+      "$kEndPointUpdateEmployee/$employeeId",
+      data: payload,
       options: Options(
-        contentType: Headers.multipartFormDataContentType,
-        followRedirects: false,
-        validateStatus: (s) => s != null && s < 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
       ),
     );
 
@@ -28,11 +27,10 @@ class EditEmployeeRepository {
       throw DioException(
         requestOptions: res.requestOptions,
         response: res,
-        error: 'Failed with status ${res.statusCode}',
+        error: res.data["message"],
       );
     }
   }
-
 }
 
 @riverpod

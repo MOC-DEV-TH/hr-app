@@ -338,7 +338,7 @@ class _EditEmployeePageState extends ConsumerState<EditEmployeePage> {
       return;
     }
 
-    final payload = <String, dynamic>{
+    final payload = {
       'id': widget.profile.id,
       'name': _name.text.trim(),
       'phone': _phone.text.trim(),
@@ -357,7 +357,7 @@ class _EditEmployeePageState extends ConsumerState<EditEmployeePage> {
 
     final ok = await ref
         .read(editEmployeeControllerProvider.notifier)
-        .updateEmployee(payload);
+        .updateEmployee(payload,widget.profile.id.toString());
     if (!mounted) return;
     if (ok) ref.invalidate(fetchEmployeeProfileDataProvider);
     if (ok) Navigator.of(context).pop(true);
@@ -594,6 +594,7 @@ class _EditEmployeePageState extends ConsumerState<EditEmployeePage> {
                       label: 'Email',
                       controller: _email,
                       hint: 'Email',
+                      readOnly: true,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
                         final s = (v ?? '').trim();

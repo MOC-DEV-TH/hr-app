@@ -17,9 +17,6 @@ import '../../../common_widgets/loading_view.dart';
 import '../../../common_widgets/reject_confirm_dialog.dart';
 import '../../../common_widgets/reject_success_dialog.dart';
 import '../../../network/api_constants.dart';
-import '../../../utils/secure_storage.dart';
-import '../../../utils/strings.dart';
-import '../../admin_dashboard/model/employee_dropdown_response.dart';
 import '../../edit_employee/presentation/edit_employee_page.dart';
 import '../../employee_leaves/controller/employee_leaves_controller.dart';
 import '../model/employee_profile_response.dart';
@@ -212,7 +209,7 @@ class _PersonalTab extends ConsumerWidget {
         _InfoBlock(
           items: [
             _InfoRow('Position', profile.position?.name ?? ''),
-            _InfoRow('Employee Type', profile.position?.name ?? ''),
+            _InfoRow('Employee Type', profile.employeeType?.name ?? ''),
             _InfoRow('Country', profile.country?.name ?? ''),
             _InfoRow('Business Unit', profile.bussinessUnit?.name ?? ''),
             _InfoRow('Department', profile.departments ?? ''),
