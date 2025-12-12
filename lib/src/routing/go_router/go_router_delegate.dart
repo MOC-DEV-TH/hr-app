@@ -8,7 +8,9 @@ import 'package:hr_app/src/features/employee_list/presentation/employee_list_pag
 import 'package:hr_app/src/features/holiday/presentation/holiday_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
+import 'package:hr_app/src/features/new_dashboard/presentation/new_dashboard_page.dart';
 import 'package:hr_app/src/features/setting/presentation/setting_page.dart';
+import 'package:hr_app/src/features/wfh_request/presentation/wfh_request_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/home/presentation/employee_home_page.dart';
 import '../../features/login/presentation/login_page.dart';
@@ -33,6 +35,8 @@ enum RoutePath {
   holiday(path: '/holiday'),
   announcement(path: '/announcement'),
   announcementDetails(path: '/announcementDetails'),
+  newDashboard(path: '/newDashboard'),
+  wfhRequest(path: '/wfhRequest'),
   settings(path: '/settings');
 
   const RoutePath({required this.path});
@@ -221,6 +225,32 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
             context: context,
             state: state,
             child: SettingPage(key: state.pageKey),
+          );
+        },
+      ),
+
+      ///wfh request page
+      GoRoute(
+        path: RoutePath.wfhRequest.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: WfhRequestPage(key: state.pageKey),
+          );
+        },
+      ),
+
+      ///new dashboard
+      GoRoute(
+        path: RoutePath.newDashboard.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: NewDashboardPage(key: state.pageKey),
           );
         },
       ),

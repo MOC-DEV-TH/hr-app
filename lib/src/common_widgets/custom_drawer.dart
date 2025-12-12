@@ -174,10 +174,23 @@ class CustomDrawer extends ConsumerWidget {
                 ),
 
                 Visibility(
+                  visible:true,
+                  child: _buildDrawerItem(
+                    context,
+                    icon: Icons.calendar_month,
+                    title: 'WFH Request',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.wfhRequest.path);
+                    },
+                  ),
+                ),
+
+                Visibility(
                   visible: true,
                   child: _buildDrawerItem(
                     context,
-                    icon: Icons.calendar_today,
+                    icon: Icons.calendar_month,
                     title: 'Leave Request',
                     onTap: () {
                       Navigator.pop(context);
