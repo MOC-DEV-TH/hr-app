@@ -7,7 +7,7 @@ part of 'employees_attendances_repository.dart';
 // **************************************************************************
 
 String _$employeesAttendancesRepositoryHash() =>
-    r'361f1dbac49c3ea24f5f2db252e1b106fa212695';
+    r'105f1361bd9b42d64a725204486c21f3ff14484b';
 
 /// See also [employeesAttendancesRepository].
 @ProviderFor(employeesAttendancesRepository)

@@ -9,7 +9,7 @@ import 'api_constants.dart';
 part 'dio_provider.g.dart';
 
 @riverpod
-Dio dio(DioRef ref) {
+Dio dio(DioRef ref,{String? baseUrl}) {
   final token = GetStorage().read(SecureDataList.authToken.name) as String?;
   final headers = <String, String>{
     'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ Dio dio(DioRef ref) {
   };
 
   final client = Dio(BaseOptions(
-    baseUrl: kBaseUrl,
+    baseUrl:baseUrl ?? kBaseUrl,
     connectTimeout: const Duration(seconds: 12),
     receiveTimeout: const Duration(seconds: 20),
     responseType: ResponseType.json,

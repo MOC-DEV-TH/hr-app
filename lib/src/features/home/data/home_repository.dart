@@ -19,6 +19,8 @@ class HomeRepository {
   final Dio dio;
   final Ref ref;
 
+  Dio get _dioV2 => ref.read(dioProvider(baseUrl: kV2BaseUrl));
+
   ///compute period working hour
   ({String clockInText, String clockOutText, String periodText}) computeWorkingPeriod(
       List<Attendance> attendances, {
@@ -54,7 +56,7 @@ class HomeRepository {
   ///check in
   Future<void> checkIn({required type}) async {
     try {
-      final response = await dio.post(kEndPointCheckIn, data: {"type": type});
+      final response = await _dioV2.post(kEndPointCheckIn, data: {"type": type});
       debugPrint("CheckIn response::${response.data}");
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
@@ -106,7 +108,7 @@ class HomeRepository {
 
 @riverpod
 HomeRepository homeRepository(HomeRepositoryRef ref) {
-  return HomeRepository(dio: ref.watch(dioProvider),ref: ref);
+  return HomeRepository(dio: ref.watch(dioProvider()),ref: ref);
 }
 
 @riverpod

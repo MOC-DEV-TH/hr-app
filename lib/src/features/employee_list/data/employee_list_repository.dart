@@ -45,7 +45,7 @@ class EmployeeListRepository {
 
 @riverpod
 EmployeeListRepository employeeListRepository(EmployeeListRepositoryRef ref) {
-  return EmployeeListRepository(dio: ref.watch(dioProvider));
+  return EmployeeListRepository(dio: ref.watch(dioProvider()));
 }
 
 @riverpod

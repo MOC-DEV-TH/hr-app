@@ -44,7 +44,7 @@ class EmployeesAttendancesRepository {
 EmployeesAttendancesRepository employeesAttendancesRepository(
   EmployeesAttendancesRepositoryRef ref,
 ) {
-  return EmployeesAttendancesRepository(dio: ref.watch(dioProvider), ref: ref);
+  return EmployeesAttendancesRepository(dio: ref.watch(dioProvider()), ref: ref);
 }
 
 @riverpod

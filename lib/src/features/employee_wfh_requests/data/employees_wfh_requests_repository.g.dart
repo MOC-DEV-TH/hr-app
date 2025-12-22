@@ -1,34 +1,34 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'employee_leaves_repository.dart';
+part of 'employees_wfh_requests_repository.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$employeeLeavesRepositoryHash() =>
-    r'fc41b3f26275e7e3dda459b4932bce8ca8e6c017';
+String _$employeesWfhRequestsRepositoryHash() =>
+    r'9f2518bf3e8a15367f735774bdb2723f2a812263';
 
-/// See also [employeeLeavesRepository].
-@ProviderFor(employeeLeavesRepository)
-final employeeLeavesRepositoryProvider =
-    AutoDisposeProvider<EmployeeLeavesRepository>.internal(
-      employeeLeavesRepository,
-      name: r'employeeLeavesRepositoryProvider',
+/// See also [employeesWfhRequestsRepository].
+@ProviderFor(employeesWfhRequestsRepository)
+final employeesWfhRequestsRepositoryProvider =
+    AutoDisposeProvider<EmployeesWfhRequestsRepository>.internal(
+      employeesWfhRequestsRepository,
+      name: r'employeesWfhRequestsRepositoryProvider',
       debugGetCreateSourceHash:
           const bool.fromEnvironment('dart.vm.product')
               ? null
-              : _$employeeLeavesRepositoryHash,
+              : _$employeesWfhRequestsRepositoryHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef EmployeeLeavesRepositoryRef =
-    AutoDisposeProviderRef<EmployeeLeavesRepository>;
-String _$fetchAllEmployeeLeavesHash() =>
-    r'e882cfea198cd8e01be5228368c192a16af04a50';
+typedef EmployeesWfhRequestsRepositoryRef =
+    AutoDisposeProviderRef<EmployeesWfhRequestsRepository>;
+String _$fetchAllEmployeesWfhRequestHash() =>
+    r'75d54a72e222a877d02a0f5fbf213c8035f2d48d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -51,24 +51,30 @@ class _SystemHash {
   }
 }
 
-/// See also [fetchAllEmployeeLeaves].
-@ProviderFor(fetchAllEmployeeLeaves)
-const fetchAllEmployeeLeavesProvider = FetchAllEmployeeLeavesFamily();
+/// See also [fetchAllEmployeesWfhRequest].
+@ProviderFor(fetchAllEmployeesWfhRequest)
+const fetchAllEmployeesWfhRequestProvider = FetchAllEmployeesWfhRequestFamily();
 
-/// See also [fetchAllEmployeeLeaves].
-class FetchAllEmployeeLeavesFamily
-    extends Family<AsyncValue<LeaveStatusResponse>> {
-  /// See also [fetchAllEmployeeLeaves].
-  const FetchAllEmployeeLeavesFamily();
+/// See also [fetchAllEmployeesWfhRequest].
+class FetchAllEmployeesWfhRequestFamily
+    extends Family<AsyncValue<WfhRequestsResponse>> {
+  /// See also [fetchAllEmployeesWfhRequest].
+  const FetchAllEmployeesWfhRequestFamily();
 
-  /// See also [fetchAllEmployeeLeaves].
-  FetchAllEmployeeLeavesProvider call({String? date, String? leaveStatus}) {
-    return FetchAllEmployeeLeavesProvider(date: date, leaveStatus: leaveStatus);
+  /// See also [fetchAllEmployeesWfhRequest].
+  FetchAllEmployeesWfhRequestProvider call({
+    String? date,
+    String? leaveStatus,
+  }) {
+    return FetchAllEmployeesWfhRequestProvider(
+      date: date,
+      leaveStatus: leaveStatus,
+    );
   }
 
   @override
-  FetchAllEmployeeLeavesProvider getProviderOverride(
-    covariant FetchAllEmployeeLeavesProvider provider,
+  FetchAllEmployeesWfhRequestProvider getProviderOverride(
+    covariant FetchAllEmployeesWfhRequestProvider provider,
   ) {
     return call(date: provider.date, leaveStatus: provider.leaveStatus);
   }
@@ -85,34 +91,34 @@ class FetchAllEmployeeLeavesFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'fetchAllEmployeeLeavesProvider';
+  String? get name => r'fetchAllEmployeesWfhRequestProvider';
 }
 
-/// See also [fetchAllEmployeeLeaves].
-class FetchAllEmployeeLeavesProvider
-    extends AutoDisposeFutureProvider<LeaveStatusResponse> {
-  /// See also [fetchAllEmployeeLeaves].
-  FetchAllEmployeeLeavesProvider({String? date, String? leaveStatus})
+/// See also [fetchAllEmployeesWfhRequest].
+class FetchAllEmployeesWfhRequestProvider
+    extends AutoDisposeFutureProvider<WfhRequestsResponse> {
+  /// See also [fetchAllEmployeesWfhRequest].
+  FetchAllEmployeesWfhRequestProvider({String? date, String? leaveStatus})
     : this._internal(
-        (ref) => fetchAllEmployeeLeaves(
-          ref as FetchAllEmployeeLeavesRef,
+        (ref) => fetchAllEmployeesWfhRequest(
+          ref as FetchAllEmployeesWfhRequestRef,
           date: date,
           leaveStatus: leaveStatus,
         ),
-        from: fetchAllEmployeeLeavesProvider,
-        name: r'fetchAllEmployeeLeavesProvider',
+        from: fetchAllEmployeesWfhRequestProvider,
+        name: r'fetchAllEmployeesWfhRequestProvider',
         debugGetCreateSourceHash:
             const bool.fromEnvironment('dart.vm.product')
                 ? null
-                : _$fetchAllEmployeeLeavesHash,
-        dependencies: FetchAllEmployeeLeavesFamily._dependencies,
+                : _$fetchAllEmployeesWfhRequestHash,
+        dependencies: FetchAllEmployeesWfhRequestFamily._dependencies,
         allTransitiveDependencies:
-            FetchAllEmployeeLeavesFamily._allTransitiveDependencies,
+            FetchAllEmployeesWfhRequestFamily._allTransitiveDependencies,
         date: date,
         leaveStatus: leaveStatus,
       );
 
-  FetchAllEmployeeLeavesProvider._internal(
+  FetchAllEmployeesWfhRequestProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -128,13 +134,15 @@ class FetchAllEmployeeLeavesProvider
 
   @override
   Override overrideWith(
-    FutureOr<LeaveStatusResponse> Function(FetchAllEmployeeLeavesRef provider)
+    FutureOr<WfhRequestsResponse> Function(
+      FetchAllEmployeesWfhRequestRef provider,
+    )
     create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: FetchAllEmployeeLeavesProvider._internal(
-        (ref) => create(ref as FetchAllEmployeeLeavesRef),
+      override: FetchAllEmployeesWfhRequestProvider._internal(
+        (ref) => create(ref as FetchAllEmployeesWfhRequestRef),
         from: from,
         name: null,
         dependencies: null,
@@ -147,13 +155,13 @@ class FetchAllEmployeeLeavesProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<LeaveStatusResponse> createElement() {
-    return _FetchAllEmployeeLeavesProviderElement(this);
+  AutoDisposeFutureProviderElement<WfhRequestsResponse> createElement() {
+    return _FetchAllEmployeesWfhRequestProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FetchAllEmployeeLeavesProvider &&
+    return other is FetchAllEmployeesWfhRequestProvider &&
         other.date == date &&
         other.leaveStatus == leaveStatus;
   }
@@ -170,8 +178,8 @@ class FetchAllEmployeeLeavesProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FetchAllEmployeeLeavesRef
-    on AutoDisposeFutureProviderRef<LeaveStatusResponse> {
+mixin FetchAllEmployeesWfhRequestRef
+    on AutoDisposeFutureProviderRef<WfhRequestsResponse> {
   /// The parameter `date` of this provider.
   String? get date;
 
@@ -179,16 +187,16 @@ mixin FetchAllEmployeeLeavesRef
   String? get leaveStatus;
 }
 
-class _FetchAllEmployeeLeavesProviderElement
-    extends AutoDisposeFutureProviderElement<LeaveStatusResponse>
-    with FetchAllEmployeeLeavesRef {
-  _FetchAllEmployeeLeavesProviderElement(super.provider);
+class _FetchAllEmployeesWfhRequestProviderElement
+    extends AutoDisposeFutureProviderElement<WfhRequestsResponse>
+    with FetchAllEmployeesWfhRequestRef {
+  _FetchAllEmployeesWfhRequestProviderElement(super.provider);
 
   @override
-  String? get date => (origin as FetchAllEmployeeLeavesProvider).date;
+  String? get date => (origin as FetchAllEmployeesWfhRequestProvider).date;
   @override
   String? get leaveStatus =>
-      (origin as FetchAllEmployeeLeavesProvider).leaveStatus;
+      (origin as FetchAllEmployeesWfhRequestProvider).leaveStatus;
 }
 
 // ignore_for_file: type=lint

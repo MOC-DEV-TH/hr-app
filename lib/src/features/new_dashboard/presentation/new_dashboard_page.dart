@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/show_business_unit_bottom_sheet.dart';
 import 'package:hr_app/src/features/announcement/presentation/announcement_page.dart';
 import 'package:hr_app/src/features/holiday/presentation/holiday_page.dart';
 import 'package:hr_app/src/features/new_dashboard/data/new_dashboard_repository.dart';
 import 'package:hr_app/src/features/new_dashboard/model/attended_overiew_response.dart';
 import 'package:hr_app/src/utils/extensions.dart';
+import 'package:hr_app/src/utils/gap.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../utils/colors.dart';
+import '../../../utils/secure_storage.dart';
+import '../../admin_dashboard/model/business_unit_response.dart';
 
 
 final leaveDateProvider =
 StateProvider.autoDispose<DateTime>((ref) => DateTime.now());
+final selectedBusinessUnitIdProvider = StateProvider<int?>((ref) => null);
+
 
 class NewDashboardPage extends ConsumerStatefulWidget {
   const NewDashboardPage({super.key});
@@ -24,19 +31,23 @@ class NewDashboardPage extends ConsumerStatefulWidget {
 class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+    final picked = await showMonthPicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: DateTime(2000, 1),
+      lastDate: DateTime(2100, 12),
     );
+
     if (picked != null) {
-      ref.read(leaveDateProvider.notifier).state = picked;
+      ref.read(leaveDateProvider.notifier).state = DateTime(picked.year, picked.month, 1);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final allBusinessUnitsAsync = ref.watch(businessUnitsAllLocalProvider);
+    final selectedBuId = ref.watch(selectedBusinessUnitIdProvider);
+
     Widget _iconChip(IconData icon, VoidCallback onTap) {
       return InkWell(
         onTap: onTap,
@@ -53,11 +64,74 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
       );
     }
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             const Text('Dashboard'),
             Spacer(),
+            allBusinessUnitsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (e, _) => const SizedBox.shrink(),
+              data: (units) {
+                if (units.isEmpty) return const SizedBox.shrink();
+
+                /// resolve name
+                final selectedName = selectedBuId == null
+                    ? 'All'
+                    : (units.firstWhere(
+                      (u) => u.id == selectedBuId,
+                  orElse: () => BusinessUnitVO(id: null, name: null),
+                ).name ??
+                    'All');
+
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    final items = <BusinessUnitVO>[
+                      BusinessUnitVO(id: null, name: 'All'),
+                      ...units,
+                    ];
+
+                    final result = await showBusinessUnitBottomSheet<BusinessUnitVO>(
+                      context: context,
+                      title: 'Select Business Unit',
+                      items: items,
+                      itemBuilder: (e) => Text(e.name ?? '-'),
+                    );
+
+                    if (result != null) {
+                      ref
+                          .read(selectedBusinessUnitIdProvider.notifier)
+                          .state = result.id;
+                    }
+                  },
+                  child: Container(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedName,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const Icon(Icons.keyboard_arrow_down_rounded),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            10.hGap,
             _iconChip(Icons.calendar_today_rounded, _pickDate),
           ],
         ),

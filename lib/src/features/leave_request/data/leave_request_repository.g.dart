@@ -7,7 +7,7 @@ part of 'leave_request_repository.dart';
 // **************************************************************************
 
 String _$leaveRequestRepositoryHash() =>
-    r'2c7b08bc9e0c048175f8090f92be0233946c358b';
+    r'b7c619c5f85d57dcc01d426930c1949692f9c6fa';
 
 /// See also [leaveRequestRepository].
 @ProviderFor(leaveRequestRepository)

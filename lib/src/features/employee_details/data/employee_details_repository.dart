@@ -21,12 +21,14 @@ class EmployeeDetailsRepository {
   final Dio dio;
   final Ref ref;
 
+  Dio get _dioV2 => ref.read(dioProvider(baseUrl: kV2BaseUrl));
+
   ///fetch employee profile
   Future<EmployeeProfileResponse> fetchEmployeeProfileData({
     required int userId,
   }) async {
     try {
-      final response = await dio.post(
+      final response = await _dioV2.post(
         kEndPointGetEmployeeDetails,
         data: {"user_id": userId, "type": 'profile'},
       );
@@ -99,7 +101,7 @@ class EmployeeDetailsRepository {
 EmployeeDetailsRepository employeeDetailsRepository(
   EmployeeDetailsRepositoryRef ref,
 ) {
-  return EmployeeDetailsRepository(dio: ref.watch(dioProvider), ref: ref);
+  return EmployeeDetailsRepository(dio: ref.watch(dioProvider()), ref: ref);
 }
 
 @riverpod

@@ -39,7 +39,7 @@ class NewDashboardRepository {
 
 @riverpod
 NewDashboardRepository newDashboardRepository(NewDashboardRepositoryRef ref) {
-  return NewDashboardRepository(dio: ref.watch(dioProvider));
+  return NewDashboardRepository(dio: ref.watch(dioProvider()));
 }
 
 @riverpod

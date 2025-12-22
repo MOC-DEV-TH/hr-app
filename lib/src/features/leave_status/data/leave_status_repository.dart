@@ -30,7 +30,7 @@ class LeaveStatusRepository {
 
 @riverpod
 LeaveStatusRepository leaveStatusRepository(LeaveStatusRepositoryRef ref) {
-  return LeaveStatusRepository(dio: ref.watch(dioProvider));
+  return LeaveStatusRepository(dio: ref.watch(dioProvider()));
 }
 
 @riverpod

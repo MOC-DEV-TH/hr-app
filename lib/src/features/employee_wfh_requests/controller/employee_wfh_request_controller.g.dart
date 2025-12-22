@@ -1,28 +1,30 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'go_router_delegate.dart';
+part of 'employee_wfh_request_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goRouterDelegateHash() => r'7f7482f930c023976088877f31a21a04a5111454';
+String _$employeeWfhRequestControllerHash() =>
+    r'719af38c96ce1e9590a393f8964fe025c5b7cd9f';
 
-/// See also [goRouterDelegate].
-@ProviderFor(goRouterDelegate)
-final goRouterDelegateProvider = AutoDisposeProvider<GoRouter>.internal(
-  goRouterDelegate,
-  name: r'goRouterDelegateProvider',
+/// See also [EmployeeWfhRequestController].
+@ProviderFor(EmployeeWfhRequestController)
+final employeeWfhRequestControllerProvider = AutoDisposeAsyncNotifierProvider<
+  EmployeeWfhRequestController,
+  void
+>.internal(
+  EmployeeWfhRequestController.new,
+  name: r'employeeWfhRequestControllerProvider',
   debugGetCreateSourceHash:
       const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$goRouterDelegateHash,
+          : _$employeeWfhRequestControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef GoRouterDelegateRef = AutoDisposeProviderRef<GoRouter>;
+typedef _$EmployeeWfhRequestController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

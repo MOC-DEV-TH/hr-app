@@ -7,7 +7,7 @@ part of 'new_dashboard_repository.dart';
 // **************************************************************************
 
 String _$newDashboardRepositoryHash() =>
-    r'25be0227dfe8cb0fc7f15444ef51be5c73746745';
+    r'fd0f10016f1f0fb922519f0a931c965990bd3959';
 
 /// See also [newDashboardRepository].
 @ProviderFor(newDashboardRepository)
@@ -28,7 +28,7 @@ final newDashboardRepositoryProvider =
 typedef NewDashboardRepositoryRef =
     AutoDisposeProviderRef<NewDashboardRepository>;
 String _$fetchDashboardAttendedOverviewHash() =>
-    r'aff40110064c6d90890d67400e65325a0c4df339';
+    r'54c1a59c4f3d306b5bae29bbee65f31a106e4afe';
 
 /// Copied from Dart SDK
 class _SystemHash {

@@ -7,7 +7,7 @@ part of 'checkInCheckOut_repository.dart';
 // **************************************************************************
 
 String _$checkInCheckOutRepositoryHash() =>
-    r'8346bc3b18ff935a5c3c16c8d80a5f9caa44459f';
+    r'e8d3810948e45b4cdf820cae4f0cfd197e97b6d5';
 
 /// See also [checkInCheckOutRepository].
 @ProviderFor(checkInCheckOutRepository)

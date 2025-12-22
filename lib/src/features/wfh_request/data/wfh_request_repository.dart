@@ -1,19 +1,23 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/features/leave_request/model/leave_type_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../network/api_constants.dart';
 import '../../../network/dio_provider.dart';
+import '../../../utils/secure_storage.dart';
 
-part 'edit_employee_repository.g.dart';
+part 'wfh_request_repository.g.dart';
 
-class EditEmployeeRepository {
-  EditEmployeeRepository({required this.dio});
+class WfhRequestRepository {
+  WfhRequestRepository({required this.ref, required this.dio});
 
+  final Ref ref;
   final Dio dio;
 
-  Future<void> updateEmployee(dynamic payload, String employeeId) async {
-    final res = await dio.put(
-      "$kEndPointUpdateEmployee/$employeeId",
+  Future<void> sendWfhRequest(dynamic payload) async {
+    final res = await dio.post(
+      kEndPointCreateWfhRequest,
       data: payload,
       options: Options(
         headers: {
@@ -34,6 +38,6 @@ class EditEmployeeRepository {
 }
 
 @riverpod
-EditEmployeeRepository editEmployeeRepository(EditEmployeeRepositoryRef ref) {
-  return EditEmployeeRepository(dio: ref.watch(dioProvider()));
+WfhRequestRepository wfhRequestRepository(WfhRequestRepositoryRef ref) {
+  return WfhRequestRepository(dio: ref.watch(dioProvider()), ref: ref);
 }

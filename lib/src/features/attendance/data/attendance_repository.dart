@@ -33,5 +33,5 @@ class AttendanceRepository {
 
 @riverpod
 AttendanceRepository attendanceRepository(AttendanceRepositoryRef ref) {
-  return AttendanceRepository(dio: ref.watch(dioProvider));
+  return AttendanceRepository(dio: ref.watch(dioProvider()));
 }

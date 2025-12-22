@@ -7,7 +7,7 @@ part of 'edit_employee_repository.dart';
 // **************************************************************************
 
 String _$editEmployeeRepositoryHash() =>
-    r'7b280dda7e4350ffda56433f2b94d35702ade1fc';
+    r'163e94d7155dda8cd502ab44bdc868c35fb381f4';
 
 /// See also [editEmployeeRepository].
 @ProviderFor(editEmployeeRepository)

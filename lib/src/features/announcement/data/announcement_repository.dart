@@ -36,7 +36,7 @@ class AnnouncementRepository {
 
 @riverpod
 AnnouncementRepository announcementRepository(AnnouncementRepositoryRef ref) {
-  return AnnouncementRepository(dio: ref.watch(dioProvider));
+  return AnnouncementRepository(dio: ref.watch(dioProvider()));
 }
 
 @riverpod

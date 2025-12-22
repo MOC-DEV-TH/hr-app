@@ -7,7 +7,7 @@ part of 'announcement_repository.dart';
 // **************************************************************************
 
 String _$announcementRepositoryHash() =>
-    r'c0dd20ca8c5ae8caa0e9ae63353e4c9bd35df947';
+    r'2b9484d7d167ddc9e68554f6cd112553085051c3';
 
 /// See also [announcementRepository].
 @ProviderFor(announcementRepository)

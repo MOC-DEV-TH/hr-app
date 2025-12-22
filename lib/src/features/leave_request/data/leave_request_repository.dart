@@ -87,7 +87,7 @@ class LeaveRequestRepository {
 
 @riverpod
 LeaveRequestRepository leaveRequestRepository(LeaveRequestRepositoryRef ref) {
-  return LeaveRequestRepository(dio: ref.watch(dioProvider), ref: ref);
+  return LeaveRequestRepository(dio: ref.watch(dioProvider()), ref: ref);
 }
 
 @riverpod

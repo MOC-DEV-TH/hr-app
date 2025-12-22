@@ -5,6 +5,7 @@ import 'package:hr_app/src/features/announcement/presentation/announcement_page.
 import 'package:hr_app/src/features/attendance/presentation/attendance_page.dart';
 import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
 import 'package:hr_app/src/features/employee_list/presentation/employee_list_page.dart';
+import 'package:hr_app/src/features/employee_wfh_requests/presentation/employees_wfh_requests_page.dart';
 import 'package:hr_app/src/features/holiday/presentation/holiday_page.dart';
 import 'package:hr_app/src/features/leave_request/presentation/leave_request_page.dart';
 import 'package:hr_app/src/features/leave_status/presentation/leave_status_page.dart';
@@ -37,6 +38,7 @@ enum RoutePath {
   announcementDetails(path: '/announcementDetails'),
   newDashboard(path: '/newDashboard'),
   wfhRequest(path: '/wfhRequest'),
+  employeeWfhRequests(path: '/employeeWfhRequests'),
   settings(path: '/settings');
 
   const RoutePath({required this.path});
@@ -189,6 +191,20 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
           );
         },
       ),
+
+      ///Employee wfh requests page
+      GoRoute(
+        path: RoutePath.employeeWfhRequests.path,
+        parentNavigatorKey: rootNavigator,
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: EmployeesWfhRequestPage(key: state.pageKey),
+          );
+        },
+      ),
+
 
       ///Holiday page
       GoRoute(

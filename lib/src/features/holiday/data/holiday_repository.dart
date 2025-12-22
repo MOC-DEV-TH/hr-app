@@ -35,7 +35,7 @@ class HolidayRepository {
 
 @riverpod
 HolidayRepository holidayRepository(HolidayRepositoryRef ref) {
-  return HolidayRepository(dio: ref.watch(dioProvider));
+  return HolidayRepository(dio: ref.watch(dioProvider()));
 }
 
 @riverpod

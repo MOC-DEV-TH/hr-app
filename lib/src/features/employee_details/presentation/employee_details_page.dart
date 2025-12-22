@@ -206,19 +206,36 @@ class _PersonalTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: profile.orgStructure?.length,
+          itemBuilder: (context, index) {
+            final item = profile.orgStructure?[index];
+            return OrgStructureCard(item: item ?? OrgStructure());
+          },
+        ),
+        const SizedBox(height: 16),
         _InfoBlock(
           items: [
             _InfoRow('Position', profile.position?.name ?? ''),
             _InfoRow('Employee Type', profile.employeeType?.name ?? ''),
-            _InfoRow('Country', profile.country?.name ?? ''),
-            _InfoRow('Business Unit', profile.bussinessUnit?.name ?? ''),
-            _InfoRow('Department', profile.departments ?? ''),
+            _InfoRow('Email Address', profile.email ?? ''),
+            _InfoRow('Phone Number', profile.phone ?? ''),
             _InfoRow(
               'Department Head',
               profile.isDepartmentHead == 1 ? 'Yes' : 'No',
             ),
-            _InfoRow('Email Address', profile.email ?? ''),
-            _InfoRow('Phone Number', profile.phone ?? ''),
+            _InfoRow('Check-in Timezone', profile.checkInTimezone ?? ''),
+            _InfoRow(
+              'Work From Home Request',
+              profile.allowWfhRequest.toString() == '0' ? 'No' : 'Yes',
+            ),
+            _InfoRow(
+              'Allow Remote Login',
+              profile.allowRemoteLogin.toString() == '0' ? 'No' : 'Yes',
+            ),
+            _InfoRow('Active', profile.active == true ? 'Yes' : 'No'),
           ],
         ),
       ],
@@ -478,7 +495,7 @@ String _statusToParam(LeaveStatus? s) {
     case LeaveStatus.approved:
       return 'approved';
     case LeaveStatus.rejected:
-      return 'rejected';
+      return 'reject';
     case LeaveStatus.pending:
       return 'pending';
   }
@@ -879,4 +896,80 @@ Future<void> showRejectSuccessDialog(BuildContext context) {
     barrierDismissible: false,
     builder: (_) => const RejectSuccessDialog(),
   );
+}
+
+///org structure card
+class OrgStructureCard extends StatelessWidget {
+  const OrgStructureCard({super.key, required this.item});
+
+  final OrgStructure item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// Country
+          Text(
+            item.country?.name ?? '',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
+          /// Business Unit
+          Text(
+            item.bussinessUnit?.name ?? '',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          /// Departments
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                item.departments?.map((dept) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF4FF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      dept.name ?? '',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF3B6EF6),
+                      ),
+                    ),
+                  );
+                }).toList() ??
+                [],
+          ),
+        ],
+      ),
+    );
+  }
 }

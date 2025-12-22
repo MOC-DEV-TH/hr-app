@@ -33,5 +33,5 @@ class AddNewEmployeeRepository {
 
 @riverpod
 AddNewEmployeeRepository addNewEmployeeRepository(AddNewEmployeeRepositoryRef ref) {
-  return AddNewEmployeeRepository(dio: ref.watch(dioProvider));
+  return AddNewEmployeeRepository(dio: ref.watch(dioProvider()));
 }

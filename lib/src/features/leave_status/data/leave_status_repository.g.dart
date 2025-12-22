@@ -7,7 +7,7 @@ part of 'leave_status_repository.dart';
 // **************************************************************************
 
 String _$leaveStatusRepositoryHash() =>
-    r'4a8f08f062ba65a39679f46b954e9be0fac1557f';
+    r'8f3d1250f4bef0bedcf95a9fad516e929215ec11';
 
 /// See also [leaveStatusRepository].
 @ProviderFor(leaveStatusRepository)

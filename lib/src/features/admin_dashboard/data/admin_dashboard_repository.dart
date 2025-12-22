@@ -17,6 +17,8 @@ class AdminDashboardRepository {
   final Dio dio;
   final Ref ref;
 
+  Dio get _dioV2 => ref.read(dioProvider(baseUrl: kV2BaseUrl));
+
   ///fetch admin dashboard data
   Future<AdminDashboardResponse> fetchAdminDashboardData({
     required int businessUnitId,
@@ -40,7 +42,7 @@ class AdminDashboardRepository {
   ///fetch business units data
   Future<BusinessUnitResponse> fetchBusinessUnitData() async {
     try {
-      final response = await dio.get(kEndPointGetBusinessUnits);
+      final response = await _dioV2.get(kEndPointGetBusinessUnits);
       BusinessUnitResponse data = BusinessUnitResponse.fromJson(response.data);
 
       return data;
@@ -89,7 +91,7 @@ class AdminDashboardRepository {
 AdminDashboardRepository adminDashboardRepository(
   AdminDashboardRepositoryRef ref,
 ) {
-  return AdminDashboardRepository(dio: ref.watch(dioProvider), ref: ref);
+  return AdminDashboardRepository(dio: ref.watch(dioProvider()), ref: ref);
 }
 
 @riverpod

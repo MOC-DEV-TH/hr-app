@@ -7,7 +7,7 @@ part of 'admin_dashboard_repository.dart';
 // **************************************************************************
 
 String _$adminDashboardRepositoryHash() =>
-    r'3c746f604e526e37b1531facf6d932491fb3fbf1';
+    r'b3a2150e8b5eb08217a92c5e13a1581336d2ad39';
 
 /// See also [adminDashboardRepository].
 @ProviderFor(adminDashboardRepository)

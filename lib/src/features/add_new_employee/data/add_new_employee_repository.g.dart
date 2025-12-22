@@ -7,7 +7,7 @@ part of 'add_new_employee_repository.dart';
 // **************************************************************************
 
 String _$addNewEmployeeRepositoryHash() =>
-    r'9ecd1c310cabeb3768bd854daabe0e20e21d82d3';
+    r'41edd785e1f7150fc4704a24ff2c56d5f75c655d';
 
 /// See also [addNewEmployeeRepository].
 @ProviderFor(addNewEmployeeRepository)

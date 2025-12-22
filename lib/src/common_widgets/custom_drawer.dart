@@ -164,6 +164,19 @@ class CustomDrawer extends ConsumerWidget {
                   visible:true,
                   child: _buildDrawerItem(
                     context,
+                    icon: Icons.calendar_month,
+                    title: 'New Dashboard',
+                    onTap: () {
+                      Navigator.pop(context);
+                      GoRouter.of(context).push(RoutePath.newDashboard.path);
+                    },
+                  ),
+                ),
+
+                Visibility(
+                  visible:true,
+                  child: _buildDrawerItem(
+                    context,
                     icon: Icons.announcement_outlined,
                     title: 'Announcement',
                     onTap: () {

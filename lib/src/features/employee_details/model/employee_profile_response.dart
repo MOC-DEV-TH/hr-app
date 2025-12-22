@@ -41,6 +41,7 @@ class ProfileVO {
   int? positionId;
   int? employeeTypeId;
   int? allowRemoteLogin;
+  int? allowWfhRequest;
   List<int>? departmentId;
   int? role;
   int? bussinessUnitId;
@@ -48,10 +49,12 @@ class ProfileVO {
   int? isDepartmentHead;
   bool? active;
   String? departments;
+  String? checkInTimezone;
   BussinessUnit? bussinessUnit;
   EmployeeType? employeeType;
   Position? position;
   Country? country;
+  List<OrgStructure>? orgStructure;
 
   ProfileVO({
     this.id,
@@ -62,6 +65,7 @@ class ProfileVO {
     this.positionId,
     this.employeeTypeId,
     this.allowRemoteLogin,
+    this.allowWfhRequest,
     this.departmentId,
     this.role,
     this.bussinessUnitId,
@@ -73,6 +77,8 @@ class ProfileVO {
     this.employeeType,
     this.position,
     this.country,
+    this.orgStructure,
+    this.checkInTimezone
   });
 
   factory ProfileVO.fromJson(Map<String, dynamic> json) => ProfileVO(
@@ -84,9 +90,11 @@ class ProfileVO {
     positionId: json["position_id"],
     employeeTypeId: json["employee_type_id"],
     allowRemoteLogin: json["allow_remote_login"],
+    allowWfhRequest: json["allow_wfh_request"],
     departmentId: json["department_id"] == null ? [] : List<int>.from(json["department_id"]!.map((x) => x)),
     role: json["role"],
     bussinessUnitId: json["bussiness_unit_id"],
+    checkInTimezone: json["check_in_timezone"],
     countryId: json["country_id"],
     isDepartmentHead: json["is_department_head"],
     active: json["active"],
@@ -95,6 +103,7 @@ class ProfileVO {
     employeeType: json["employee_type"] == null ? null : EmployeeType.fromJson(json["employee_type"]),
     position: json["position"] == null ? null : Position.fromJson(json["position"]),
     country: json["country"] == null ? null : Country.fromJson(json["country"]),
+    orgStructure: json["org_structure"] == null ? [] : List<OrgStructure>.from(json["org_structure"]!.map((x) => OrgStructure.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -106,6 +115,8 @@ class ProfileVO {
     "position_id": positionId,
     "employee_type_id": employeeTypeId,
     "allow_remote_login": allowRemoteLogin,
+    "allow_wfh_request": allowWfhRequest,
+    "check_in_timezone": checkInTimezone,
     "department_id": departmentId == null ? [] : List<dynamic>.from(departmentId!.map((x) => x)),
     "role": role,
     "bussiness_unit_id": bussinessUnitId,
@@ -117,6 +128,7 @@ class ProfileVO {
     "employee_type": employeeType?.toJson(),
     "position": position?.toJson(),
     "country": country?.toJson(),
+    "org_structure": orgStructure == null ? [] : List<dynamic>.from(orgStructure!.map((x) => x.toJson())),
   };
 }
 
@@ -221,5 +233,49 @@ class Position {
   Map<String, dynamic> toJson() => {
     "id": id,
     "name": name,
+  };
+}
+
+class OrgStructure {
+  int? id;
+  int? userId;
+  int? countryId;
+  int? bussinessUnitId;
+  List<int>? departmentId;
+  BussinessUnit? country;
+  BussinessUnit? bussinessUnit;
+  List<BussinessUnit>? departments;
+
+  OrgStructure({
+    this.id,
+    this.userId,
+    this.countryId,
+    this.bussinessUnitId,
+    this.departmentId,
+    this.country,
+    this.bussinessUnit,
+    this.departments,
+  });
+
+  factory OrgStructure.fromJson(Map<String, dynamic> json) => OrgStructure(
+    id: json["id"],
+    userId: json["user_id"],
+    countryId: json["country_id"],
+    bussinessUnitId: json["bussiness_unit_id"],
+    departmentId: json["department_id"] == null ? [] : List<int>.from(json["department_id"]!.map((x) => x)),
+    country: json["country"] == null ? null : BussinessUnit.fromJson(json["country"]),
+    bussinessUnit: json["bussiness_unit"] == null ? null : BussinessUnit.fromJson(json["bussiness_unit"]),
+    departments: json["departments"] == null ? [] : List<BussinessUnit>.from(json["departments"]!.map((x) => BussinessUnit.fromJson(x))),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "user_id": userId,
+    "country_id": countryId,
+    "bussiness_unit_id": bussinessUnitId,
+    "department_id": departmentId == null ? [] : List<dynamic>.from(departmentId!.map((x) => x)),
+    "country": country?.toJson(),
+    "bussiness_unit": bussinessUnit?.toJson(),
+    "departments": departments == null ? [] : List<dynamic>.from(departments!.map((x) => x.toJson())),
   };
 }

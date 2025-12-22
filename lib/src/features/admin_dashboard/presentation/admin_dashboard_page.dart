@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/employee_row_view.dart';
 import 'package:hr_app/src/features/admin_dashboard/data/admin_dashboard_repository.dart';
 import 'package:hr_app/src/features/employee_leaves/presentation/employees_leaves_page.dart';
+import 'package:hr_app/src/features/employee_wfh_requests/presentation/employees_wfh_requests_page.dart';
 import 'package:hr_app/src/features/employees_attendances/presentation/employees_attendances_page.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
+import 'package:hr_app/src/utils/gap.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
 import '../../../common_widgets/error_retry_view.dart';
@@ -207,30 +209,70 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       sliver: SliverToBoxAdapter(
-                        child: _SummaryCard(
-                          title: 'Leave',
-                          value:
-                              adminDashboardResponse.data?.leaveCount.toString() ?? '0'
-                          ,
-                          border: kBlueColor,
-                          bg: kPrimaryColor.withOpacity(.08),
-                          textColor: kBlueColor,
-                          onTap: () {
-                              ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => EmployeesLeavesPage(
-                                      leaveCount:
-                                          adminDashboardResponse
-                                              .data
-                                              ?.leaveCount,
-                                      date: selectedDate ?? DateTime.now(),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ///leave summary card
+                            Expanded(
+                              child: _SummaryCard(
+                                title: 'Leave',
+                                value:
+                                    adminDashboardResponse.data?.leaveCount.toString() ?? '0'
+                                ,
+                                border: kBlueColor,
+                                bg: kPrimaryColor.withOpacity(.08),
+                                textColor: kBlueColor,
+                                onTap: () {
+                                    ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => EmployeesLeavesPage(
+                                            leaveCount:
+                                                adminDashboardResponse
+                                                    .data
+                                                    ?.leaveCount,
+                                            date: selectedDate ?? DateTime.now(),
+                                          ),
                                     ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+
+                            12.hGap,
+
+                            ///wfh summary card
+                            Expanded(
+                              child: _SummaryCard(
+                                title: 'WFH',
+                                value:
+                                adminDashboardResponse.data?.leaveCount.toString() ?? '0'
+                                ,
+                                border: kGreen,
+                                bg: kGreen.withOpacity(.08),
+                                textColor: kBlueColor,
+                                onTap: () {
+                                  ref.read(leaveDateForWfhRequestProvider.notifier).state = selectedDate ?? DateTime.now();
+                                  debugPrint("Date>>>${ref.watch(leaveDateForWfhRequestProvider)}");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => EmployeesWfhRequestPage(
+                                        wfhCount:
+                                        adminDashboardResponse
+                                            .data
+                                            ?.wfhCount,
+                                        date: selectedDate ?? DateTime.now(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

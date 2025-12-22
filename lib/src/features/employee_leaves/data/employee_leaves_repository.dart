@@ -69,7 +69,7 @@ class EmployeeLeavesRepository {
 EmployeeLeavesRepository employeeLeavesRepository(
   EmployeeLeavesRepositoryRef ref,
 ) {
-  return EmployeeLeavesRepository(dio: ref.watch(dioProvider), ref: ref);
+  return EmployeeLeavesRepository(dio: ref.watch(dioProvider()), ref: ref);
 }
 
 @riverpod
