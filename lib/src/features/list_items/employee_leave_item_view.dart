@@ -30,7 +30,7 @@ class EmployeeLeaveItemView extends ConsumerWidget {
 
           Visibility(
               visible: showMemberHeader == true,
-              child: MemberHeader(name: leaveStatusVO?.user?.name ?? '', role: leaveStatusVO?.user?.employeePosition?.name ?? '',
+              child: MemberHeader(name: leaveStatusVO?.user?.name ?? '', role: leaveStatusVO?.user?.employeePosition ?? '',
               leaveStatus: leaveStatusVO?.status,)),
 
           Visibility(
@@ -42,7 +42,7 @@ class EmployeeLeaveItemView extends ConsumerWidget {
               Icon(Icons.date_range,color: Colors.grey,size: 14,),
               2.hGap,
               Text(
-                leaveStatusVO?.date.yMMMMd() ?? '',
+                leaveStatusVO?.date?.yMMMMd() ?? '',
                 style: tt.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -54,7 +54,7 @@ class EmployeeLeaveItemView extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 8),
-          _InfoRow('Leave Type:', leaveStatusVO?.leaveType.name ?? ''),
+          _InfoRow('Leave Type:', leaveStatusVO?.leaveType?.name ?? ''),
           const SizedBox(height: 6),
           Text(
             'Message:',
@@ -240,7 +240,7 @@ class MemberHeader extends StatelessWidget {
               ],
             ),
           ),
-          _StatusBadge(status: leaveStatus ?? '')
+          _StatusBadge(status: leaveStatus?.toLowerCase() ?? '')
         ],
       ),
     );

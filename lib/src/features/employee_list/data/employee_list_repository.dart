@@ -9,16 +9,21 @@ import '../../../network/error_handler.dart';
 part 'employee_list_repository.g.dart';
 
 class EmployeeListRepository {
-  EmployeeListRepository({required this.dio});
+  EmployeeListRepository({required this.dio,required this.ref});
 
   final Dio dio;
+  final Ref ref;
+
+
+  Dio get _dioV2 => ref.read(dioProvider(baseUrl: kV2BaseUrl));
+
 
 
   ///get employees
   Future<EmployeeListResponse> fetchEmployees({required int pageNo}) async {
     try {
-      final response = await dio
-          .get("$kEndPointGetEmployees?page=$pageNo");
+      final response = await _dioV2
+          .get("$kEndPointGetEmployeeList?page=$pageNo");
       EmployeeListResponse data = EmployeeListResponse.fromJson(response.data);
 
       return data;
@@ -31,8 +36,8 @@ class EmployeeListRepository {
   ///search employees
   Future<EmployeeListResponse> searchEmployees({required String query}) async {
     try {
-      final response = await dio
-          .get("$kEndPointGetEmployees?search=$query");
+      final response = await _dioV2
+          .get("$kEndPointGetEmployeeList?search=$query");
       EmployeeListResponse data = EmployeeListResponse.fromJson(response.data);
 
       return data;
@@ -45,7 +50,7 @@ class EmployeeListRepository {
 
 @riverpod
 EmployeeListRepository employeeListRepository(EmployeeListRepositoryRef ref) {
-  return EmployeeListRepository(dio: ref.watch(dioProvider()));
+  return EmployeeListRepository(dio: ref.watch(dioProvider()),ref:  ref);
 }
 
 @riverpod

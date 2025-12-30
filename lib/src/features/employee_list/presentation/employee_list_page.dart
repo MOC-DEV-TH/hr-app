@@ -135,45 +135,47 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
             children: [
               const SizedBox(height: 8),
 
-              // Search
+              /// Search
+
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: cs.outlineVariant),
-                  ),
-                  child: TextField(
-                    controller: _searchCtrl,
-                    cursorColor: Colors.black45,
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      border: InputBorder.none,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _query.isEmpty
-                          ? null
-                          : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          setState(() => _query = '');
-                          if (_items.isEmpty) _refresh();
-                        },
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 14,
-                      ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: cs.outlineVariant),
                     ),
-                    onChanged: _onSearchChanged,
-                    onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                    child: TextField(
+                      controller: _searchCtrl,
+                      cursorColor: Colors.black45,
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        border: InputBorder.none,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _query.isEmpty
+                            ? null
+                            : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            setState(() => _query = '');
+                            if (_items.isEmpty) _refresh();
+                          },
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 14,
+                        ),
+                      ),
+                      onChanged: _onSearchChanged,
+                      onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                    ),
                   ),
                 ),
-              ),
+
               const SizedBox(height: 8),
 
-              // List
+              /// List
               Expanded(
                 child: isSearching
                     ? _SearchResults(searchState: searchState)
@@ -206,7 +208,7 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
                       final e = _items[i];
                       return _EmployeeTile(
                         name: e.name ?? '—',
-                        role: e.position?.name ?? '—',
+                        role: e.position ?? '—',
                         onTap: () {
                           Navigator.push(
                             context,
@@ -270,7 +272,7 @@ class _SearchResults extends StatelessWidget {
             final e = results[i];
             return _EmployeeTile(
               name: e.name ?? '—',
-              role: e.position?.name ?? '—',
+              role: e.position ?? '—',
               onTap: () {
                 Navigator.push(
                   context,
@@ -396,6 +398,17 @@ class _BottomError extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Column(
         children: [
+          const Icon(Icons.wifi_off, size: 36, color: Colors.redAccent),
+          const SizedBox(height: 12),
+          Text(
+            'Failed to load employees data',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
           Text(message, style: TextStyle(color: cs.error)),
           const SizedBox(height: 8),
           TextButton(onPressed: onRetry, child: const Text('Tap to retry')),

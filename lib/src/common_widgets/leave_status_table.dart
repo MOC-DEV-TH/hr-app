@@ -31,13 +31,13 @@ class LeaveStatusTable extends StatelessWidget {
                 cells: [
                   DataCell(
                     Text(
-                      DateFormat('yyyy-MM-dd').format(record.date),
+                      DateFormat('yyyy-MM-dd').format(record.date ?? DateTime.now()),
                       style: TextStyle(color: Colors.blue),
                     ),
                   ),
                   DataCell(
                     Text(
-                      record.status.capitalizeFirstLetter(),
+                      record.status?.capitalizeFirstLetter() ?? '',
                       style: TextStyle(
                         color:
                             record.status == 'pending'

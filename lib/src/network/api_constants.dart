@@ -22,6 +22,8 @@ const String kEndPointLeaveStatus = "/leaves";
 const String kEndPointCreateLeave = "/create-leave";
 const String kEndPointGetConfig = "/get-config";
 const String kEndPointGetEmployees = "/employees";
+const String kEndPointGetEmployeeList = "/employee-list";
+
 
 ///Admin End points
 const String kEndPointGetAdminDashboard = "/dashboard";
@@ -58,3 +60,6 @@ const String kTypeWfh = "work_from_home";
 const String kTypeOffice = "office";
 const String kLeaveStatusReject ="reject";
 const String kLeaveStatusApproved="approved";
+
+const Duration kApiDeadline = Duration(minutes: 1);
+const Duration kRetryDelay = Duration(seconds: 3);

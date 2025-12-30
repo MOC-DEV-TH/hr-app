@@ -90,60 +90,63 @@ class HolidayPage extends ConsumerWidget {
                   ).name ??
                       'All');
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Business Unit',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      4.vGap,
-                      InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () async {
-                          final items = <BusinessUnitVO>[
-                            BusinessUnitVO(id: null, name: 'All'),
-                            ...units,
-                          ];
+                  return Visibility(
+                    visible: !holidayState.isLoading,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Business Unit',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        4.vGap,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () async {
+                            final items = <BusinessUnitVO>[
+                              BusinessUnitVO(id: null, name: 'All'),
+                              ...units,
+                            ];
 
-                          final result = await pickOne<BusinessUnitVO>(
-                            context: context,
-                            title: 'Select Business Unit',
-                            items: items,
-                            itemBuilder: (e) => Text(e.name ?? '-'),
-                          );
+                            final result = await pickOne<BusinessUnitVO>(
+                              context: context,
+                              title: 'Select Business Unit',
+                              items: items,
+                              itemBuilder: (e) => Text(e.name ?? '-'),
+                            );
 
-                          if (result != null) {
-                            ref
-                                .read(selectedBusinessUnitIdProvider.notifier)
-                                .state = result.id;
-                          }
-                        },
-                        child: Container(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  selectedName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),
+                            if (result != null) {
+                              ref
+                                  .read(selectedBusinessUnitIdProvider.notifier)
+                                  .state = result.id;
+                            }
+                          },
+                          child: Container(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    selectedName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
                                 ),
-                              ),
-                              const Icon(Icons.keyboard_arrow_down_rounded),
-                            ],
+                                const Icon(Icons.keyboard_arrow_down_rounded),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               ),
@@ -160,9 +163,25 @@ class HolidayPage extends ConsumerWidget {
               ),
               error: (error, stack) {
                 return Center(
-                  child: Text(
-                    'Failed to load holidays',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  child: Column(
+                    children: [
+                      const Icon(Icons.wifi_off, size: 36, color: Colors.redAccent),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Failed to load holiday data',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(error.toString()),
+                      const SizedBox(height: 8),
+                      TextButton(onPressed: (){
+                        ref.invalidate(holidayRepositoryProvider);
+                      }, child: const Text('Tap to retry')),
+                    ],
                   ),
                 );
               },

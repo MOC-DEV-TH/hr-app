@@ -49,11 +49,11 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
   Widget build(BuildContext context) {
     final userId = ref.watch(getUserDataProvider).value?.id ?? 0;
 
+    debugPrint("Date>>>${ref.watch(leaveDateProvider)}");
     /// filters
     final selectedStatus = ref.watch(leaveFilterProvider(userId));
     final selectedDate = ref.watch(leaveDateProvider);
 
-    final bool noFilters = _isAll(selectedStatus);
     final String dateParam = (selectedDate).ymd();
     final statusParam = _statusParam(selectedStatus);
 
@@ -107,10 +107,10 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                       delegate: SliverChildBuilderDelegate((context, index) {
                         if (index.isOdd) return const SizedBox(height: 12);
                         final i = index ~/ 2;
-                        final leaveStatusVO = allLeaves.data[i];
+                        final leaveStatusVO = allLeaves.data?[i];
 
                         return EmployeeLeaveItemView(
-                          userId: leaveStatusVO.userId,
+                          userId: leaveStatusVO?.user?.id ?? 0,
                           showMemberHeader: true,
                           onApprove: (id) async {
                             final ok = await showApproveConfirmDialog(context);
@@ -158,7 +158,9 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                           },
                           leaveStatusVO: leaveStatusVO,
                         );
-                      }, childCount: allLeaves.data.length * 2 - 1),
+                      }, childCount: (allLeaves.data?.isNotEmpty ?? false)
+                          ? allLeaves.data!.length * 2 - 1
+                          : 0,),
                     ),
                   ),
                 ],

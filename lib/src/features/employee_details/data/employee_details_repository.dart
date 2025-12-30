@@ -45,7 +45,7 @@ class EmployeeDetailsRepository {
   ///fetch employee leaves
   Future<LeaveStatusResponse> fetchEmployeeLeaves({required int userId,required String leaveStatus}) async {
     try {
-      final response = await dio.post(
+      final response = await _dioV2.post(
         kEndPointGetEmployeeDetails,
         data: {"user_id": userId, "type": 'leaves','status' : leaveStatus},
       );

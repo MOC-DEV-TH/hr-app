@@ -27,12 +27,12 @@ class AdminDashboardRepository {
     try {
       final response = await dio.get(
         kEndPointGetAdminDashboard,
-        data: {"bussiness_unit_id": businessUnitId, "date": date},
+        data: {
+          "bussiness_unit_id": businessUnitId,
+          "date": date,
+        },
       );
-      AdminDashboardResponse data = AdminDashboardResponse.fromJson(
-        response.data,
-      );
-      return data;
+      return AdminDashboardResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
           ErrorHandler.handle(e).failure.message;

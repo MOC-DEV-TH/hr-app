@@ -6,6 +6,7 @@ import 'package:hr_app/src/features/holiday/model/holiday_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../network/api_constants.dart';
 import '../../../network/dio_provider.dart';
+import '../../../network/error_handler.dart';
 import '../../home/model/attendance_response.dart';
 
 part 'announcement_repository.g.dart';
@@ -29,7 +30,8 @@ class AnnouncementRepository {
       final data = AnnouncementResponse.fromJson(response.data);
       return data;
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? "ERROR: Unknown Dio Error";
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 }

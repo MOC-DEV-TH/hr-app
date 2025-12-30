@@ -19,8 +19,9 @@ class LeaveStatusPage extends ConsumerWidget {
       body: leaveStatusState.when(
         data: (statusData) {
           return Visibility(
-              visible: statusData.data.isNotEmpty,
-              child: LeaveStatusTable(status: statusData.data));
+            visible: statusData.data?.isNotEmpty ?? false,
+            child: LeaveStatusTable(status: statusData.data ?? []),
+          );
         },
         loading:
             () => const Center(

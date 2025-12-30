@@ -494,7 +494,7 @@ String _statusToParam(LeaveStatus? s) {
       return 'all';
     case LeaveStatus.approved:
       return 'approved';
-    case LeaveStatus.rejected:
+    case LeaveStatus.reject:
       return 'reject';
     case LeaveStatus.pending:
       return 'pending';
@@ -508,7 +508,7 @@ String _statusToLabel(LeaveStatus? s) {
       return 'All Leaves';
     case LeaveStatus.approved:
       return 'Approved';
-    case LeaveStatus.rejected:
+    case LeaveStatus.reject:
       return 'Rejected';
     case LeaveStatus.pending:
       return 'Pending';
@@ -617,7 +617,7 @@ class _LeaveTab extends ConsumerWidget {
 
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-                if (leaves.data.isEmpty)
+                if (leaves.data?.isEmpty ?? false)
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
@@ -631,7 +631,7 @@ class _LeaveTab extends ConsumerWidget {
                       delegate: SliverChildBuilderDelegate((context, index) {
                         if (index.isOdd) return const SizedBox(height: 12);
                         final i = index ~/ 2;
-                        final leaveStatusVO = leaves.data[i];
+                        final leaveStatusVO = leaves.data?[i];
 
                         return EmployeeLeaveItemView(
                           userId: userId,
@@ -676,7 +676,9 @@ class _LeaveTab extends ConsumerWidget {
                           },
                           leaveStatusVO: leaveStatusVO,
                         );
-                      }, childCount: leaves.data.length * 2 - 1),
+                      }, childCount: (leaves.data?.isNotEmpty ?? false)
+                          ? leaves.data!.length * 2 - 1
+                          : 0,),
                     ),
                   ),
               ],

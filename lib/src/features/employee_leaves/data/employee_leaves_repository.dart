@@ -20,6 +20,8 @@ class EmployeeLeavesRepository {
   final Dio dio;
   final Ref ref;
 
+  Dio get _dioV2 => ref.read(dioProvider(baseUrl: kV2BaseUrl));
+
   ///fetch employee leaves
   Future<LeaveStatusResponse> fetchAllEmployeeLeaves({
     String? date,
@@ -37,20 +39,22 @@ class EmployeeLeavesRepository {
         query['status'] = leaveStatus.trim();
       }
 
-      final res = await dio.get(
+      final res = await _dioV2.get(
         kEndPointGetAllEmployeeLeaves,
         queryParameters: query.isEmpty ? null : query,
       );
       return LeaveStatusResponse.fromJson(res.data);
     } on DioException catch (e) {
-      throw e.response?.data["message"] ?? ErrorHandler.handle(e).failure.message;
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
     }
   }
 
-
-
   ///update employee leave request
-  Future<LeaveStatusResponse> updateEmployeeLeaveRequest({required int leaveId,required String status}) async {
+  Future<LeaveStatusResponse> updateEmployeeLeaveRequest({
+    required int leaveId,
+    required String status,
+  }) async {
     try {
       final response = await dio.post(
         kEndPointUpdateLeaveRequest,
@@ -74,7 +78,10 @@ EmployeeLeavesRepository employeeLeavesRepository(
 
 @riverpod
 Future<LeaveStatusResponse> fetchAllEmployeeLeaves(
-    FetchAllEmployeeLeavesRef ref,{String? date,String? leaveStatus,}) async {
+  FetchAllEmployeeLeavesRef ref, {
+  String? date,
+  String? leaveStatus,
+}) async {
   final provider = ref.watch(employeeLeavesRepositoryProvider);
-  return provider.fetchAllEmployeeLeaves(date: date,leaveStatus: leaveStatus);
+  return provider.fetchAllEmployeeLeaves(date: date, leaveStatus: leaveStatus);
 }

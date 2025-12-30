@@ -209,9 +209,25 @@ class AnnouncementPage extends ConsumerWidget {
         ),
         error: (Object error, StackTrace stackTrace) {
           return Center(
-            child: Text(
-              'Failed to load announcements',
-              style: Theme.of(context).textTheme.bodyMedium,
+            child: Column(
+              children: [
+                const Icon(Icons.wifi_off, size: 36, color: Colors.redAccent),
+                const SizedBox(height: 12),
+                Text(
+                  'Failed to load announcements data',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(error.toString()),
+                const SizedBox(height: 8),
+                TextButton(onPressed: (){
+                  ref.invalidate(announcementRepositoryProvider);
+                }, child: const Text('Tap to retry')),
+              ],
             ),
           );
         },

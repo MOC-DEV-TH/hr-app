@@ -32,8 +32,8 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await ref.read(adminDashboardRepositoryProvider).fetchEmployeeDropdownData();
-      await ref.read(adminDashboardRepositoryProvider).fetchAllBusinessUnitList();
+       await ref.read(adminDashboardRepositoryProvider).fetchEmployeeDropdownData();
+       await ref.read(adminDashboardRepositoryProvider).fetchAllBusinessUnitList();
     });
   }
 
@@ -224,6 +224,7 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                                 textColor: kBlueColor,
                                 onTap: () {
                                     ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
+                                    debugPrint("Date>>>${ref.watch(leaveDateProvider)}");
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -248,7 +249,7 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                               child: _SummaryCard(
                                 title: 'WFH',
                                 value:
-                                adminDashboardResponse.data?.leaveCount.toString() ?? '0'
+                                adminDashboardResponse.data?.wfhCount.toString() ?? '0'
                                 ,
                                 border: kGreen,
                                 bg: kGreen.withOpacity(.08),

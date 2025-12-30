@@ -64,7 +64,7 @@ class EmployeeVO {
   int? id;
   String? name;
   int? positionId;
-  Position? position;
+  String? position;
 
   EmployeeVO({
     this.id,
@@ -77,14 +77,14 @@ class EmployeeVO {
     id: json["id"],
     name: json["name"],
     positionId: json["position_id"],
-    position: json["position"] == null ? null : Position.fromJson(json["position"]),
+    position: json["position"],
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "name": name,
     "position_id": positionId,
-    "position": position?.toJson(),
+    "position": position,
   };
 }
 
