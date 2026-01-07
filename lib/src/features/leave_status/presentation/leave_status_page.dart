@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/leave_status_table.dart';
 import 'package:hr_app/src/features/leave_status/data/leave_status_repository.dart';
@@ -15,7 +16,7 @@ class LeaveStatusPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: CustomAppBarView(title: 'Leave Status'),
+      appBar: AdminCustomAppBarView(title: 'Leave Status',isShowRightIcon: false,),
       body: leaveStatusState.when(
         data: (statusData) {
           return Visibility(

@@ -61,7 +61,15 @@ class EmployeeWfhRequestItemView extends ConsumerWidget {
                 ?.copyWith(color: Colors.black),
           ),
           const SizedBox(height: 4),
-          Text(wfhRequestVO?.message ?? '', style: tt.bodyMedium),
+          Text(wfhRequestVO?.message ?? '', style: tt.bodySmall),
+          const SizedBox(height: 6),
+          Row(children: [
+            Flexible(child: Text('Proposed work from home schedule will not affect the operation negatively? :',style: tt.labelMedium
+                ?.copyWith(color: Colors.black),)),
+            10.hGap,
+            Text(wfhRequestVO?.affectOperation ?? ''),
+          ],),
+          const SizedBox(height: 6),
           if (wfhRequestVO?.status == 'Pending') ...[
             const SizedBox(height: 12),
             Visibility(
@@ -137,7 +145,7 @@ class _StatusBadge extends StatelessWidget {
         c = kGreen;
         t = 'APPROVED';
         break;
-      case 'Reject':
+      case 'Rejected':
         c = kRed;
         t = 'REJECT';
         break;

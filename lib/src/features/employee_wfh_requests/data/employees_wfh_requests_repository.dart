@@ -43,11 +43,11 @@ class EmployeesWfhRequestsRepository {
   }
 
   ///update employee leave request
-  Future<LeaveStatusResponse> updateEmployeeWfhRequest({required int leaveId,required String status}) async {
+  Future<LeaveStatusResponse> updateEmployeeWfhRequest({required int id,required String status}) async {
     try {
-      final response = await dio.post(
-        kEndPointUpdateLeaveRequest,
-        data: {"id": leaveId, "status": status},
+      final response = await dio.put(
+        kEndPointUpdateWfhRequest,
+        data: {"id": id, "status": status},
       );
       LeaveStatusResponse data = LeaveStatusResponse.fromJson(response.data);
       return data;

@@ -16,7 +16,7 @@
 
 
     <application
-        android:label="hr_app"
+        android:label="Punchin"
         android:name="${applicationName}"
         android:allowBackup="false"
         android:supportsRtl="true"

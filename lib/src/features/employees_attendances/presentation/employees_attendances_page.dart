@@ -29,7 +29,7 @@ class EmployeesAttendancePage extends ConsumerStatefulWidget {
 
 class _EmployeesAttendancePageState
     extends ConsumerState<EmployeesAttendancePage> {
-  static const _pageSize = 20;
+  static const _pageSize = 15;
   int _pageNo = 1;
   bool _isLoading = false;
   bool _hasMore = true;

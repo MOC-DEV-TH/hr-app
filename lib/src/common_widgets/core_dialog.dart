@@ -47,7 +47,7 @@ class CoreDialog extends StatelessWidget {
               width: 66,
               height: 66,
               decoration: BoxDecoration(
-                color: kBlueColor,
+                color: kPrimaryColor,
                 shape: BoxShape.circle,
               ),
               child: const Center(
@@ -90,13 +90,13 @@ class CoreDialog extends StatelessWidget {
                   child: FilledButton(
                     onPressed: primaryAction,
                     style: FilledButton.styleFrom(
-                      backgroundColor: kBlueColor,
+                      backgroundColor: kPrimaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: Text(primaryLabel),
+                    child: Text(primaryLabel,style: TextStyle(color: kSecondaryOlive),),
                   ),
                 ),
               ],

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/wfh_request_successful_dialog.dart';
+import 'package:hr_app/src/features/admin_dashboard/data/admin_dashboard_repository.dart';
 import 'package:hr_app/src/features/wfh_request/controller/send_wfh_request_controller.dart';
 import 'package:hr_app/src/utils/async_value_ui.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
@@ -65,6 +67,7 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
       if (!mounted) return;
       if (ok) {
         await wfhRequestSuccessDialog(context);
+        ref.invalidate(fetchAdminDashboardDataProvider);
         _messageController.clear();
         _dateController.clear();
       }
@@ -211,7 +214,7 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
                             onChanged:
                                 (v) => setState(() => _wfhDoesNotAffectOps = v),
                             activeColor: Colors.white,
-                            activeTrackColor: Colors.blue.shade400,
+                            activeTrackColor: kPrimaryColor,
                           ),
                         ],
                       ),
@@ -230,7 +233,7 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6E90F6),
+                            backgroundColor: kPrimaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -238,7 +241,7 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
                           ),
                           child: const Text(
                             'Save',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                            style: TextStyle(fontSize: 16, color: kSecondaryOlive),
                           ),
                         ),
                       ),

@@ -41,6 +41,7 @@ const String kEndPointAnnouncementList = "/get-announcement-list";
 const String kEndPointGetDashboardAttendedOverview = "/get-dashboard-attendance-ov";
 const String kEndPointCreateWfhRequest = "/create-wfh";
 const String kEndPointWfhRequestList = "/wfh-list";
+const String kEndPointUpdateWfhRequest="/update-wfh";
 
 
 
@@ -59,6 +60,7 @@ const String kLanguageENUS = "en-US";
 const String kTypeWfh = "work_from_home";
 const String kTypeOffice = "office";
 const String kLeaveStatusReject ="reject";
+const String kLeaveStatusRejected ="rejected";
 const String kLeaveStatusApproved="approved";
 
 const Duration kApiDeadline = Duration(minutes: 1);

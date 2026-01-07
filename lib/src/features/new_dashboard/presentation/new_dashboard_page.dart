@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/show_business_unit_bottom_sheet.dart';
 import 'package:hr_app/src/features/announcement/presentation/announcement_page.dart';
@@ -10,6 +11,7 @@ import 'package:hr_app/src/utils/gap.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../../common_widgets/custom_toolbar_with_logo.dart';
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/secure_storage.dart';
@@ -45,6 +47,12 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: kSecondaryColor,
+      ),
+    );
     final allBusinessUnitsAsync = ref.watch(businessUnitsAllLocalProvider);
     final selectedBuId = ref.watch(selectedBusinessUnitIdProvider);
 
@@ -63,86 +71,89 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
         ),
       );
     }
+
+    final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            const Text('Dashboard'),
-            Spacer(),
-            allBusinessUnitsAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (e, _) => const SizedBox.shrink(),
-              data: (units) {
-                if (units.isEmpty) return const SizedBox.shrink();
-
-                /// resolve name
-                final selectedName = selectedBuId == null
-                    ? 'All'
-                    : (units.firstWhere(
-                      (u) => u.id == selectedBuId,
-                  orElse: () => BusinessUnitVO(id: null, name: null),
-                ).name ??
-                    'All');
-
-                return InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () async {
-                    final items = <BusinessUnitVO>[
-                      BusinessUnitVO(id: null, name: 'All'),
-                      ...units,
-                    ];
-
-                    final result = await showBusinessUnitBottomSheet<BusinessUnitVO>(
-                      context: context,
-                      title: 'Select Business Unit',
-                      items: items,
-                      itemBuilder: (e) => Text(e.name ?? '-'),
-                    );
-
-                    if (result != null) {
-                      ref
-                          .read(selectedBusinessUnitIdProvider.notifier)
-                          .state = result.id;
-                    }
-                  },
-                  child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          selectedName,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const Icon(Icons.keyboard_arrow_down_rounded),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            10.hGap,
-            _iconChip(Icons.calendar_today_rounded, _pickDate),
-          ],
-        ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black87,
+      appBar: CustomToolbarWithLogo(
+        onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
+        onSearchTap: () {},
+        onNotificationTap: () {},
+        showBadge: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: const [
+          children:  [
+            Row(
+              children: [
+                const Text('Dashboard'),
+                Spacer(),
+                allBusinessUnitsAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (e, _) => const SizedBox.shrink(),
+                  data: (units) {
+                    if (units.isEmpty) return const SizedBox.shrink();
+
+                    /// resolve name
+                    final selectedName = selectedBuId == null
+                        ? 'All'
+                        : (units.firstWhere(
+                          (u) => u.id == selectedBuId,
+                      orElse: () => BusinessUnitVO(id: null, name: null),
+                    ).name ??
+                        'All');
+
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        final items = <BusinessUnitVO>[
+                          BusinessUnitVO(id: null, name: 'All'),
+                          ...units,
+                        ];
+
+                        final result = await showBusinessUnitBottomSheet<BusinessUnitVO>(
+                          context: context,
+                          title: 'Select Business Unit',
+                          items: items,
+                          itemBuilder: (e) => Text(e.name ?? '-'),
+                        );
+
+                        if (result != null) {
+                          ref
+                              .read(selectedBusinessUnitIdProvider.notifier)
+                              .state = result.id;
+                        }
+                      },
+                      child: Container(
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              selectedName,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            const Icon(Icons.keyboard_arrow_down_rounded),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                10.hGap,
+                _iconChip(Icons.calendar_today_rounded, _pickDate),
+              ],
+            ),
             TotalEmployeesCard(),
             SizedBox(height: 16),
             AttendanceOverviewCard(),

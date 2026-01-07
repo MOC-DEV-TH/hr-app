@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/colors.dart';
 
 Future<void> wfhRequestSuccessDialog(
     BuildContext context, {
@@ -8,7 +9,7 @@ Future<void> wfhRequestSuccessDialog(
       String line2 = 'Pls wait for approval confirmation.',
       bool barrierDismissible = true,
     }) {
-  const primary = Color(0xFF4C7FE5);
+  const primary = kPrimaryColor;
 
   return showDialog<void>(
     context: context,
@@ -34,7 +35,7 @@ Future<void> wfhRequestSuccessDialog(
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
-                      colors: [Color(0xFF5D89E9), primary],
+                      colors: [primary, primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -86,7 +87,7 @@ Future<void> wfhRequestSuccessDialog(
                       ),
                     ),
                     onPressed: () => Navigator.of(ctx).maybePop(),
-                    child: const Text('Close Message', style: TextStyle(fontSize: 16)),
+                    child: const Text('Close Message', style: TextStyle(fontSize: 16,color: kSecondaryOlive)),
                   ),
                 ),
               ],

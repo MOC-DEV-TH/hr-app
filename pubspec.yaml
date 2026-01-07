@@ -98,7 +98,11 @@ flutter:
     - assets/images/
 
   #---------------- ./ LOCAL FONTS ----------------#
-#  fonts:
-#    - family: Jaldi
-#      fonts:
-#        - asset: fonts/jaldi_regular.ttf
+  fonts:
+    - family: FuturuRegular
+      fonts:
+        - asset: fonts/futuru-regular.ttf
+    - family: RinkRegular
+      fonts:
+        - asset: fonts/rink-regular.ttf
+

@@ -28,14 +28,14 @@ class LogoutDialogWidgetView extends StatelessWidget {
               Container(
                 padding:const EdgeInsets.all(kMarginMedium2),
                 decoration:const BoxDecoration(color: Colors.transparent,shape: BoxShape.circle,),
-                child:const Center(child: Icon(Icons.logout,color: kPrimaryColor,),),),
+                child:const Center(child: Icon(Icons.logout,color: Colors.black,),),),
               const Spacer(),
               InkWell(
                   onTap: () => Navigator.of(context).pop(),
                   child: const Icon(
-                    Icons.clear,color: Colors.grey,))
+                    Icons.clear,color: Colors.black,))
             ],),
-            20.vGap,
+            10.vGap,
              Text('Confirmation',style:const TextStyle(fontSize: kTextRegular2x,color: Colors.black,fontWeight: FontWeight.w600),),
             4.vGap,
              Text('Are you sure want to log out?',style:const TextStyle(fontSize: kTextRegular,color: Colors.black,fontWeight: FontWeight.normal),),

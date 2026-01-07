@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/gap.dart';
 
 import '../utils/images.dart';
@@ -11,7 +12,7 @@ Future<String?> showClockOutRestrictedBottomSheet(
       int maxLength = 200,
       Future<void> Function(String reason)? onSubmit,
     }) {
-  const primary = Color(0xFF4C7FE5);
+  const primary = kPrimaryColor;
 
   return showModalBottomSheet<String>(
     context: context,
@@ -52,7 +53,7 @@ class _ClockOutRestrictedSheet extends StatefulWidget {
 }
 
 class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
-  static const primary = Color(0xFF4C7FE5);
+  static const primary = kPrimaryColor;
   final _controller = TextEditingController();
   final _focus = FocusNode();
 
@@ -103,7 +104,7 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [Color(0xFF5D89E9), primary],
+                colors: [primary, primary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -195,7 +196,7 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
                 ),
               ),
               onPressed:  _handleSend,
-              child: const Text('Send', style: TextStyle(fontSize: 16)),
+              child: const Text('Send', style: TextStyle(fontSize: 16,color: kSecondaryOlive)),
             ),
           ),
 

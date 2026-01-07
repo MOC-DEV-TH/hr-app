@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hr_app/src/routing/go_router/go_router_delegate.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -30,7 +32,6 @@ void main() {
   registerErrorHandlers();
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
   runApp(
     UncontrolledProviderScope(
       container: container,
@@ -108,7 +109,23 @@ class MyApp extends ConsumerWidget {
       routeInformationProvider: router.routeInformationProvider,
       routerDelegate: router.routerDelegate,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: kJaldi),
+      theme: ThemeData(primarySwatch: Colors.blue, fontFamily: kFontFuturuRegular),
+      builder: (context, child) {
+        final overlayStyle = Platform.isAndroid
+            ? const SystemUiOverlayStyle(
+          statusBarColor: kSecondaryColor,
+          statusBarIconBrightness: Brightness.light,
+        )
+            : const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.light,
+        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: overlayStyle,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

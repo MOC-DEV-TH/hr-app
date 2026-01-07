@@ -14,15 +14,15 @@ class EmployeeWfhRequestController extends _$EmployeeWfhRequestController {
     ref.onDispose(() => mounted = false);
   }
 
-  Future<bool> updateLeaveRequest({
-    required int leaveId,
+  Future<bool> updateWfhRequest({
+    required int id,
     required String leaveStatus,
   }) async {
     final employeeWfhRequestRepository = ref.read(employeesWfhRequestsRepositoryProvider);
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(
       () => employeeWfhRequestRepository.updateEmployeeWfhRequest(
-        leaveId: leaveId,
+        id: id,
         status: leaveStatus,
       ),
     );

@@ -31,7 +31,7 @@ class CustomAppBarView extends StatelessWidget implements PreferredSizeWidget {
           20.hGap,
           Text(
             title,
-            style: TextStyle(color: kPrimaryColor, fontSize: 23,fontWeight: FontWeight.bold),
+            style: TextStyle(color: kSecondaryOlive, fontSize: 23,fontWeight: FontWeight.bold),
           ),
         ],
       ),

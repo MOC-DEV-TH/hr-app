@@ -72,7 +72,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   InputView(
                     controller: emailController,
                     hintLabel: 'Email',
-                    hintTextColor: kPrimaryColor,
+                    hintTextColor: kGreyColor,
                   ),
 
                   15.vGap,
@@ -81,7 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   InputView(
                     controller: passwordController,
                     hintLabel: 'Password',
-                    hintTextColor: kPrimaryColor,
+                    hintTextColor: kGreyColor,
                     isSecure : isShowPassword,
                     isPasswordView: true,
                     toggleObscured: onTapToggleObscured,

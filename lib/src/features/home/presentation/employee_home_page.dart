@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/circle_button.dart';
 import 'package:hr_app/src/common_widgets/clock_out_restricte_bottom_sheet.dart';
 import 'package:hr_app/src/common_widgets/clock_out_successful_dialog.dart';
@@ -18,6 +20,7 @@ import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
+import 'package:hr_app/src/utils/fonts.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/strings.dart';
 import 'package:intl/intl.dart';
@@ -25,6 +28,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../common_widgets/clock_out_confirm_bottom_sheet.dart';
 import '../../../common_widgets/clock_out_not_allow_dialog.dart';
+import '../../../common_widgets/custom_toolbar_with_logo.dart';
 import '../../../common_widgets/error_retry_view.dart';
 import '../../../services/location_service.dart';
 import '../../../utils/secure_storage.dart';
@@ -44,7 +48,19 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
   bool _isShowLoadingView = false;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: kSecondaryColor,
+      ),
+    );
+
     ///show error dialog when network response error
     ref.listen<AsyncValue>(
       checkOutControllerProvider,
@@ -66,23 +82,28 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
         .watch(getLoginUserRoleProvider)
         .value;
 
+    final isManagementUser =
+        loginUserRole == kLoginUserRoleCeo ||
+            loginUserRole == kLoginUserRoleDirector ||
+            loginUserRole == kLoginUserRoleManager;
+
+
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: kWhiteColor,
-      appBar: (loginUserRole == kLoginUserRoleCeo ||
-          loginUserRole == kLoginUserRoleDirector ||
-          loginUserRole == kLoginUserRoleManager) ? CustomAppBarView(
-          title: 'Check-in/out') : AppBar(
-        backgroundColor: kWhiteColor,
-        toolbarHeight: 50,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: kGreyColor, height: 0.5),
-        ),
+      appBar: isManagementUser
+          ? const AdminCustomAppBarView(title: 'Check-in/out', isShowRightIcon: false,)
+          : CustomToolbarWithLogo(
+        onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
+        onSearchTap: () {},
+        onNotificationTap: () {},
+        showBadge: true,
       ),
-      drawer: (loginUserRole == kLoginUserRoleCeo ||
-          loginUserRole == kLoginUserRoleDirector ||
-          loginUserRole == kLoginUserRoleManager)
-          ? SizedBox()
+
+      drawer: isManagementUser
+          ? const SizedBox.shrink()
           : const CustomDrawer(),
       body: Stack(
         children: [
@@ -134,7 +155,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                   Text(
                                     'Check In / Check Out',
                                     style: TextStyle(
-                                      color: kPrimaryColor,
+                                      color: kSecondaryOlive,
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -150,8 +171,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                       buttonTextColor:
                                       _selectedLocation ==
                                           WorkLocation.workFromHome
-                                          ? Colors.white
-                                          : kPrimaryColor,
+                                          ? kSecondaryOlive
+                                          : kSecondaryOlive,
                                       onTap: () {
                                         setState(() {
                                           _selectedLocation =
@@ -178,8 +199,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                       buttonTextColor:
                                       _selectedLocation ==
                                           WorkLocation.office
-                                          ? Colors.white
-                                          : kPrimaryColor,
+                                          ? kSecondaryOlive
+                                          : kSecondaryOlive,
                                       onTap: () {
                                         setState(() {
                                           _selectedLocation =
@@ -202,7 +223,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: kPrimaryColor,
+                                      color: kSecondaryOlive,
                                     ),
                                   ),
 
@@ -215,7 +236,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.normal,
-                                      color: Colors.grey,
+                                      color: kSecondaryOlive,
                                     ),
                                   ),
 
@@ -226,7 +247,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                     style: TextStyle(
                                       fontSize: 26,
                                       fontWeight: FontWeight.bold,
-                                      color: kPrimaryColor,
+                                      color: kSecondaryOlive,
+                                      fontFamily: kFontRinkRegular
                                     ),
                                   ),
 
@@ -358,8 +380,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                           label: 'Check-Out',
                                           icon: Icons.logout,
                                           backgroundColor: hasCheckedOut
-                                              ? Colors.grey
-                                              : Colors.orange,
+                                              ? kGreyColor
+                                              : kSecondaryColor,
                                         ),
                                     ],
                                   ),

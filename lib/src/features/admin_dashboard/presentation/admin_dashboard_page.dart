@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/employee_row_view.dart';
 import 'package:hr_app/src/features/admin_dashboard/data/admin_dashboard_repository.dart';
@@ -11,6 +12,7 @@ import 'package:hr_app/src/utils/extensions.dart';
 import 'package:hr_app/src/utils/gap.dart';
 
 import '../../../common_widgets/custom_drawer.dart';
+import '../../../common_widgets/custom_toolbar_with_logo.dart';
 import '../../../common_widgets/error_retry_view.dart';
 import '../../employee_details/presentation/employee_details_page.dart';
 
@@ -39,362 +41,346 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: kSecondaryColor,
+      ),
+    );
     ///provider states
     final businessUnitsState = ref.watch(fetchBusinessUnitsProvider);
+    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       backgroundColor: kWhiteColor,
+      key: scaffoldKey,
       drawer: const CustomDrawer(),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: kWhiteColor,
-        actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: kPrimaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      appBar: CustomToolbarWithLogo(
+        onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
+        onSearchTap: () {},
+        onNotificationTap: () {},
+        showBadge: true,
       ),
 
-      body: SafeArea(
-        child: businessUnitsState.when(
-          loading:
-              () => const Center(
-                child: CircularProgressIndicator(color: kPrimaryColor),
-              ),
-          error:
-              (error, stackTrace) => ErrorRetryView(
-                title: 'Error business units data',
-                message: error.toString(),
-                onRetry: () => ref.invalidate(fetchBusinessUnitsProvider),
-              ),
-          data: (businessUnitsResponse) {
-            /// Build labels & ids
-            final buList = businessUnitsResponse.data ?? [];
-            final buNames = buList.map((e) => e.name ?? '').toList();
-            final buIds = buList.map((e) => e.id ?? 0).toList();
+      body: businessUnitsState.when(
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(color: kPrimaryColor),
+            ),
+        error:
+            (error, stackTrace) => ErrorRetryView(
+              title: 'Error business units data',
+              message: error.toString(),
+              onRetry: () => ref.invalidate(fetchBusinessUnitsProvider),
+            ),
+        data: (businessUnitsResponse) {
+          /// Build labels & ids
+          final buList = businessUnitsResponse.data ?? [];
+          final buNames = buList.map((e) => e.name ?? '').toList();
+          final buIds = buList.map((e) => e.id ?? 0).toList();
 
-            final selectedDate = ref.watch(selectedDateProvider);
+          final selectedDate = ref.watch(selectedDateProvider);
 
-            /// Ensure selected BU has a value (first item fallback), but
-            /// do NOT write synchronously during build.
-            final selBuId = ref.watch(selectedBuIdProvider);
-            final initialBuId =
-                (selBuId == 0 && buIds.isNotEmpty) ? buIds.first : selBuId;
+          /// Ensure selected BU has a value (first item fallback), but
+          /// do NOT write synchronously during build.
+          final selBuId = ref.watch(selectedBuIdProvider);
+          final initialBuId =
+              (selBuId == 0 && buIds.isNotEmpty) ? buIds.first : selBuId;
 
-            if (selBuId == 0 && initialBuId != 0) {
-              Future.microtask(() {
-                if (ref.read(selectedBuIdProvider) == 0) {
-                  ref.read(selectedBuIdProvider.notifier).state = initialBuId;
-                }
-              });
-            }
+          if (selBuId == 0 && initialBuId != 0) {
+            Future.microtask(() {
+              if (ref.read(selectedBuIdProvider) == 0) {
+                ref.read(selectedBuIdProvider.notifier).state = initialBuId;
+              }
+            });
+          }
 
-            /// Watch dashboard with *current* BU id so it refetches automatically
-            final adminDashboardState = ref.watch(
-              fetchAdminDashboardDataProvider(
-                businessUnitId:
-                    initialBuId == 0
-                        ? (buIds.isNotEmpty ? buIds.first : 0)
-                        : initialBuId,
-                date: selectedDate?.ymd() ?? DateTime.now().ymd().toString(),
-              ),
-            );
+          /// Watch dashboard with *current* BU id so it refetches automatically
+          final adminDashboardState = ref.watch(
+            fetchAdminDashboardDataProvider(
+              businessUnitId:
+                  initialBuId == 0
+                      ? (buIds.isNotEmpty ? buIds.first : 0)
+                      : initialBuId,
+              date: selectedDate?.ymd() ?? DateTime.now().ymd().toString(),
+            ),
+          );
 
-            return adminDashboardState.when(
-              loading:
-                  () => const Center(
-                    child: CircularProgressIndicator(color: kPrimaryColor),
-                  ),
-              error:
-                  (error, stack) => ErrorRetryView(
-                    title: 'Error loading dashboard data',
-                    message: error.toString(),
-                    onRetry: () {
-                      final id = ref.read(selectedBuIdProvider);
-                      ref.invalidate(
-                        fetchAdminDashboardDataProvider(
-                          businessUnitId: id,
-                          date:
-                              selectedDate?.ymd() ??
-                              DateTime.now().ymd().toString(),
-                        ),
-                      );
-                    },
-                  ),
-              data: (adminDashboardResponse) {
-                final selectedIndex = () {
-                  final idx = buIds.indexOf(initialBuId);
-                  if (idx < 0 && buIds.isNotEmpty) return 0;
-                  return idx;
-                }();
-
-                return CustomScrollView(
-                  slivers: [
-                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-                    /// Title
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: Consumer(
-                          builder: (context, ref, _) {
-                            final title =
-                                selectedDate == null
-                                    ? 'Today Attendance'
-                                    : selectedDate.uiLong();
-
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    title,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w800),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.calendar_month,
-                                    color:
-                                        Theme.of(context).colorScheme.outline,
-                                  ),
-                                  onPressed: () async {
-                                    final now = DateTime.now();
-                                    final initial = selectedDate ?? now;
-
-                                    final picked = await showDatePicker(
-                                      context: context,
-                                      initialDate: initial,
-                                      firstDate: DateTime(now.year - 2),
-                                      lastDate: DateTime(now.year + 2),
-                                    );
-
-                                    if (picked != null) {
-                                      ref
-                                          .read(selectedDateProvider.notifier)
-                                          .state = picked;
-                                    }
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+          return adminDashboardState.when(
+            loading:
+                () => const Center(
+                  child: CircularProgressIndicator(color: kPrimaryColor),
+                ),
+            error:
+                (error, stack) => ErrorRetryView(
+                  title: 'Error loading dashboard data',
+                  message: error.toString(),
+                  onRetry: () {
+                    final id = ref.read(selectedBuIdProvider);
+                    ref.invalidate(
+                      fetchAdminDashboardDataProvider(
+                        businessUnitId: id,
+                        date:
+                            selectedDate?.ymd() ??
+                            DateTime.now().ymd().toString(),
                       ),
-                    ),
+                    );
+                  },
+                ),
+            data: (adminDashboardResponse) {
+              final selectedIndex = () {
+                final idx = buIds.indexOf(initialBuId);
+                if (idx < 0 && buIds.isNotEmpty) return 0;
+                return idx;
+              }();
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
+              return CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                    /// Summary Card
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ///leave summary card
-                            Expanded(
-                              child: _SummaryCard(
-                                title: 'Leave',
-                                value:
-                                    adminDashboardResponse.data?.leaveCount.toString() ?? '0'
-                                ,
-                                border: kBlueColor,
-                                bg: kPrimaryColor.withOpacity(.08),
-                                textColor: kBlueColor,
-                                onTap: () {
-                                    ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
-                                    debugPrint("Date>>>${ref.watch(leaveDateProvider)}");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => EmployeesLeavesPage(
-                                            leaveCount:
-                                                adminDashboardResponse
-                                                    .data
-                                                    ?.leaveCount,
-                                            date: selectedDate ?? DateTime.now(),
-                                          ),
-                                    ),
+                  /// Title
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final title =
+                              selectedDate == null
+                                  ? 'Today Attendance'
+                                  : selectedDate.uiLong();
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.calendar_month,
+                                  color:
+                                      Theme.of(context).colorScheme.outline,
+                                ),
+                                onPressed: () async {
+                                  final now = DateTime.now();
+                                  final initial = selectedDate ?? now;
+
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: initial,
+                                    firstDate: DateTime(now.year - 2),
+                                    lastDate: DateTime(now.year + 2),
                                   );
+
+                                  if (picked != null) {
+                                    ref
+                                        .read(selectedDateProvider.notifier)
+                                        .state = picked;
+                                  }
                                 },
                               ),
-                            ),
-
-                            12.hGap,
-
-                            ///wfh summary card
-                            Expanded(
-                              child: _SummaryCard(
-                                title: 'WFH',
-                                value:
-                                adminDashboardResponse.data?.wfhCount.toString() ?? '0'
-                                ,
-                                border: kGreen,
-                                bg: kGreen.withOpacity(.08),
-                                textColor: kBlueColor,
-                                onTap: () {
-                                  ref.read(leaveDateForWfhRequestProvider.notifier).state = selectedDate ?? DateTime.now();
-                                  debugPrint("Date>>>${ref.watch(leaveDateForWfhRequestProvider)}");
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => EmployeesWfhRequestPage(
-                                        wfhCount:
-                                        adminDashboardResponse
-                                            .data
-                                            ?.wfhCount,
-                                        date: selectedDate ?? DateTime.now(),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          );
+                        },
                       ),
                     ),
+                  ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-                    /// Segmented control
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: _BusinessUnitSegmented(
-                          labels: buNames,
-                          selected: (selectedIndex < 0) ? 0 : selectedIndex,
-                          onChanged: (i) {
-                            if (i >= 0 && i < buIds.length) {
-                              ref.read(selectedBuIdProvider.notifier).state =
-                                  buIds[i];
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-
-                    const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-                    /// View all
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => EmployeesAttendancePage(
-                                        title:
-                                            businessUnitsResponse
-                                                .data?[ref
-                                                        .read(
-                                                          selectedBuIdProvider
-                                                              .notifier,
-                                                        )
-                                                        .state -
-                                                    1]
-                                                .name ??
-                                            '',
-                                        date:
-                                            ref
-                                                .read(
-                                                  selectedDateProvider.notifier,
-                                                )
-                                                .state,
-                                        businessUintId:
-                                            ref
-                                                .read(
-                                                  selectedBuIdProvider.notifier,
-                                                )
-                                                .state,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'View All',
-                              style: TextStyle(
-                                color: kBlueColor,
-                                decoration: TextDecoration.underline,
-                                decorationColor: kBlueColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SliverToBoxAdapter(child: SizedBox(height: 4)),
-
-                    /// Employees List
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-                      sliver: SliverList.separated(
-                        itemBuilder:
-                            (_, i) => EmployeeRow(
-                              employee:
-                                  adminDashboardResponse
-                                      .data
-                                      ?.attendanceData?[i],
+                  /// Summary Card
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ///leave summary card
+                          Expanded(
+                            child: _SummaryCard(
+                              title: 'Leave',
+                              value:
+                                  adminDashboardResponse.data?.leaveCount.toString() ?? '0'
+                              ,
+                              border: kBlueColor,
+                              bg: kPrimaryColor.withOpacity(.08),
+                              textColor: kBlueColor,
                               onTap: () {
+                                  ref.read(leaveDateProvider.notifier).state = selectedDate ?? DateTime.now();
+                                  debugPrint("Date>>>${ref.watch(leaveDateProvider)}");
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
-                                        (_) => EmployeeDetailsPage(
-                                          userID:
+                                        (_) => EmployeesLeavesPage(
+                                          leaveCount:
                                               adminDashboardResponse
                                                   .data
-                                                  ?.attendanceData?[i]
-                                                  .id,
+                                                  ?.leaveCount,
+                                          date: selectedDate ?? DateTime.now(),
                                         ),
                                   ),
                                 );
                               },
                             ),
-                        separatorBuilder: (_, __) => const SizedBox(height: 0),
-                        itemCount:
-                            adminDashboardResponse
-                                .data
-                                ?.attendanceData
-                                ?.length ??
-                            0,
+                          ),
+
+                          12.hGap,
+
+                          ///wfh summary card
+                          Expanded(
+                            child: _SummaryCard(
+                              title: 'WFH',
+                              value:
+                              adminDashboardResponse.data?.wfhCount.toString() ?? '0'
+                              ,
+                              border: kGreen,
+                              bg: kGreen.withOpacity(.08),
+                              textColor: kBlueColor,
+                              onTap: () {
+                                ref.read(leaveDateForWfhRequestProvider.notifier).state = selectedDate ?? DateTime.now();
+                                debugPrint("Date>>>${ref.watch(leaveDateForWfhRequestProvider)}");
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => EmployeesWfhRequestPage(
+                                      wfhCount:
+                                      adminDashboardResponse
+                                          .data
+                                          ?.wfhCount,
+                                      date: selectedDate ?? DateTime.now(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+                  /// Segmented control
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: _BusinessUnitSegmented(
+                        labels: buNames,
+                        selected: (selectedIndex < 0) ? 0 : selectedIndex,
+                        onChanged: (i) {
+                          if (i >= 0 && i < buIds.length) {
+                            ref.read(selectedBuIdProvider.notifier).state =
+                                buIds[i];
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+                  /// View all
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => EmployeesAttendancePage(
+                                      title:
+                                          businessUnitsResponse
+                                              .data?[ref
+                                                      .read(
+                                                        selectedBuIdProvider
+                                                            .notifier,
+                                                      )
+                                                      .state -
+                                                  1]
+                                              .name ??
+                                          '',
+                                      date:
+                                          ref
+                                              .read(
+                                                selectedDateProvider.notifier,
+                                              )
+                                              .state,
+                                      businessUintId:
+                                          ref
+                                              .read(
+                                                selectedBuIdProvider.notifier,
+                                              )
+                                              .state,
+                                    ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'View All',
+                            style: TextStyle(
+                              color: kPrimaryColor,
+                              decoration: TextDecoration.underline,
+                              decorationColor: kPrimaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 4)),
+
+                  /// Employees List
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                    sliver: SliverList.separated(
+                      itemBuilder:
+                          (_, i) => EmployeeRow(
+                            employee:
+                                adminDashboardResponse
+                                    .data
+                                    ?.attendanceData?[i],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => EmployeeDetailsPage(
+                                        userID:
+                                            adminDashboardResponse
+                                                .data
+                                                ?.attendanceData?[i]
+                                                .id,
+                                      ),
+                                ),
+                              );
+                            },
+                          ),
+                      separatorBuilder: (_, __) => const SizedBox(height: 0),
+                      itemCount:
+                          adminDashboardResponse
+                              .data
+                              ?.attendanceData
+                              ?.length ??
+                          0,
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -549,7 +535,7 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                     decoration: BoxDecoration(
                       color:
                           i == widget.selected
-                              ? kBlueColor
+                              ? kPrimaryColor
                               : Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -562,7 +548,7 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                         fontWeight: FontWeight.w600,
                         color:
                             i == widget.selected
-                                ? Colors.white
+                                ? kSecondaryOlive
                                 : Colors.black87,
                       ),
                     ),

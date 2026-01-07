@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/images.dart';
 import 'package:hr_app/src/utils/strings.dart';
@@ -64,32 +65,39 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           14.vGap,
-          Container(
-            width: 66,
-            height: 66,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF5D89E9), Color(0xFF4C7FE5)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x334C7FE5),
-                  blurRadius: 20,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(14.0),
-              child: Image.asset(
-                kScheduleImage,
-                fit: BoxFit.cover,
-              ),
-            ),
+          Image.asset(
+            kLaptopIllustrationImage,
+            fit: BoxFit.cover,
+            width: 130,
+            height: 110,
           ),
+          // Container(
+          //   width: 66,
+          //   height: 66,
+          //   decoration: const BoxDecoration(
+          //     shape: BoxShape.circle,
+          //     gradient: LinearGradient(
+          //       colors: [Color(0xFF5D89E9), Color(0xFF4C7FE5)],
+          //       begin: Alignment.topLeft,
+          //       end: Alignment.bottomRight,
+          //     ),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Color(0x334C7FE5),
+          //         blurRadius: 20,
+          //         offset: Offset(0, 10),
+          //       ),
+          //     ],
+          //   ),
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(14.0),
+          //     child: Image.asset(
+          //       kScheduleImage,
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
+
           const SizedBox(height: 14),
 
           Text(
@@ -137,7 +145,7 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
             width: double.infinity,
             child: FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: _primary,
+                backgroundColor: kPrimaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
@@ -157,7 +165,7 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
               },
               child: const Text(
                 kLabelYesClockOut,
-                style: TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14,color: kSecondaryOlive),
               ),
             ),
           ),

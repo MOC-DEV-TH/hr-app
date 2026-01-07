@@ -154,7 +154,7 @@ class _TopTabs extends StatelessWidget {
           indicatorSize: TabBarIndicatorSize.tab,
           indicatorPadding: const EdgeInsets.all(4),
           indicator: BoxDecoration(
-            color: kBlueColor,
+            color: kPrimaryColor,
             borderRadius: BorderRadius.circular(12),
           ),
           tabAlignment: TabAlignment.center,
@@ -164,7 +164,7 @@ class _TopTabs extends StatelessWidget {
           unselectedLabelStyle: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-          labelColor: Colors.white,
+          labelColor: kSecondaryOlive,
           unselectedLabelColor: const Color(0xFF4B5563),
           dividerColor: Colors.transparent,
           overlayColor: MaterialStateProperty.all(Colors.transparent),

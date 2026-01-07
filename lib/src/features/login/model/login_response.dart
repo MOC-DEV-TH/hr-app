@@ -70,6 +70,7 @@ class UserVO {
   String? profilePhotoPath;
   DateTime? createdAt;
   DateTime? updatedAt;
+  int? allowWfhRequest;
 
   UserVO({
     this.id,
@@ -87,6 +88,7 @@ class UserVO {
     this.profilePhotoPath,
     this.createdAt,
     this.updatedAt,
+    this.allowWfhRequest
   });
 
   factory UserVO.fromJson(Map<String, dynamic> json) => UserVO(
@@ -117,6 +119,7 @@ class UserVO {
         json["updated_at"] != null
             ? DateTime.tryParse(json["updated_at"] as String)
             : null,
+    allowWfhRequest: json["allow_wfh_request"] as int?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -135,5 +138,6 @@ class UserVO {
     if (profilePhotoPath != null) "profile_photo_path": profilePhotoPath,
     "created_at": createdAt?.toIso8601String(),
     "updated_at": updatedAt?.toIso8601String(),
+    if (allowWfhRequest != null) "allow_wfh_request": allowWfhRequest,
   };
 }

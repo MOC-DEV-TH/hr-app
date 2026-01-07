@@ -66,7 +66,7 @@ class HomeRepository {
 
   Future<bool> checkOut({String? reason}) async {
     try {
-      final res = await dio.post(kEndPointCheckOut, data: {
+      final res = await _dioV2.post(kEndPointCheckOut, data: {
         if (reason != null && reason.trim().isNotEmpty) 'log_out_reason': reason.trim(),
       });
 

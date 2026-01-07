@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/features/add_new_employee/presentation/add_new_employee_page.dart';
 import 'package:hr_app/src/features/employee_list/data/employee_list_repository.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 
 import '../../employee_details/presentation/employee_details_page.dart';
@@ -230,18 +231,21 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF6F9CF3),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => AddNewEmployeePage(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add, size: 28),
+      floatingActionButton: Visibility(
+        visible: false,
+        child: FloatingActionButton(
+          backgroundColor: kPrimaryColor,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => AddNewEmployeePage(),
+              ),
+            );
+          },
+          child: const Icon(Icons.add, size: 28),
+        ),
       ),
     );
   }

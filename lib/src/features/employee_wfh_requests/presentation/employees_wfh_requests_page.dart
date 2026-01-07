@@ -1,6 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/wfh_approve_confirm_dialog.dart';
+import 'package:hr_app/src/common_widgets/wfh_approve_success_dialog.dart';
+import 'package:hr_app/src/common_widgets/wfh_reject_confirm_dialog.dart';
+import 'package:hr_app/src/common_widgets/wfh_reject_success_dialog.dart';
 import 'package:hr_app/src/features/employee_wfh_requests/controller/employee_wfh_request_controller.dart';
 import 'package:hr_app/src/features/employee_wfh_requests/data/employees_wfh_requests_repository.dart';
 import 'package:hr_app/src/features/list_items/employee_wfh_request_item_view.dart';
@@ -40,6 +44,40 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<bool> showApproveConfirmDialog(BuildContext context) async {
+    final res = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const WfhApproveConfirmDialog(),
+    );
+    return res == true;
+  }
+
+  Future<bool> showRejectConfirmDialog(BuildContext context) async {
+    final res = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const WfhRejectConfirmDialog(),
+    );
+    return res == true;
+  }
+
+  Future<void> showApproveSuccessDialog(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const WfhApproveSuccessDialog(),
+    );
+  }
+
+  Future<void> showRejectSuccessDialog(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const WfhRejectSuccessDialog(),
+    );
   }
 
   @override
@@ -129,8 +167,8 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
                                       employeeWfhRequestControllerProvider
                                           .notifier,
                                     )
-                                    .updateLeaveRequest(
-                                      leaveId: id,
+                                    .updateWfhRequest(
+                                      id: id,
                                       leaveStatus: kLeaveStatusApproved,
                                     );
 
@@ -152,9 +190,9 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
                                       employeeWfhRequestControllerProvider
                                           .notifier,
                                     )
-                                    .updateLeaveRequest(
-                                      leaveId: id,
-                                      leaveStatus: kLeaveStatusReject,
+                                    .updateWfhRequest(
+                                      id: id,
+                                      leaveStatus: kLeaveStatusRejected,
                                     );
 
                                 ///is success

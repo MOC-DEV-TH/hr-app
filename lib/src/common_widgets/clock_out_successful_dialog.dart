@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/colors.dart';
 
 import '../utils/images.dart';
 
@@ -10,7 +11,7 @@ Future<void> showClockOutSuccessDialog(
       String line2 = 'Time to relax and enjoy your break',
       bool barrierDismissible = true,
     }) {
-  const primary = Color(0xFF4C7FE5);
+  const primary = kPrimaryColor;
 
   return showDialog<void>(
     context: context,
@@ -36,7 +37,7 @@ Future<void> showClockOutSuccessDialog(
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
-                      colors: [Color(0xFF5D89E9), primary],
+                      colors: [primary, primary],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -91,7 +92,7 @@ Future<void> showClockOutSuccessDialog(
                       ),
                     ),
                     onPressed: () => Navigator.of(ctx).maybePop(),
-                    child: const Text('Close Message', style: TextStyle(fontSize: 16)),
+                    child: const Text('Close Message', style: TextStyle(fontSize: 16,color: kSecondaryOlive)),
                   ),
                 ),
               ],

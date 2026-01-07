@@ -109,7 +109,7 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
                         loginUserRole == kLoginUserRoleDirector ||
                         loginUserRole == kLoginUserRoleManager)
                     ? AdminDashboardPage(key: state.pageKey)
-                    : SafeArea(child: EmployeeHomePage(key: state.pageKey)),
+                    : EmployeeHomePage(key: state.pageKey),
           );
         },
       ),
@@ -279,22 +279,28 @@ GoRouter goRouterDelegate(GoRouterDelegateRef ref) {
   );
 }
 
-///custom transition page
-CustomTransitionPage buildPageWithDefaultTransition<T>({
+CustomTransitionPage<T> buildPageWithDefaultTransition<T>({
   required BuildContext context,
   required GoRouterState state,
   required Widget child,
 }) {
   return CustomTransitionPage<T>(
     key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder:
-        (context, animation, secondaryAnimation, child) => SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).animate(animation),
+    transitionsBuilder: (context, animation, _, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.98, end: 1.0).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOut,
+            ),
+          ),
           child: child,
         ),
+      );
+    },
   );
 }

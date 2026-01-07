@@ -46,20 +46,20 @@ class InputView extends StatelessWidget {
         validator: validator,
         textAlignVertical:
             isPasswordView == true ? TextAlignVertical.center : null,
-        cursorColor: cursorColor ?? kPrimaryColor,
+        cursorColor: cursorColor ?? kSecondaryOlive,
         obscureText: isSecure,
         decoration: InputDecoration(
           border: InputBorder.none,
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 1, color: kPrimaryColor),
+            borderSide: BorderSide(width: 1, color: kSecondaryOlive),
             borderRadius: BorderRadius.circular(10.0),
           ),
           disabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 1, color: kPrimaryColor),
+            borderSide: BorderSide(width: 1, color: kSecondaryOlive),
             borderRadius: BorderRadius.circular(10.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 1, color: kPrimaryColor),
+            borderSide: BorderSide(width: 1, color: kSecondaryOlive),
             borderRadius: BorderRadius.circular(10.0),
           ),
           suffixIcon:

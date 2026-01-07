@@ -17,7 +17,7 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
       centerTitle: true,
       automaticallyImplyLeading: false,
       leadingWidth: 40,
-      backgroundColor:bgColor ?? Colors.transparent,
+      backgroundColor:kSecondaryColor,
       toolbarHeight: 40,
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.0),
@@ -29,12 +29,12 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
             onTap: () {
               Navigator.pop(context, true);
             },
-            child: Icon(Icons.keyboard_backspace, color: Colors.black),
+            child: Icon(Icons.keyboard_backspace, color: Colors.white),
           ),
           Spacer(),
           Text(
             title,
-            style: TextStyle(color: kPrimaryColor, fontSize: kTextRegular18,fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: kTextRegular18,fontWeight: FontWeight.bold),
           ),
           Spacer(),
           Visibility(
@@ -47,7 +47,7 @@ class AdminCustomAppBarView extends StatelessWidget implements PreferredSizeWidg
             visible: isShowEditIcon == true,
             child: InkWell(
                 onTap: onTapEdit,
-                child: Icon(Icons.edit_note_rounded)),
+                child: Icon(Icons.edit_note_rounded,color: Colors.white,)),
           )
         ],
       ),

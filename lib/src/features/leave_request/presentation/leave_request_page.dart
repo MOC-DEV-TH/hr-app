@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/admin_custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/common_widgets/custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/dynamic_drop_down_widget.dart';
@@ -14,6 +15,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../../common_widgets/leave_request_successful_dialog.dart';
 import '../../../common_widgets/loading_view.dart';
+import '../../admin_dashboard/data/admin_dashboard_repository.dart';
 
 class LeaveRequestPage extends ConsumerStatefulWidget {
   const LeaveRequestPage({super.key});
@@ -79,7 +81,7 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
 
     return Scaffold(
       backgroundColor: kWhiteColor,
-      appBar: const CustomAppBarView(title: 'Leave Request'),
+      appBar: const AdminCustomAppBarView(title: 'Leave Request', isShowRightIcon: false,),
       body: Stack(
         children: [
           ///body view
@@ -208,6 +210,7 @@ class _LeaveRequestPageState extends ConsumerState<LeaveRequestPage> {
                             /// on success -> clear everything the user entered
                             if (isSuccess) {
                               _resetForm();
+                              ref.invalidate(fetchAdminDashboardDataProvider);
                               await leaveRequestSuccessDialog(
                                   context);
 

@@ -20,7 +20,18 @@ class EmployeeLeaveItemView extends ConsumerWidget {
   @override
   Widget build(BuildContext context,WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
-    final loginUserId = ref.watch(getUserDataProvider).value?.id;
+    final loginUserId = ref.watch(getUserDataProvider).value?.id ?? 0;
+
+    final role = (ref.watch(getLoginUserRoleProvider).value ?? '')
+        .trim()
+        .toLowerCase();
+
+    final isEmployee = role == kLoginUserRoleEmployee.trim().toLowerCase();
+    final isPending = (leaveStatusVO?.status ?? '').trim().toLowerCase() == 'pending';
+
+    final canShowActions = isPending && !isEmployee && loginUserId != userId;
+
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: _cardDecoration(context),
@@ -63,13 +74,10 @@ class EmployeeLeaveItemView extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(leaveStatusVO?.message ?? '', style: tt.bodyMedium),
-          if (leaveStatusVO?.status == 'pending') ...[
+          if (isPending) ...[
             const SizedBox(height: 12),
             Visibility(
-              visible: ref
-                  .watch(getLoginUserRoleProvider)
-                  .value !=
-                  kLoginUserRoleEmployee && loginUserId != userId,
+              visible: canShowActions,
               child: Row(
                 children: [
                   Expanded(
