@@ -282,6 +282,17 @@ class _AttendanceTabState extends ConsumerState<_AttendanceTab> {
     );
   }
 
+  String workLocationLabel(String? value) {
+    switch (value) {
+      case 'work_from_home':
+        return 'Work From Home';
+      case 'office':
+        return 'Office';
+      default:
+        return '-';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
@@ -375,7 +386,7 @@ class _AttendanceTabState extends ConsumerState<_AttendanceTab> {
                               ),
                               const Spacer(),
                               Text(
-                                'Work From Home',
+                                workLocationLabel(data.attendances.first.workLocation),
                                 style: tt.bodySmall?.copyWith(color: kGrey),
                               ),
                             ],

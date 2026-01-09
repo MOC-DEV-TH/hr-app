@@ -31,7 +31,7 @@ class NewDashboardPage extends ConsumerStatefulWidget {
 }
 
 class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
-
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   Future<void> _pickDate() async {
     final picked = await showMonthPicker(
       context: context,
@@ -71,8 +71,6 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
         ),
       );
     }
-
-    final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Colors.white,

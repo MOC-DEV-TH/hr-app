@@ -27,6 +27,7 @@ class AdminDashboardPage extends ConsumerStatefulWidget {
 }
 
 class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> businessUnitTitles = [];
   int selectedBusinessUintId = 1;
 
@@ -48,7 +49,6 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
     );
     ///provider states
     final businessUnitsState = ref.watch(fetchBusinessUnitsProvider);
-    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       backgroundColor: kWhiteColor,

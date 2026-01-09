@@ -8,7 +8,6 @@ import 'package:hr_app/src/common_widgets/circle_button.dart';
 import 'package:hr_app/src/common_widgets/clock_out_restricte_bottom_sheet.dart';
 import 'package:hr_app/src/common_widgets/clock_out_successful_dialog.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
-import 'package:hr_app/src/common_widgets/custom_app_bar_view.dart';
 import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/loading_view.dart';
 import 'package:hr_app/src/common_widgets/time_tracking_table.dart';
@@ -44,6 +43,7 @@ class EmployeeHomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<EmployeeHomePage> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   WorkLocation? _selectedLocation;
   bool _isShowLoadingView = false;
 
@@ -86,9 +86,6 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
         loginUserRole == kLoginUserRoleCeo ||
             loginUserRole == kLoginUserRoleDirector ||
             loginUserRole == kLoginUserRoleManager;
-
-
-    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       key: scaffoldKey,
@@ -508,8 +505,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
         allowDistanceRadius?.toDouble(),
       );
       if (!isWithinRadius) {
+
         context.showErrorDialog(
-          'You must be within 10km of the office to check in',
+          'You must be within 10km of the office to\ncheck in',
           'Check-In Failed',
         );
         return;
@@ -596,6 +594,8 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
         allowDistanceRadius?.toDouble(),
       );
 
+      debugPrint("IsWithinRadius>>>>$isWithinRadius");
+
       if (!isWithinRadius) {
         if (!mounted) return;
         await showClockOutNotAllowedDialog(
@@ -645,102 +645,4 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     }
   }
 }
-
-//   ///handle office check out
-//   Future<void> _handleOfficeCheckOut(
-//       BuildContext context,
-//       double? lat,
-//       double? long,
-//       int? allowDistanceRadius,
-//       ) async {
-//     setState(() {
-//       _isShowLoadingView = true;
-//     });
-//     final isAllowRemoteLoginStatus = GetStorage().read(SecureDataList.isRemoteLogin.name) as String?;
-//
-//     try {
-//
-//       final bool isRemoteAllowed =
-//           isAllowRemoteLoginStatus.toString() == '1';
-//
-//       if (isRemoteAllowed) {
-//         final bool isSuccess = await ref
-//             .read(checkOutControllerProvider.notifier)
-//             .checkOut();
-//
-//         if (isSuccess) {
-//           ref.invalidate(fetchAttendanceDataProvider);
-//           await showClockOutSuccessDialog(context);
-//         }
-//         return;
-//       }
-//
-//       /// Check location services
-//       if (!await LocationService.isLocationServiceEnabled()) {
-//         context.showErrorDialog(
-//           'Please enable location services',
-//           'Check-In Failed',
-//         );
-//         return;
-//       }
-//
-//       /// Check permissions
-//       var permission = await LocationService.checkPermission();
-//       if (permission == LocationPermission.denied) {
-//         permission = await LocationService.requestPermission();
-//         if (permission != LocationPermission.whileInUse &&
-//             permission != LocationPermission.always) {
-//           context.showErrorDialog(
-//             'Location permission required',
-//             'Check-In Failed',
-//           );
-//           return;
-//         }
-//       }
-//
-//       /// Check out within office radius
-//       final isWithinRadius = await LocationService.isWithinOfficeRadius(
-//         lat,
-//         long,
-//         allowDistanceRadius?.toDouble(),
-//       );
-//       if (!isWithinRadius) {
-//         await showClockOutNotAllowedDialog(context,onUnderstand: (){
-//           showClockOutRestrictedBottomSheet(context,onSubmit: (clockOutReason) async{
-//             final isSuccess = await ref
-//                 .read(
-//               checkOutControllerProvider
-//                   .notifier,
-//             )
-//                 .checkOut(reason: clockOutReason);
-//
-//             if (isSuccess) {
-//               await showClockOutSuccessDialog(context);
-//               ref.invalidate(
-//                 fetchAttendanceDataProvider,
-//               );
-//             }
-//           });
-//         });
-//         return;
-//       }
-//
-//       /// Proceed with office check-in
-//       final bool isSuccess = await ref
-//           .read(checkOutControllerProvider.notifier)
-//           .checkOut();
-//
-//       if (isSuccess) {
-//         ref.invalidate(fetchAttendanceDataProvider);
-//         await showClockOutSuccessDialog(context);
-//       }
-//     } catch (e) {
-//       context.showErrorDialog('Something went wrong', 'Check-In Failed');
-//     } finally {
-//       setState(() {
-//         _isShowLoadingView = false;
-//       });
-//     }
-//   }
-// }
 

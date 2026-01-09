@@ -1,8 +1,10 @@
 import 'dart:convert';
 
-AttendanceResponse attendanceResponseFromJson(String str) => AttendanceResponse.fromJson(json.decode(str));
+AttendanceResponse attendanceResponseFromJson(String str) =>
+    AttendanceResponse.fromJson(json.decode(str));
 
-String attendanceResponseToJson(AttendanceResponse data) => json.encode(data.toJson());
+String attendanceResponseToJson(AttendanceResponse data) =>
+    json.encode(data.toJson());
 
 class AttendanceResponse {
   int statusCode;
@@ -15,11 +17,14 @@ class AttendanceResponse {
     required this.data,
   });
 
-  factory AttendanceResponse.fromJson(Map<String, dynamic> json) => AttendanceResponse(
-    statusCode: json["status_code"],
-    message: json["message"],
-    data: List<AttendanceDataVO>.from(json["data"].map((x) => AttendanceDataVO.fromJson(x))),
-  );
+  factory AttendanceResponse.fromJson(Map<String, dynamic> json) =>
+      AttendanceResponse(
+        statusCode: json["status_code"],
+        message: json["message"],
+        data: List<AttendanceDataVO>.from(
+          json["data"].map((x) => AttendanceDataVO.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
     "status_code": statusCode,
@@ -32,18 +37,19 @@ class AttendanceDataVO {
   DateTime? date;
   List<Attendance> attendances;
 
-  AttendanceDataVO({
-    required this.date,
-    required this.attendances,
-  });
+  AttendanceDataVO({required this.date, required this.attendances});
 
-  factory AttendanceDataVO.fromJson(Map<String, dynamic> json) => AttendanceDataVO(
-    date: DateTime.parse(json["date"]),
-    attendances: List<Attendance>.from(json["attendances"].map((x) => Attendance.fromJson(x))),
-  );
+  factory AttendanceDataVO.fromJson(Map<String, dynamic> json) =>
+      AttendanceDataVO(
+        date: DateTime.parse(json["date"]),
+        attendances: List<Attendance>.from(
+          json["attendances"].map((x) => Attendance.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
-    "date": "${date?.year.toString().padLeft(4, '0')}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}",
+    "date":
+        "${date?.year.toString().padLeft(4, '0')}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}",
     "attendances": List<dynamic>.from(attendances.map((x) => x.toJson())),
   };
 }
@@ -52,22 +58,21 @@ class Attendance {
   int? userId;
   String? checkIn;
   String? checkOut;
+  String? workLocation;
 
-  Attendance({
-     this.userId,
-     this.checkIn,
-     this.checkOut,
-  });
+  Attendance({this.userId, this.checkIn, this.checkOut, this.workLocation});
 
   factory Attendance.fromJson(Map<String, dynamic> json) => Attendance(
     userId: json["user_id"],
     checkIn: json["check_in"],
     checkOut: json["check_out"],
+    workLocation: json["work_location"],
   );
 
   Map<String, dynamic> toJson() => {
     "user_id": userId,
     "check_in": checkIn,
     "check_out": checkOut,
+    "work_location": workLocation,
   };
 }

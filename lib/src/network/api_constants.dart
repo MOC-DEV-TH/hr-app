@@ -1,9 +1,9 @@
 ///Base Url
-//const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
-//const String kV2BaseUrl = "https://hrapp.mocinteractive.com/api/v2";
+const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
+const String kV2BaseUrl = "https://hrapp.mocinteractive.com/api/v2";
 
-const String kBaseUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
-const String kV2BaseUrl = "https://staging.hrapp.mocinteractive.com/api/v2";
+// const String kBaseUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
+// const String kV2BaseUrl = "https://staging.hrapp.mocinteractive.com/api/v2";
 
 const String kImageBaseUrlHttp = "";
 
