@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/src/utils/colors.dart';
 
+import 'common_button.dart';
+
 class CoreDialog extends StatelessWidget {
   const CoreDialog({
     required this.title,
@@ -36,9 +38,7 @@ class CoreDialog extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: tt.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
 
             const SizedBox(height: 16),
@@ -51,7 +51,7 @@ class CoreDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.info, size: 32,color: Colors.white,),
+                child: Icon(Icons.info, size: 32, color: Colors.white),
               ),
             ),
 
@@ -73,30 +73,24 @@ class CoreDialog extends StatelessWidget {
               children: [
                 if (secondaryLabel != null && secondaryAction != null)
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: secondaryAction,
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(secondaryLabel!,style: TextStyle(color: Colors.black),),
+                    child: CommonButton(
+                      containerVPadding: 10,
+                      buttonTextColor: kSecondaryOlive,
+                      bgColor: Colors.transparent,
+                      text: secondaryLabel ?? '',
+                      onTap: secondaryAction,
+                      borderColor: kLightGreyColor,
                     ),
                   ),
                 if (secondaryLabel != null && secondaryAction != null)
                   const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton(
-                    onPressed: primaryAction,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: kPrimaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(primaryLabel,style: TextStyle(color: kSecondaryOlive),),
+                  child: CommonButton(
+                    containerVPadding: 10,
+                    bgColor: kPrimaryColor,
+                    buttonTextColor: kSecondaryOlive,
+                    text: primaryLabel ?? '',
+                    onTap: primaryAction,
                   ),
                 ),
               ],

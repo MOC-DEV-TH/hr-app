@@ -43,7 +43,7 @@ class LogoutDialogWidgetView extends StatelessWidget {
             20.vGap,
             Row(children: [
               Expanded(child: CommonButton(
-                  isShowBorderColor: true,
+                  borderColor: kPrimaryColor,
                   text: 'Cancel',
                   bgColor: Colors.white,
                   onTap: () {
@@ -53,7 +53,7 @@ class LogoutDialogWidgetView extends StatelessWidget {
               Expanded(child: CommonButton(
                   text: 'Confirm',
                   bgColor: kPrimaryColor,
-                  buttonTextColor: Colors.white,
+                  buttonTextColor: Colors.black,
                   onTap: () {
                     onTapLogout();
                   })),

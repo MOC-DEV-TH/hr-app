@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:hr_app/src/utils/images.dart';
+
+import 'common_button.dart';
 
 /// Shows the "Clock-out Not Allowed" alert dialog.
 /// Returns `true` when the user taps **Understand**, `null` if dismissed.
@@ -30,12 +34,21 @@ Future<bool?> showClockOutNotAllowedDialog(
             mainAxisSize: MainAxisSize.min,
             children: [
               16.vGap,
+
+              Image.asset(
+                kClockOutNotAllowInfoImage,
+                fit: BoxFit.cover,
+                height: 125,
+                width: 125,
+              ),
+
+              24.vGap,
               /// Title (orange)
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: orange,
+                  color: kRedAccentColor,
                   fontWeight: FontWeight.w500,
                   fontSize: 20,
                 ),
@@ -43,28 +56,6 @@ Future<bool?> showClockOutNotAllowedDialog(
 
               24.vGap,
 
-              Container(
-                width: 64,
-                height: 64,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [orange2, orange],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0x33FF9500),
-                      blurRadius: 18,
-                      offset: Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.error, color: Colors.white, size: 34),
-              ),
-
-              24.vGap,
 
               /// Message
               Text(
@@ -77,19 +68,14 @@ Future<bool?> showClockOutNotAllowedDialog(
               /// Single action button
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF8E8E93), // subtle gray like mock
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop(true);
-                    onUnderstand?.call();
-                  },
-                  child: const Text('Understand', style: TextStyle(fontSize: 16)),
-                ),
+                child: CommonButton(
+                  containerVPadding: 10,
+                  bgColor: kPrimaryColor,
+                  buttonTextColor: kSecondaryOlive,
+                  text: 'Understand', onTap: (){
+                  Navigator.of(ctx).pop(true);
+                  onUnderstand?.call();
+                } ,),
               ),
               16.vGap,
             ],

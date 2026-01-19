@@ -6,6 +6,7 @@ import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
+import 'package:hr_app/src/utils/images.dart';
 
 import '../features/employee_details/presentation/employee_details_page.dart';
 import '../routing/go_router/go_router_delegate.dart';
@@ -41,16 +42,16 @@ class CustomDrawer extends ConsumerWidget {
                 );
               },
               child: Container(
-                height: 150,
-                decoration: BoxDecoration(color: kSecondaryOlive.withOpacity(0.1)),
+                height: 180,
+                decoration: BoxDecoration(color: kDarkGreyColor),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundColor: kSecondaryOlive.withOpacity(0.2),
-                        child: Icon(Icons.person, size: 40, color: kSecondaryOlive),
+                        backgroundColor:kSecondaryColor,
+                        child: Icon(Icons.person, size: 40, color: Colors.white),
                       ),
 
                       10.vGap,
@@ -59,12 +60,12 @@ class CustomDrawer extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: kSecondaryOlive,
+                          color: Colors.white,
                         ),
                       ),
                       Text(
                         userData?.email ?? "",
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 14, color: Colors.white),
                       ),
                     ],
                   ),
@@ -74,203 +75,192 @@ class CustomDrawer extends ConsumerWidget {
 
             /// Drawer Menu Items
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.home,
-                    title: 'Home',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-
-                  Visibility(
-                    visible:
-                        (loginUserRole == kLoginUserRoleCeo ||
-                            loginUserRole == kLoginUserRoleDirector ||
-                            loginUserRole == kLoginUserRoleManager),
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.access_time,
-                      title: 'Check-in/out',
+              child: Container(
+                color: kSoftYellow,
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    DrawerItem(
+                      iconName: kDrawerHomeImage,
+                      title: "Home",
+                      isActive: true,
                       onTap: () {
                         Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.employeeHome.path);
                       },
                     ),
-                  ),
 
-                  // _buildDrawerItem(
-                  //   context,
-                  //   icon: Icons.share_arrival_time,
-                  //   title: 'My Attendance',
-                  //   onTap: () {
-                  //     Navigator.pop(context);
-                  //     GoRouter.of(context).push(RoutePath.attendance.path);
-                  //   },
-                  // ),
-                  Visibility(
-                    visible:
-                        (loginUserRole == kLoginUserRoleCeo ||
-                            loginUserRole == kLoginUserRoleDirector ||
-                            loginUserRole == kLoginUserRoleManager),
-                    child: Divider(height: 1, color: Colors.grey[300]),
-                  ),
+                    Visibility(
+                      visible:
+                          (loginUserRole == kLoginUserRoleCeo ||
+                              loginUserRole == kLoginUserRoleDirector ||
+                              loginUserRole == kLoginUserRoleManager),
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerCheckInCheckOutImage,
+                        title: 'Check-in/out',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.employeeHome.path);
+                        },
+                      ),
+                    ),
 
-                  Visibility(
-                    visible:
-                        (loginUserRole == kLoginUserRoleCeo ||
-                            loginUserRole == kLoginUserRoleDirector ||
-                            loginUserRole == kLoginUserRoleManager),
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.person,
-                      title: 'Employee',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.employeeList.path);
+                    Visibility(
+                      visible: true,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerLeaveRequestImage,
+                        title: 'Leave Request',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.leaveRequest.path);
+                        },
+                      ),
+                    ),
+
+                    Visibility(
+                      visible:allowWfhRequest != 0,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerLeaveRequestImage,
+                        title: 'WFH Request',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.wfhRequest.path);
+                        },
+                      ),
+                    ),
+
+
+                    // Visibility(
+                    //   visible:
+                    //       (loginUserRole == kLoginUserRoleCeo ||
+                    //           loginUserRole == kLoginUserRoleDirector ||
+                    //           loginUserRole == kLoginUserRoleManager),
+                    //   child: Divider(height: 1, color: Colors.grey[300]),
+                    // ),
+
+                    Visibility(
+                      visible:
+                          (loginUserRole == kLoginUserRoleCeo ||
+                              loginUserRole == kLoginUserRoleDirector ||
+                              loginUserRole == kLoginUserRoleManager),
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerLeaveRequestImage,
+                        title: 'Employee',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.employeeList.path);
+                        },
+                      ),
+                    ),
+
+                    // Visibility(
+                    //   visible:
+                    //       (loginUserRole == kLoginUserRoleCeo ||
+                    //           loginUserRole == kLoginUserRoleDirector ||
+                    //           loginUserRole == kLoginUserRoleManager),
+                    //   child: DrawerItem(
+                    //     isActive: true,
+                    //     iconName: kDrawerLeaveRequestImage,
+                    //     title: 'Leave',
+                    //     onTap: () {
+                    //       Navigator.pop(context);
+                    //       GoRouter.of(context).push(RoutePath.employeeLeaves.path);
+                    //     },
+                    //   ),
+                    // ),
+
+                    Visibility(
+                      visible: loginUserRole == kLoginUserRoleEmployee,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerLeaveRequestImage,
+                        title: 'Leave Status',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.leaveStatus.path);
+                        },
+                      ),
+                    ),
+
+                    Visibility(
+                      visible:true,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerHomeImage,
+                        title: 'New Dashboard',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.newDashboard.path);
+                        },
+                      ),
+                    ),
+
+                    Divider(height: 1, color: Colors.grey[300]),
+
+                    Visibility(
+                      visible:true,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerHolidayImage,
+                        title: 'Holiday',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.holiday.path);
+                        },
+                      ),
+                    ),
+
+                    Visibility(
+                      visible:true,
+                      child: DrawerItem(
+                        isActive: true,
+                        iconName: kDrawerAnnouncementImage,
+                        title: 'Announcement',
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.announcement.path);
+                        },
+                      ),
+                    ),
+
+                    DrawerItem(
+                      isActive: true,
+                      iconName: kDrawerLogoutImage,
+                      title: 'Logout',
+                      onTap: () async {
+                        showCommonDialog(
+                          context: context,
+                          dialogWidget: LogoutDialogWidgetView(
+                            onTapLogout: () async {
+                              Navigator.of(context).pop();
+                              await ref
+                                  .read(secureStorageProvider)
+                                  .saveAuthStatus(kAuthLoggedOut);
+                              ref.invalidate(secureStorageProvider);
+                            },
+                          ),
+                        );
                       },
                     ),
-                  ),
-
-                  Visibility(
-                    visible:
-                        (loginUserRole == kLoginUserRoleCeo ||
-                            loginUserRole == kLoginUserRoleDirector ||
-                            loginUserRole == kLoginUserRoleManager),
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.person_outline,
-                      title: 'Leave',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.employeeLeaves.path);
-                      },
-                    ),
-                  ),
-
-                  Visibility(
-                    visible:true,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.calendar_month,
-                      title: 'Holiday',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.holiday.path);
-                      },
-                    ),
-                  ),
-
-                  Visibility(
-                    visible:false,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.calendar_month,
-                      title: 'New Dashboard',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.newDashboard.path);
-                      },
-                    ),
-                  ),
-
-                  Visibility(
-                    visible:true,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.announcement_outlined,
-                      title: 'Announcement',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.announcement.path);
-                      },
-                    ),
-                  ),
-
-                  Visibility(
-                    visible:allowWfhRequest != 0,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.calendar_month,
-                      title: 'WFH Request',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.wfhRequest.path);
-                      },
-                    ),
-                  ),
-
-                  Visibility(
-                    visible: true,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.calendar_month,
-                      title: 'Leave Request',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.leaveRequest.path);
-                      },
-                    ),
-                  ),
-                  Visibility(
-                    visible: loginUserRole == kLoginUserRoleEmployee,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.payment,
-                      title: 'Leave Status',
-                      onTap: () {
-                        Navigator.pop(context);
-                        GoRouter.of(context).push(RoutePath.leaveStatus.path);
-                      },
-                    ),
-                  ),
-
-                  Divider(height: 1, color: Colors.grey[300]),
-
-                  Visibility(
-                    visible: false,
-                    child: _buildDrawerItem(
-                      context,
-                      icon: Icons.settings,
-                      title: 'Settings',
-                      onTap: () {
-                        Navigator.pop(context);
-                        //GoRouter.of(context).push(RoutePath.settings.path);
-                      },
-                    ),
-                  ),
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.logout,
-                    title: 'Logout',
-                    onTap: () async {
-                      showCommonDialog(
-                        context: context,
-                        dialogWidget: LogoutDialogWidgetView(
-                          onTapLogout: () async {
-                            Navigator.of(context).pop();
-                            await ref
-                                .read(secureStorageProvider)
-                                .saveAuthStatus(kAuthLoggedOut);
-                            ref.invalidate(secureStorageProvider);
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             /// App Version
-            Padding(
-              padding: const EdgeInsets.all(kMarginMedium),
-              child: Text(
-                'Punchin v1.0.0',
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            Container(
+              color: kSoftYellow,
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(kMarginMedium),
+                child: Text(
+                  'Punchin v1.0.0',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
               ),
             ),
           ],
@@ -278,20 +268,76 @@ class CustomDrawer extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: kSecondaryOlive),
-      title: Text(
-        title,
-        style: TextStyle(color: Colors.grey[800], fontSize: 16),
-      ),
-      onTap: onTap,
+
+class DrawerItem extends StatelessWidget {
+  final String iconName;
+  final String title;
+  final VoidCallback onTap;
+  final bool isActive;
+
+  const DrawerItem({
+    super.key,
+    required this.iconName,
+    required this.title,
+    required this.onTap,
+    this.isActive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFD9D9D9),
+                    border: Border.all(
+                      color: kDeepBlueGrayColor,
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image.asset(
+                        iconName,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                /// Title
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: kDeepBlueGrayColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+      ],
     );
   }
 }
+

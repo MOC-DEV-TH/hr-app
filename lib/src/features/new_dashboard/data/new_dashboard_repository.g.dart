@@ -7,7 +7,7 @@ part of 'new_dashboard_repository.dart';
 // **************************************************************************
 
 String _$newDashboardRepositoryHash() =>
-    r'fd0f10016f1f0fb922519f0a931c965990bd3959';
+    r'88ae6e92e5037b6bca0190de43ebba53a9bd0a53';
 
 /// See also [newDashboardRepository].
 @ProviderFor(newDashboardRepository)
@@ -179,6 +179,135 @@ class _FetchDashboardAttendedOverviewProviderElement
 
   @override
   String? get date => (origin as FetchDashboardAttendedOverviewProvider).date;
+}
+
+String _$fetchTotalEmployeeDataHash() =>
+    r'0512088e8c20bc1ab8b7d0904bbd4ed1a1139ecd';
+
+/// See also [fetchTotalEmployeeData].
+@ProviderFor(fetchTotalEmployeeData)
+const fetchTotalEmployeeDataProvider = FetchTotalEmployeeDataFamily();
+
+/// See also [fetchTotalEmployeeData].
+class FetchTotalEmployeeDataFamily
+    extends Family<AsyncValue<TotalEmployeeResponse>> {
+  /// See also [fetchTotalEmployeeData].
+  const FetchTotalEmployeeDataFamily();
+
+  /// See also [fetchTotalEmployeeData].
+  FetchTotalEmployeeDataProvider call({String? date}) {
+    return FetchTotalEmployeeDataProvider(date: date);
+  }
+
+  @override
+  FetchTotalEmployeeDataProvider getProviderOverride(
+    covariant FetchTotalEmployeeDataProvider provider,
+  ) {
+    return call(date: provider.date);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchTotalEmployeeDataProvider';
+}
+
+/// See also [fetchTotalEmployeeData].
+class FetchTotalEmployeeDataProvider
+    extends AutoDisposeFutureProvider<TotalEmployeeResponse> {
+  /// See also [fetchTotalEmployeeData].
+  FetchTotalEmployeeDataProvider({String? date})
+    : this._internal(
+        (ref) => fetchTotalEmployeeData(
+          ref as FetchTotalEmployeeDataRef,
+          date: date,
+        ),
+        from: fetchTotalEmployeeDataProvider,
+        name: r'fetchTotalEmployeeDataProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$fetchTotalEmployeeDataHash,
+        dependencies: FetchTotalEmployeeDataFamily._dependencies,
+        allTransitiveDependencies:
+            FetchTotalEmployeeDataFamily._allTransitiveDependencies,
+        date: date,
+      );
+
+  FetchTotalEmployeeDataProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.date,
+  }) : super.internal();
+
+  final String? date;
+
+  @override
+  Override overrideWith(
+    FutureOr<TotalEmployeeResponse> Function(FetchTotalEmployeeDataRef provider)
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchTotalEmployeeDataProvider._internal(
+        (ref) => create(ref as FetchTotalEmployeeDataRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        date: date,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<TotalEmployeeResponse> createElement() {
+    return _FetchTotalEmployeeDataProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchTotalEmployeeDataProvider && other.date == date;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, date.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchTotalEmployeeDataRef
+    on AutoDisposeFutureProviderRef<TotalEmployeeResponse> {
+  /// The parameter `date` of this provider.
+  String? get date;
+}
+
+class _FetchTotalEmployeeDataProviderElement
+    extends AutoDisposeFutureProviderElement<TotalEmployeeResponse>
+    with FetchTotalEmployeeDataRef {
+  _FetchTotalEmployeeDataProviderElement(super.provider);
+
+  @override
+  String? get date => (origin as FetchTotalEmployeeDataProvider).date;
 }
 
 // ignore_for_file: type=lint

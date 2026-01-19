@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hr_app/src/common_widgets/custom_drawer.dart';
 import 'package:hr_app/src/common_widgets/show_business_unit_bottom_sheet.dart';
 import 'package:hr_app/src/features/announcement/presentation/announcement_page.dart';
 import 'package:hr_app/src/features/holiday/presentation/holiday_page.dart';
@@ -16,12 +17,12 @@ import '../../../common_widgets/error_retry_view.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/secure_storage.dart';
 import '../../admin_dashboard/model/business_unit_response.dart';
+import '../model/total_employee_response.dart';
 
-
-final leaveDateProvider =
-StateProvider.autoDispose<DateTime>((ref) => DateTime.now());
+final leaveDateProvider = StateProvider.autoDispose<DateTime>(
+  (ref) => DateTime.now(),
+);
 final selectedBusinessUnitIdProvider = StateProvider<int?>((ref) => null);
-
 
 class NewDashboardPage extends ConsumerStatefulWidget {
   const NewDashboardPage({super.key});
@@ -32,6 +33,7 @@ class NewDashboardPage extends ConsumerStatefulWidget {
 
 class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   Future<void> _pickDate() async {
     final picked = await showMonthPicker(
       context: context,
@@ -41,20 +43,27 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
     );
 
     if (picked != null) {
-      ref.read(leaveDateProvider.notifier).state = DateTime(picked.year, picked.month, 1);
+      ref.read(leaveDateProvider.notifier).state = DateTime(
+        picked.year,
+        picked.month,
+        1,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: kSecondaryColor,
-      ),
+      const SystemUiOverlayStyle(statusBarColor: kSecondaryColor),
     );
     final allBusinessUnitsAsync = ref.watch(businessUnitsAllLocalProvider);
     final selectedBuId = ref.watch(selectedBusinessUnitIdProvider);
+    final selectedDate = ref.watch(leaveDateProvider);
+
+    /// fetch with BOTH filters
+    final dashboardAttendedOverviewState = ref.watch(
+      fetchDashboardAttendedOverviewProvider(date: (selectedDate).ymd()),
+    );
 
     Widget _iconChip(IconData icon, VoidCallback onTap) {
       return InkWell(
@@ -71,94 +80,115 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
         ),
       );
     }
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Colors.white,
+      drawer: CustomDrawer(),
       appBar: CustomToolbarWithLogo(
         onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
         onSearchTap: () {},
         onNotificationTap: () {},
         showBadge: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children:  [
-            Row(
-              children: [
-                const Text('Dashboard'),
-                Spacer(),
-                allBusinessUnitsAsync.when(
-                  loading: () => const SizedBox.shrink(),
-                  error: (e, _) => const SizedBox.shrink(),
-                  data: (units) {
-                    if (units.isEmpty) return const SizedBox.shrink();
-
-                    /// resolve name
-                    final selectedName = selectedBuId == null
-                        ? 'All'
-                        : (units.firstWhere(
-                          (u) => u.id == selectedBuId,
-                      orElse: () => BusinessUnitVO(id: null, name: null),
-                    ).name ??
-                        'All');
-
-                    return InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        final items = <BusinessUnitVO>[
-                          BusinessUnitVO(id: null, name: 'All'),
-                          ...units,
-                        ];
-
-                        final result = await showBusinessUnitBottomSheet<BusinessUnitVO>(
-                          context: context,
-                          title: 'Select Business Unit',
-                          items: items,
-                          itemBuilder: (e) => Text(e.name ?? '-'),
-                        );
-
-                        if (result != null) {
-                          ref
-                              .read(selectedBusinessUnitIdProvider.notifier)
-                              .state = result.id;
-                        }
-                      },
-                      child: Container(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              selectedName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const Icon(Icons.keyboard_arrow_down_rounded),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                10.hGap,
-                _iconChip(Icons.calendar_today_rounded, _pickDate),
-              ],
+      body: dashboardAttendedOverviewState.when(
+        data: (data) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text('Dashboard'),
+                      Spacer(),
+                      // allBusinessUnitsAsync.when(
+                      //   loading: () => const SizedBox.shrink(),
+                      //   error: (e, _) => const SizedBox.shrink(),
+                      //   data: (units) {
+                      //     if (units.isEmpty) return const SizedBox.shrink();
+                      //
+                      //     /// resolve name
+                      //     final selectedName = selectedBuId == null
+                      //         ? 'All'
+                      //         : (units.firstWhere(
+                      //           (u) => u.id == selectedBuId,
+                      //       orElse: () => BusinessUnitVO(id: null, name: null),
+                      //     ).name ??
+                      //         'All');
+                      //
+                      //     return InkWell(
+                      //       borderRadius: BorderRadius.circular(12),
+                      //       onTap: () async {
+                      //         final items = <BusinessUnitVO>[
+                      //           BusinessUnitVO(id: null, name: 'All'),
+                      //           ...units,
+                      //         ];
+                      //
+                      //         final result = await showBusinessUnitBottomSheet<BusinessUnitVO>(
+                      //           context: context,
+                      //           title: 'Select Business Unit',
+                      //           items: items,
+                      //           itemBuilder: (e) => Text(e.name ?? '-'),
+                      //         );
+                      //
+                      //         if (result != null) {
+                      //           ref
+                      //               .read(selectedBusinessUnitIdProvider.notifier)
+                      //               .state = result.id;
+                      //         }
+                      //       },
+                      //       child: Container(
+                      //         padding:
+                      //         const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      //         decoration: BoxDecoration(
+                      //           color: Colors.white,
+                      //           borderRadius: BorderRadius.circular(12),
+                      //           border: Border.all(color: Colors.grey.shade300),
+                      //         ),
+                      //         child: Row(
+                      //           children: [
+                      //             Text(
+                      //               selectedName,
+                      //               style: Theme.of(context)
+                      //                   .textTheme
+                      //                   .bodyMedium
+                      //                   ?.copyWith(fontWeight: FontWeight.w600),
+                      //             ),
+                      //             const Icon(Icons.keyboard_arrow_down_rounded),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      10.hGap,
+                      _iconChip(Icons.calendar_today_rounded, _pickDate),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  TotalEmployeesCard(),
+                  SizedBox(height: 16),
+                  AttendanceOverviewCard(data: data,),
+                  SizedBox(height: 16),
+                  AttendanceExtrasSection(data: data,),
+                ],
+              ),
             ),
-            TotalEmployeesCard(),
-            SizedBox(height: 16),
-            AttendanceOverviewCard(),
-            SizedBox(height: 16),
-            AttendanceExtrasSection()
-          ],
-        ),
+          );
+        },
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(color: kPrimaryColor),
+            ),
+        error:
+            (error, stack) => ErrorRetryView(
+              title: 'Error loading data',
+              message: error.toString(),
+              onRetry: () {
+                ref.invalidate(fetchDashboardAttendedOverviewProvider);
+              },
+            ),
       ),
     );
   }
@@ -168,123 +198,148 @@ class _NewDashboardPageState extends ConsumerState<NewDashboardPage> {
 /// ───────────────── TOTAL EMPLOYEES CARD ─────────────────
 ///
 
-class TotalEmployeesCard extends StatelessWidget {
+class TotalEmployeesCard extends ConsumerWidget {
   const TotalEmployeesCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final employeeData = [
-      _EmployeeSegment('Permanent', 60, const Color(0xFF22A45D)),
-      _EmployeeSegment('Contractor', 15, const Color(0xFF9B6BFF)),
-      _EmployeeSegment('Probation', 5, const Color(0xFFF7941D)),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(fetchTotalEmployeeDataProvider());
 
-    final total = employeeData.fold<int>(0, (sum, e) => sum + e.value);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            color: Colors.black.withOpacity(0.04),
-          ),
-        ],
+    return state.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => ErrorRetryView(
+        title: 'Error loading data',
+        message: error.toString(),
+        onRetry: () => ref.invalidate(fetchTotalEmployeeDataProvider),
       ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 130,
-            height: 130,
-            child: SfCircularChart(
-              margin: EdgeInsets.zero,
-              annotations: <CircularChartAnnotation>[
-                CircularChartAnnotation(
-                  widget: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
+      data: (networkResponse) {
+        final segments = networkResponse.data ?? [];
+
+        if (segments.isEmpty) {
+          return _EmptyEmployeesCard(
+            onRetry: () => ref.invalidate(fetchTotalEmployeeDataProvider),
+          );
+        }
+
+        final chartData = segments.cast<EmployeeSegment>();
+
+        final total = chartData.fold<int>(0, (sum, e) => sum + e.safeValue);
+
+        final sorted = [...chartData]
+          ..sort((a, b) => b.safeValue.compareTo(a.safeValue));
+
+        const topCount = 5;
+        final top = sorted.take(topCount).toList();
+        final remaining = (sorted.length - top.length).clamp(0, 9999);
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          decoration: BoxDecoration(
+            color: kSoftYellow,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+                color: Colors.black.withOpacity(0.08),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // ===== Donut (left) =====
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: SfCircularChart(
+                  margin: EdgeInsets.zero,
+                  annotations: <CircularChartAnnotation>[
+                    CircularChartAnnotation(
+                      widget: Text(
                         '$total',
                         style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D3748),
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          height: 1.0,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                  series: <DoughnutSeries<EmployeeSegment, String>>[
+                    DoughnutSeries<EmployeeSegment, String>(
+                      dataSource: chartData,
+                      xValueMapper: (d, _) => d.safeLabel,
+                      yValueMapper: (d, _) => d.safeValue,
+                      pointColorMapper: (d, _) => _hexToColorOrFallback(d.color),
+                      innerRadius: '84%',
+                      radius: '100%',
+                      strokeWidth: 0,
+                      cornerStyle: CornerStyle.bothCurve,
+                    ),
+                  ],
                 ),
-              ],
-              series: <DoughnutSeries<_EmployeeSegment, String>>[
-                DoughnutSeries<_EmployeeSegment, String>(
-                  dataSource: employeeData,
-                  xValueMapper: (d, _) => d.label,
-                  yValueMapper: (d, _) => d.value,
-                  pointColorMapper: (d, _) => d.color,
-                  innerRadius: '75%',
-                  radius: '100%',
-                  strokeWidth: 0,
-                  // smooth edges
-                  cornerStyle: CornerStyle.bothCurve,
+              ),
+
+              const SizedBox(width: 18),
+
+              // ===== Right (title + top legend) =====
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Total Employees',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // Top list only (beautiful)
+                    ...top.map(
+                          (d) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _LegendRowSimple(
+                          color: _hexToColorOrFallback(d.color),
+                          label: d.safeLabel,
+                        ),
+                      ),
+                    ),
+
+                    // "+ more" hint
+                    if (remaining > 0)
+                      Text(
+                        '+ $remaining more roles',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(width: 24),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Total Employees',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _LegendRow(
-                  color: const Color(0xFF22A45D),
-                  label: 'Permanent',
-                ),
-                const SizedBox(height: 6),
-                _LegendRow(
-                  color: const Color(0xFF9B6BFF),
-                  label: 'Contractor',
-                ),
-                const SizedBox(height: 6),
-                _LegendRow(
-                  color: const Color(0xFFF7941D),
-                  label: 'Probation',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _EmployeeSegment {
-  final String label;
-  final int value;
-  final Color color;
-  _EmployeeSegment(this.label, this.value, this.color);
-}
-
-class _LegendRow extends StatelessWidget {
+/// ✅ Simple legend row like screenshot
+class _LegendRowSimple extends StatelessWidget {
   final Color color;
   final String label;
 
-  const _LegendRow({
+  const _LegendRowSimple({
     required this.color,
     required this.label,
-    super.key,
   });
 
   @override
@@ -292,22 +347,81 @@ class _LegendRow extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 14,
-          height: 14,
+          width: 8,
+          height: 8,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(99),
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF4A5568),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _EmptyEmployeesCard extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _EmptyEmployeesCard({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFF7F6E8),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.08),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(Icons.info_outline_rounded),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No data',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'No employee segments found.',
+                  style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          TextButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
+      ),
     );
   }
 }
@@ -317,129 +431,106 @@ class _LegendRow extends StatelessWidget {
 ///
 
 class AttendanceOverviewCard extends ConsumerWidget {
-  const AttendanceOverviewCard({super.key});
+  final AttendanceOverviewResponse data;
+  const AttendanceOverviewCard({super.key,required this.data});
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    final selectedDate = ref.watch(leaveDateProvider);
-
-    /// fetch with BOTH filters
-    final dashboardAttendedOverviewState = ref.watch(
-      fetchDashboardAttendedOverviewProvider(
-        date: (selectedDate).ymd(),
-      ),
-    );
-
-    return dashboardAttendedOverviewState.when(data: (data){
-      return Container(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-              color: Colors.black.withOpacity(0.04),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Attendance Overview',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF2D3748),
+  Widget build(BuildContext context, WidgetRef ref) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          decoration: BoxDecoration(
+            color: kSoftYellow,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.04),
               ),
-            ),
-            const SizedBox(height: 12),
-
-            AttendedStatusRow(),
-
-            const SizedBox(height: 12),
-
-            /// ──────── CHART ─────────────────
-            SizedBox(
-              height: 260,
-              child: SfCartesianChart(
-                primaryXAxis: CategoryAxis(
-                  majorGridLines: const MajorGridLines(width: 0),
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF4A5568),
-                    fontSize: 13,
-                  ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Attendance Overview',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2D3748),
                 ),
-                primaryYAxis: NumericAxis(
-                  minimum: 0,
-                  maximum: 100,
-                  interval: 10,
-                  labelFormat: '{value}%',
-                  axisLine: const AxisLine(width: 0),
-                  majorTickLines: const MajorTickLines(size: 0),
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF718096),
-                    fontSize: 11,
-                  ),
-                ),
-                plotAreaBorderWidth: 0,
-                series: <CartesianSeries<AttendedOverviewVO, String>>[
-                  ColumnSeries<AttendedOverviewVO, String>(
-                    dataSource: data.data,
-                    xValueMapper: (d, _) => d.day,
-                    yValueMapper: (d, _) => d.onTime,
-                    color: const Color(0xFF22A45D),
-                    width: 0.25,
-                  ),
-                  ColumnSeries<AttendedOverviewVO, String>(
-                    dataSource: data.data,
-                    xValueMapper: (d, _) => d.day,
-                    yValueMapper: (d, _) => d.late,
-                    color: const Color(0xFFF7941D),
-                    width: 0.25,
-                  ),
-                  ColumnSeries<AttendedOverviewVO, String>(
-                    dataSource: data.data,
-                    xValueMapper: (d, _) => d.day,
-                    yValueMapper: (d, _) => d.leave,
-                    color: const Color(0xFFE53E3E),
-                    width: 0.25,
-                  ),
-                ],
               ),
-            ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 20),
-            const Divider(height: 1, color: Color(0xFFE2E8F0)),
-            const SizedBox(height: 8),
-          ],
-        ),
-      );
-    }, loading:
-        () => const Center(
-      child: CircularProgressIndicator(color: kPrimaryColor),
-    ),
-      error:
-          (error, stack) => ErrorRetryView(
-        title: 'Error loading data',
-        message: error.toString(),
-        onRetry: () {
-          ref.invalidate(fetchDashboardAttendedOverviewProvider);
-        },
-      ),);
+              AttendedStatusRow(),
+
+              const SizedBox(height: 12),
+
+              /// ──────── CHART ─────────────────
+              SizedBox(
+                height: 260,
+                child: SfCartesianChart(
+                  primaryXAxis: CategoryAxis(
+                    majorGridLines: const MajorGridLines(width: 0),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF4A5568),
+                      fontSize: 13,
+                    ),
+                  ),
+                  primaryYAxis: NumericAxis(
+                    minimum: 0,
+                    maximum: 100,
+                    interval: 10,
+                    labelFormat: '{value}%',
+                    axisLine: const AxisLine(width: 0),
+                    majorTickLines: const MajorTickLines(size: 0),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF718096),
+                      fontSize: 11,
+                    ),
+                  ),
+                  plotAreaBorderWidth: 0,
+                  series: <CartesianSeries<AttendedOverviewVO, String>>[
+                    ColumnSeries<AttendedOverviewVO, String>(
+                      dataSource: data.data,
+                      xValueMapper: (d, _) => d.day,
+                      yValueMapper: (d, _) => d.onTime,
+                      color: const Color(0xFF22A45D),
+                      width: 0.25,
+                    ),
+                    ColumnSeries<AttendedOverviewVO, String>(
+                      dataSource: data.data,
+                      xValueMapper: (d, _) => d.day,
+                      yValueMapper: (d, _) => d.late,
+                      color: const Color(0xFFF7941D),
+                      width: 0.25,
+                    ),
+                    ColumnSeries<AttendedOverviewVO, String>(
+                      dataSource: data.data,
+                      xValueMapper: (d, _) => d.day,
+                      yValueMapper: (d, _) => d.leave,
+                      color: const Color(0xFFE53E3E),
+                      width: 0.25,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
   }
 }
 
 class AttendanceExtrasSection extends StatelessWidget {
-  const AttendanceExtrasSection({super.key});
+  final AttendanceOverviewResponse data;
+  const AttendanceExtrasSection({super.key,required this.data});
+
   @override
   Widget build(BuildContext context) {
-    const int monthHoliday = 3;
-    const int leaveCount = 2;
-    const int announcementCount = 1;
-
     return Column(
       children: [
         /// View Analysis Attendance
@@ -466,97 +557,93 @@ class AttendanceExtrasSection extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        /// This Month Holiday (full width)
-        InkWell(
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => HolidayPage(),
-              ),
-            );
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF2F2),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE53E3E)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'This Month Holiday',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFE53E3E),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '$monthHoliday',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFE53E3E),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        /// Bottom row: Leave | Announcement
+        /// Bottom row: Holiday | Announcement
         Row(
           children: [
+            // Expanded(
+            //   child: Container(
+            //     padding: const EdgeInsets.all(18),
+            //     decoration: BoxDecoration(
+            //       color: const Color(0xFFF2F5FF),
+            //       borderRadius: BorderRadius.circular(16),
+            //       border: Border.all(color: const Color(0xFF3B82F6)),
+            //     ),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Text(
+            //           'Leave',
+            //           style: TextStyle(
+            //             fontSize: 18,
+            //             fontWeight: FontWeight.w600,
+            //             color: Color(0xFF2563EB),
+            //           ),
+            //         ),
+            //         const SizedBox(height: 16),
+            //         Text(
+            //           '$leaveCount',
+            //           style: const TextStyle(
+            //             fontSize: 24,
+            //             fontWeight: FontWeight.bold,
+            //             color: Color(0xFF2563EB),
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+
+            ///holiday
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F5FF),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF3B82F6)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Leave',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2563EB),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HolidayPage()),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF2F2),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE53E3E)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Holiday',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFE53E3E),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '$leaveCount',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2563EB),
+                      const SizedBox(height: 16),
+                      Text(
+                        '${data.holidayCount}',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFE53E3E),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 16),
+
+            ///announcement
             Expanded(
               child: InkWell(
-                onTap: (){
+                onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => AnnouncementPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => AnnouncementPage()),
                   );
                 },
                 child: Container(
@@ -579,7 +666,7 @@ class AttendanceExtrasSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        '$announcementCount',
+                        '${data.announcementCount}',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -604,9 +691,9 @@ class AttendanceExtrasSection extends StatelessWidget {
 class AttendedStatusRow extends StatelessWidget {
   const AttendedStatusRow({super.key});
 
-  static const Color onTimeColor = Color(0xFF3AA76A); // green
-  static const Color lateColor = Color(0xFFF39C35);   // orange
-  static const Color leaveColor = Color(0xFFC94A43);  // red
+  static const Color onTimeColor = Color(0xFF3AA76A);
+  static const Color lateColor = Color(0xFFF39C35);
+  static const Color leaveColor = Color(0xFFC94A43);
 
   @override
   Widget build(BuildContext context) {
@@ -634,11 +721,7 @@ class LegendItem extends StatelessWidget {
   final Color color;
   final String label;
 
-  const LegendItem({
-    super.key,
-    required this.color,
-    required this.label,
-  });
+  const LegendItem({super.key, required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -675,4 +758,21 @@ class LegendItem extends StatelessWidget {
       ],
     );
   }
+}
+
+
+Color _hexToColorOrFallback(
+    String? hex, {
+      Color fallback = const Color(0xFF94A3B8),
+    }) {
+  if (hex == null || hex.trim().isEmpty) return fallback;
+
+  var value = hex.trim().replaceAll('#', '');
+  if (value.length == 6) value = 'FF$value';
+  if (value.length != 8) return fallback;
+
+  final parsed = int.tryParse(value, radix: 16);
+  if (parsed == null) return fallback;
+
+  return Color(parsed);
 }

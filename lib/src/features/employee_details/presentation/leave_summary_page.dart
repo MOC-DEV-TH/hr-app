@@ -170,7 +170,7 @@ class _LeaveTypeCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       decoration: BoxDecoration(
         color: light,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: border, width: 1.1),
       ),
       child: Column(

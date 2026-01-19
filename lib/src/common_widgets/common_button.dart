@@ -4,63 +4,79 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hr_app/src/utils/colors.dart';
 
 class CommonButton extends StatelessWidget {
-  const CommonButton(
-      {super.key,
-      required this.text,
-      required this.onTap,
-      this.fontSize = 16,
-      this.containerVPadding,
-      this.containerHPadding,
-      this.isLoading = false,
-        this.isShowBorderColor = false,
-      this.bgColor,
-      this.buttonTextColor,
-      this.fontFamily});
+  const CommonButton({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.fontSize = 16,
+    this.containerVPadding,
+    this.containerHPadding,
+    this.isLoading = false,
+    this.bgColor,
+    this.buttonTextColor,
+    this.fontFamily,
+    this.borderColor
+  });
+
   final String text;
-  final Function() onTap;
+  final VoidCallback? onTap;
   final double? fontSize;
   final Color? bgColor;
   final double? containerVPadding;
   final double? containerHPadding;
   final bool isLoading;
-  final bool? isShowBorderColor;
   final Color? buttonTextColor;
   final String? fontFamily;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
+    final bool disabled = isLoading || onTap == null;
+
     return Bounceable(
-      onTap: () {
-        onTap();
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
+      onTap: disabled ? null : onTap,
+      child: Opacity(
+        opacity: disabled ? 0.6 : 1,
+        child: Container(
+          padding: EdgeInsets.symmetric(
             horizontal: containerHPadding ?? 24,
-            vertical: containerVPadding ?? 6),
-        decoration: BoxDecoration(
-          color: bgColor ?? Colors.blue,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color:isShowBorderColor==true ? kPrimaryColor : Colors.transparent,width: 1)
-        ),
-        child: isLoading
-            ? IntrinsicWidth(
+            vertical: containerVPadding ?? 6,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor ?? Colors.blue,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: borderColor ?? Colors.transparent,
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: isLoading
+                ? IntrinsicWidth(
               child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('processing',
-                        style: const TextStyle(color: kSecondaryOlive)),
-                    const SpinKitThreeBounce(size: 25, color: kSecondaryOlive),
-                  ],
-                ),
-            )
-            : Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  color:kSecondaryOlive,
-                ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Processing',
+                    style: TextStyle(color: kSecondaryOlive),
+                  ),
+                  SizedBox(width: 8),
+                  SpinKitThreeBounce(size: 18, color: kSecondaryOlive),
+                ],
               ),
+            )
+                : Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: fontSize,
+                color: buttonTextColor ?? kSecondaryOlive,
+                fontFamily: fontFamily,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

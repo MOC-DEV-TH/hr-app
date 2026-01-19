@@ -407,10 +407,10 @@ class _EditEmployeePageState extends ConsumerState<EditEmployeePage> {
                             width: 88,
                             height: 88,
                             decoration: BoxDecoration(
-                              color: cs.surfaceVariant,
+                              color: kLightGreyColor,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.person, size: 44),
+                            child: const Icon(Icons.person, size: 44,color: kSecondaryColor,),
                           ),
                           const SizedBox(height: 8),
                           Text(

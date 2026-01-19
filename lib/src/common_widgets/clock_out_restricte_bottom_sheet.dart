@@ -3,6 +3,7 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/gap.dart';
 
 import '../utils/images.dart';
+import 'common_button.dart';
 
 Future<String?> showClockOutRestrictedBottomSheet(
     BuildContext context, {
@@ -98,32 +99,13 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
           14.vGap,
 
           /// circular clock icon
-          Container(
-            width: 66,
-            height: 66,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [primary, primary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x334C7FE5),
-                  blurRadius: 20,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(14.0),
-              child: Image.asset(
-                kScheduleImage,
-                fit: BoxFit.cover,
-              ),
-            ),
+          Image.asset(
+            kClockOutRestrictImage,
+            fit: BoxFit.cover,
+            height: 125,
+            width: 125,
           ),
+
           const SizedBox(height: 14),
 
           Text(
@@ -186,18 +168,11 @@ class _ClockOutRestrictedSheetState extends State<_ClockOutRestrictedSheet> {
           /// Send button
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed:  _handleSend,
-              child: const Text('Send', style: TextStyle(fontSize: 16,color: kSecondaryOlive)),
-            ),
+            child: CommonButton(
+              containerVPadding: 10,
+              bgColor: kPrimaryColor,
+              buttonTextColor: kSecondaryOlive,
+              text: 'Send', onTap: _handleSend,),
           ),
 
           20.vGap

@@ -120,7 +120,7 @@ Future<void> showExceptionAlertDialog({
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
                   onPressed: () => Navigator.of(ctx).pop(),

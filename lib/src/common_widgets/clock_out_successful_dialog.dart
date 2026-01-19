@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/src/utils/colors.dart';
 
 import '../utils/images.dart';
+import 'common_button.dart';
 
 Future<void> showClockOutSuccessDialog(
     BuildContext context, {
@@ -31,31 +32,12 @@ Future<void> showClockOutSuccessDialog(
               children: [
                 const SizedBox(height: 4),
 
-                Container(
-                  width: 66,
-                  height: 66,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [primary, primary],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x334C7FE5),
-                        blurRadius: 20,
-                        offset: Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: Image.asset(
-                      kScheduleImage,
-                      fit: BoxFit.cover,
-                    ),
-                  )
+                /// icon
+                Image.asset(
+                  kClockOutSuccessfulImage,
+                  fit: BoxFit.contain,
+                  height: 130,
+                  width: 130,
                 ),
 
                 const SizedBox(height: 16),
@@ -80,20 +62,14 @@ Future<void> showClockOutSuccessDialog(
                 ),
                 const SizedBox(height: 20),
 
+
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () => Navigator.of(ctx).maybePop(),
-                    child: const Text('Close Message', style: TextStyle(fontSize: 16,color: kSecondaryOlive)),
-                  ),
+                  child: CommonButton(
+                    containerVPadding: 10,
+                    bgColor: kPrimaryColor,
+                    buttonTextColor: kSecondaryOlive,
+                    text: 'Close Message', onTap: () => Navigator.of(ctx).maybePop(),),
                 ),
               ],
             ),

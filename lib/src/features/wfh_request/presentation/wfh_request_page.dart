@@ -9,6 +9,7 @@ import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/common_button.dart';
 import '../../../common_widgets/loading_view.dart';
 import '../../../utils/secure_storage.dart';
 
@@ -224,28 +225,17 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
                       /// Save button - full width rounded
                       SizedBox(
                         width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: (){
-                            onSave(
+                        child: CommonButton(
+                          containerVPadding: 10,
+                          bgColor: kPrimaryColor,
+                          buttonTextColor: kSecondaryOlive,
+                          text: 'Save', onTap: () {
+                          onSave(
                               id: id ?? 0,
                               name: userName ?? ''
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kPrimaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(fontSize: 16, color: kSecondaryOlive),
-                          ),
-                        ),
+                          );
+                        },),
                       ),
-
                       /// Spacer to push content to top like the screenshot
                       const SizedBox(height: 20),
                     ],

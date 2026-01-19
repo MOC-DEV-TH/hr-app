@@ -7,7 +7,7 @@ part of 'employee_wfh_request_controller.dart';
 // **************************************************************************
 
 String _$employeeWfhRequestControllerHash() =>
-    r'719af38c96ce1e9590a393f8964fe025c5b7cd9f';
+    r'312976f5d10cceea4b91afc03ee9c4e372fc7f33';
 
 /// See also [EmployeeWfhRequestController].
 @ProviderFor(EmployeeWfhRequestController)

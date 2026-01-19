@@ -67,7 +67,7 @@ class _EmployeeDetailsPageState extends ConsumerState<EmployeeDetailsPage>
             appBar: AdminCustomAppBarView(
               title: 'Detail Employee',
               isShowRightIcon: false,
-              isShowEditIcon: true,
+              isShowEditIcon: false,
               onTapEdit: () {
                 Navigator.push(
                   context,
@@ -134,12 +134,12 @@ class _TopTabs extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(14),
+        color: kSoftYellow,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.transparent),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(18),
         child: TabBar(
           controller: controller,
           tabs: const [
@@ -150,12 +150,11 @@ class _TopTabs extends StatelessWidget {
           ],
           isScrollable: true,
           padding: EdgeInsets.zero,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 18),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 30),
           indicatorSize: TabBarIndicatorSize.tab,
-          indicatorPadding: const EdgeInsets.all(4),
           indicator: BoxDecoration(
-            color: kPrimaryColor,
-            borderRadius: BorderRadius.circular(12),
+            color: kSecondaryColor,
+            borderRadius: BorderRadius.circular(18),
           ),
           tabAlignment: TabAlignment.center,
           labelStyle: Theme.of(
@@ -164,7 +163,7 @@ class _TopTabs extends StatelessWidget {
           unselectedLabelStyle: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-          labelColor: kSecondaryOlive,
+          labelColor: Colors.white,
           unselectedLabelColor: const Color(0xFF4B5563),
           dividerColor: Colors.transparent,
           overlayColor: MaterialStateProperty.all(Colors.transparent),
@@ -197,8 +196,8 @@ class _PersonalTab extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor: cs.surfaceVariant,
-                child: const Icon(Icons.person, size: 42),
+                backgroundColor: kLightGreyColor,
+                child: const Icon(Icons.person, size: 42,color: kSecondaryColor,),
               ),
               const SizedBox(height: 8),
               Text(profile.name ?? '', style: tt.titleMedium?.w700()),
@@ -570,7 +569,7 @@ class _LeaveTab extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: Colors.grey.withOpacity(0.2),
                           border: Border.all(color: kBlueColor, width: 1.5),
-                          borderRadius: BorderRadius.circular(kMarginMedium),
+                          borderRadius: BorderRadius.circular(22),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.all(10.0),

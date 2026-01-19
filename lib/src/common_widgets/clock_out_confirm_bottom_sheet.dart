@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/images.dart';
@@ -71,32 +72,6 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
             width: 130,
             height: 110,
           ),
-          // Container(
-          //   width: 66,
-          //   height: 66,
-          //   decoration: const BoxDecoration(
-          //     shape: BoxShape.circle,
-          //     gradient: LinearGradient(
-          //       colors: [Color(0xFF5D89E9), Color(0xFF4C7FE5)],
-          //       begin: Alignment.topLeft,
-          //       end: Alignment.bottomRight,
-          //     ),
-          //     boxShadow: [
-          //       BoxShadow(
-          //         color: Color(0x334C7FE5),
-          //         blurRadius: 20,
-          //         offset: Offset(0, 10),
-          //       ),
-          //     ],
-          //   ),
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(14.0),
-          //     child: Image.asset(
-          //       kScheduleImage,
-          //       fit: BoxFit.cover,
-          //     ),
-          //   ),
-          // ),
 
           const SizedBox(height: 14),
 
@@ -143,50 +118,33 @@ class _ClockOutConfirmSheetState extends State<_ClockOutConfirmSheet> {
           /// Primary button
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () async {
-                if (widget.onConfirm == null) {
-                  if (mounted) Navigator.of(context).pop(true);
-                  return;
-                }
-                try {
-                  if (mounted) Navigator.of(context).pop(true);
-                  await widget.onConfirm!.call();
-                } catch (_) {
-                } finally {}
-              },
-              child: const Text(
-                kLabelYesClockOut,
-                style: TextStyle(fontSize: 14,color: kSecondaryOlive),
-              ),
-            ),
+            child: CommonButton(
+                containerVPadding: 10,
+                bgColor: kPrimaryColor,
+                buttonTextColor: kSecondaryOlive,
+                text: kLabelYesClockOut, onTap: () async{
+              if (widget.onConfirm == null) {
+                if (mounted) Navigator.of(context).pop(true);
+                return;
+              }
+              try {
+                if (mounted) Navigator.of(context).pop(true);
+                await widget.onConfirm!.call();
+              } catch (_) {
+              } finally {}
+            }),
           ),
+
           14.vGap,
 
           /// Secondary button
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () => Navigator.of(context).maybePop(false),
-              child: const Text(
-                kLabelNoLetMeCheck,
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-            ),
+            child: CommonButton(
+                containerVPadding: 10,
+                bgColor: kLightGreyColor,
+                buttonTextColor: kSecondaryOlive,
+                text: kLabelNoLetMeCheck, onTap: () => Navigator.of(context).maybePop(false),),
           ),
 
           20.vGap
@@ -209,7 +167,7 @@ class _InfoPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(.25),
+        color: kSecondaryColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: theme.dividerColor.withOpacity(.4)),
       ),
@@ -220,7 +178,7 @@ class _InfoPill extends StatelessWidget {
             children: [
               Image.asset(kClockGreyImage, width: 13, height: 13),
               const SizedBox(width: 4),
-              // 👇 make label flexible so Row won't overflow
+              /// 👇 make label flexible so Row won't overflow
               Expanded(
                 child: Text(
                   label,
@@ -228,14 +186,14 @@ class _InfoPill extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   softWrap: false,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.hintColor,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          // 👇 same for value; 1 line + ellipsis prevents overflow
+          /// 👇 same for value; 1 line + ellipsis prevents overflow
           Text(
             value,
             maxLines: 1,
@@ -243,6 +201,7 @@ class _InfoPill extends StatelessWidget {
             softWrap: false,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w500,
+              color: Colors.white,
             ),
           ),
         ],

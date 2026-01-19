@@ -39,7 +39,7 @@ class CircleActionButton extends StatelessWidget {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: Colors.white
                 ),

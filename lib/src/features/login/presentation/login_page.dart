@@ -91,28 +91,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   50.vGap,
 
                   ///login button
-                  CommonButton(
-                    containerVPadding: 10,
-                    containerHPadding: 60,
-                    text: 'Login', onTap: () async{
+                  SizedBox(
+                    width: 200,
+                    child: CommonButton(
+                      containerVPadding: 10,
+                      containerHPadding: 60,
+                      text: 'Login', onTap: () async{
 
-                    if (!state.isLoading) {
-                      final bool isSuccess = await ref
-                          .read(loginControllerProvider.notifier)
-                          .login(
-                          email:
-                          emailController.text,
-                          password: passwordController.text.trim());
+                      if (!state.isLoading) {
+                        final bool isSuccess = await ref
+                            .read(loginControllerProvider.notifier)
+                            .login(
+                            email:
+                            emailController.text,
+                            password: passwordController.text.trim());
 
-                      ///is success login
-                      if (isSuccess) {
-                        await ref
-                            .read(secureStorageProvider)
-                            .saveAuthStatus(kAuthLoggedIn);
-                        ref.invalidate(secureStorageProvider);
+                        ///is success login
+                        if (isSuccess) {
+                          await ref
+                              .read(secureStorageProvider)
+                              .saveAuthStatus(kAuthLoggedIn);
+                          ref.invalidate(secureStorageProvider);
+                        }
                       }
-                    }
-                  },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
+                    },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
+                  ),
                 ],
               ),
             ),

@@ -1,9 +1,9 @@
 ///Base Url
-const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
-const String kV2BaseUrl = "https://hrapp.mocinteractive.com/api/v2";
+// const String kBaseUrl = "https://hrapp.mocinteractive.com/api/v1";
+// const String kV2BaseUrl = "https://hrapp.mocinteractive.com/api/v2";
 
-// const String kBaseUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
-// const String kV2BaseUrl = "https://staging.hrapp.mocinteractive.com/api/v2";
+const String kBaseUrl = "https://staging.hrapp.mocinteractive.com/api/v1";
+const String kV2BaseUrl = "https://staging.hrapp.mocinteractive.com/api/v2";
 
 const String kImageBaseUrlHttp = "";
 
@@ -42,6 +42,8 @@ const String kEndPointGetDashboardAttendedOverview = "/get-dashboard-attendance-
 const String kEndPointCreateWfhRequest = "/create-wfh";
 const String kEndPointWfhRequestList = "/wfh-list";
 const String kEndPointUpdateWfhRequest="/update-wfh";
+const String kEndPointTotalEmployee="/total-employee";
+
 
 
 
