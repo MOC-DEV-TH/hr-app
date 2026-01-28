@@ -135,11 +135,11 @@ class _TopTabs extends StatelessWidget {
       height: 44,
       decoration: BoxDecoration(
         color: kSoftYellow,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: Colors.transparent),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         child: TabBar(
           controller: controller,
           tabs: const [
@@ -154,7 +154,7 @@ class _TopTabs extends StatelessWidget {
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
             color: kSecondaryColor,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(22),
           ),
           tabAlignment: TabAlignment.center,
           labelStyle: Theme.of(

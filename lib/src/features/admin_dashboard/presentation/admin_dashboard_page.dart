@@ -504,11 +504,10 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
     final cs = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant, width: 0),
+        color: kSoftYellow,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.transparent, width: 0),
       ),
       child: SingleChildScrollView(
         controller: _scrollCtrl,
@@ -535,9 +534,9 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                     decoration: BoxDecoration(
                       color:
                           i == widget.selected
-                              ? kPrimaryColor
+                              ? kSecondaryColor
                               : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(22),
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -548,7 +547,7 @@ class _BusinessUnitSegmentedState extends State<_BusinessUnitSegmented> {
                         fontWeight: FontWeight.w600,
                         color:
                             i == widget.selected
-                                ? kSecondaryOlive
+                                ? Colors.white
                                 : Colors.black87,
                       ),
                     ),

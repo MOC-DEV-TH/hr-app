@@ -43,6 +43,11 @@ const String kEndPointCreateWfhRequest = "/create-wfh";
 const String kEndPointWfhRequestList = "/wfh-list";
 const String kEndPointUpdateWfhRequest="/update-wfh";
 const String kEndPointTotalEmployee="/total-employee";
+const String kEndPointAnnouncementGotIt="/announcement/got";
+const String kEndPointAnnouncementDetails = "/get-announcement-details";
+const String kEndPointUserAddress="/get-addresses";
+
+
 
 
 
@@ -60,6 +65,7 @@ const String kParamPage = "page";
 const String kApiKey = "3495fbca2612a77c31afe40405a6a4c4";
 const String kLanguageENUS = "en-US";
 const String kTypeWfh = "work_from_home";
+const String kTypeWorkFromSomewhere = "work_from_somewhere";
 const String kTypeOffice = "office";
 const String kLeaveStatusReject ="reject";
 const String kLeaveStatusRejected ="rejected";

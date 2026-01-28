@@ -270,5 +270,25 @@ final businessUnitsAllLocalProvider =
 // ignore: unused_element
 typedef BusinessUnitsAllLocalRef =
     AutoDisposeFutureProviderRef<List<BusinessUnitVO>>;
+String _$employeeAddressesLocalHash() =>
+    r'a2100fde8dea3ea80a54cf6c19f9c1f2c9b5f7ad';
+
+/// See also [employeeAddressesLocal].
+@ProviderFor(employeeAddressesLocal)
+final employeeAddressesLocalProvider =
+    AutoDisposeProvider<List<AddressVO>>.internal(
+      employeeAddressesLocal,
+      name: r'employeeAddressesLocalProvider',
+      debugGetCreateSourceHash:
+          const bool.fromEnvironment('dart.vm.product')
+              ? null
+              : _$employeeAddressesLocalHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EmployeeAddressesLocalRef = AutoDisposeProviderRef<List<AddressVO>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

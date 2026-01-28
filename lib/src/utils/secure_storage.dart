@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/admin_dashboard/model/business_unit_response.dart';
 import '../features/admin_dashboard/model/employee_dropdown_response.dart';
+import '../features/home/model/user_address_response.dart';
 
 part 'secure_storage.g.dart';
 
@@ -22,7 +23,8 @@ enum SecureDataList {
   loginUserRole,
   isRemoteLogin,
   employeeDropdown,
-  businessUnits
+  businessUnits,
+  employeeAddressList,
 }
 
 class SecureStorage {
@@ -218,6 +220,28 @@ class SecureStorage {
     final d = await getEmployeeDropdown();
     return d?.employeeTypes ?? const <IDNameVO>[];
   }
+
+  void saveEmployeeAddresses(List<AddressVO> list) {
+    final jsonList = list.map((e) => e.toJson()).toList();
+    _box.write(SecureDataList.employeeAddressList.name, jsonList);
+  }
+
+  List<AddressVO> getEmployeeAddressesSync() {
+    final raw = _box.read(SecureDataList.employeeAddressList.name);
+    if (raw == null) return [];
+
+    try {
+      return (raw as List)
+          .map((e) => AddressVO.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  void clearEmployeeAddresses() {
+    _box.remove(SecureDataList.employeeAddressList.name);
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -303,4 +327,12 @@ Future<List<BusinessUnitVO>> businessUnitsAllLocal(
   final store = ref.watch(secureStorageProvider);
   return store.getBusinessUnitsAll();
 }
+
+@riverpod
+List<AddressVO> employeeAddressesLocal(EmployeeAddressesLocalRef ref) {
+  final store = ref.watch(secureStorageProvider);
+  return store.getEmployeeAddressesSync();
+}
+
+
 

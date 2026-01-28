@@ -25,6 +25,7 @@ import 'package:hr_app/src/utils/strings.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
+import '../../../common_widgets/choose_wfh_location_dialog.dart';
 import '../../../common_widgets/clock_out_confirm_bottom_sheet.dart';
 import '../../../common_widgets/clock_out_not_allow_dialog.dart';
 import '../../../common_widgets/custom_toolbar_with_logo.dart';
@@ -50,6 +51,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await ref.read(homeRepositoryProvider).fetchEmployeeAddresses();
+    });
   }
 
   @override
@@ -70,6 +74,9 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
       checkInControllerProvider,
           (_, state) => state.showAlertDialogOnError(context),
     );
+
+    ///employee addresses
+    final addresses = ref.watch(employeeAddressesLocalProvider);
 
     /// provider states
     final configState = ref.watch(fetchConfigDataProvider);
@@ -239,6 +246,7 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                           if (!hasCheckedIn)
                                             CircleActionButton(
                                               onTap: () async {
+
                                                 if (_selectedLocation == null) {
                                                   context.showErrorSnackBar(
                                                     'Please select a check-in type: Office or Work From Home.',
@@ -246,23 +254,32 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                                                   return;
                                                 }
 
+                                                ///work from home check in
                                                 if (_selectedLocation ==
                                                     WorkLocation.workFromHome) {
-                                                  if (!checkInState.isLoading) {
-                                                    final isSuccess = await ref
-                                                        .read(
-                                                      checkInControllerProvider
-                                                          .notifier,
-                                                    )
-                                                        .checkIn(type: kTypeWfh);
+                                                  final addressId = await showWfhLocationDialog(
+                                                    context,
+                                                    addresses: addresses,
+                                                  );
 
-                                                    if (isSuccess) {
-                                                      ref.invalidate(
-                                                        fetchAttendanceDataProvider,
-                                                      );
-                                                    }
+                                                  if (addressId == null) return;
+                                                  if (checkInState.isLoading) return;
+                                                  final int? finalAddressId = (addressId == -1) ? null : addressId;
+
+                                                  final isSuccess = await ref
+                                                      .read(checkInControllerProvider.notifier)
+                                                      .checkIn(
+                                                    type:finalAddressId == null ? kTypeWorkFromSomewhere : kTypeWfh,
+                                                    addressId: finalAddressId,
+                                                  );
+
+                                                  if (isSuccess) {
+                                                    ref.invalidate(fetchAttendanceDataProvider);
                                                   }
+
+
                                                 } else {
+                                                  ///office check in
                                                   _handleOfficeCheckIn(
                                                     context,
                                                     double.tryParse(

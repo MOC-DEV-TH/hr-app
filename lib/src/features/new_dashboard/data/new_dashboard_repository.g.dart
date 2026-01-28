@@ -182,7 +182,7 @@ class _FetchDashboardAttendedOverviewProviderElement
 }
 
 String _$fetchTotalEmployeeDataHash() =>
-    r'0512088e8c20bc1ab8b7d0904bbd4ed1a1139ecd';
+    r'b099b001816a012555e3b60d32eafd5155635f9c';
 
 /// See also [fetchTotalEmployeeData].
 @ProviderFor(fetchTotalEmployeeData)

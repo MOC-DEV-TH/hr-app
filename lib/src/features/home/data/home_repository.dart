@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/home/model/attendance_response.dart';
 import 'package:hr_app/src/features/home/model/config_response.dart';
+import 'package:hr_app/src/features/home/model/user_address_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:intl/intl.dart';
@@ -53,10 +54,22 @@ class HomeRepository {
     }
   }
 
-  ///check in
-  Future<void> checkIn({required type}) async {
+  /// check in
+  Future<void> checkIn({
+    required String type,
+    int? addressId,
+  }) async {
     try {
-      final response = await _dioV2.post(kEndPointCheckIn, data: {"type": type});
+      final data = <String, dynamic>{
+        "type": type,
+        if (addressId != null) "address_id": addressId,
+      };
+
+      final response = await _dioV2.post(
+        kEndPointCheckIn,
+        data: data,
+      );
+
       debugPrint("CheckIn response::${response.data}");
     } on DioException catch (e) {
       throw e.response?.data["message"] ??
@@ -95,6 +108,21 @@ class HomeRepository {
       AttendanceResponse data = AttendanceResponse.fromJson(response.data);
 
       debugPrint("Attendance Response Data::${response.data}");
+
+      return data;
+    } on DioException catch (e) {
+      throw e.response?.data["message"] ??
+          ErrorHandler.handle(e).failure.message;
+    }
+  }
+
+  ///fetch user address list and save to storage
+  Future<UserAddressResponse> fetchEmployeeAddresses() async {
+    try {
+      final response = await dio.get(kEndPointUserAddress);
+
+      final data = UserAddressResponse.fromJson(response.data);
+      ref.read(secureStorageProvider).saveEmployeeAddresses(data.data ?? []);
 
       return data;
     } on DioException catch (e) {

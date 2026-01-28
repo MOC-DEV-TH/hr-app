@@ -7,7 +7,7 @@ part of 'announcement_repository.dart';
 // **************************************************************************
 
 String _$announcementRepositoryHash() =>
-    r'2b9484d7d167ddc9e68554f6cd112553085051c3';
+    r'e2c9727bf75729ab35c6e9baac1649ff1d129f25';
 
 /// See also [announcementRepository].
 @ProviderFor(announcementRepository)
@@ -177,6 +177,139 @@ class _FetchAnnouncementsProviderElement
   @override
   int? get businessUnitId =>
       (origin as FetchAnnouncementsProvider).businessUnitId;
+}
+
+String _$fetchAnnouncementDetailByIDHash() =>
+    r'282d2e79cba90bdfa9cedbd72598a6657ef608d9';
+
+/// See also [fetchAnnouncementDetailByID].
+@ProviderFor(fetchAnnouncementDetailByID)
+const fetchAnnouncementDetailByIDProvider = FetchAnnouncementDetailByIDFamily();
+
+/// See also [fetchAnnouncementDetailByID].
+class FetchAnnouncementDetailByIDFamily
+    extends Family<AsyncValue<AnnouncementDetailResponse>> {
+  /// See also [fetchAnnouncementDetailByID].
+  const FetchAnnouncementDetailByIDFamily();
+
+  /// See also [fetchAnnouncementDetailByID].
+  FetchAnnouncementDetailByIDProvider call({required int announcementID}) {
+    return FetchAnnouncementDetailByIDProvider(announcementID: announcementID);
+  }
+
+  @override
+  FetchAnnouncementDetailByIDProvider getProviderOverride(
+    covariant FetchAnnouncementDetailByIDProvider provider,
+  ) {
+    return call(announcementID: provider.announcementID);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchAnnouncementDetailByIDProvider';
+}
+
+/// See also [fetchAnnouncementDetailByID].
+class FetchAnnouncementDetailByIDProvider
+    extends AutoDisposeFutureProvider<AnnouncementDetailResponse> {
+  /// See also [fetchAnnouncementDetailByID].
+  FetchAnnouncementDetailByIDProvider({required int announcementID})
+    : this._internal(
+        (ref) => fetchAnnouncementDetailByID(
+          ref as FetchAnnouncementDetailByIDRef,
+          announcementID: announcementID,
+        ),
+        from: fetchAnnouncementDetailByIDProvider,
+        name: r'fetchAnnouncementDetailByIDProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$fetchAnnouncementDetailByIDHash,
+        dependencies: FetchAnnouncementDetailByIDFamily._dependencies,
+        allTransitiveDependencies:
+            FetchAnnouncementDetailByIDFamily._allTransitiveDependencies,
+        announcementID: announcementID,
+      );
+
+  FetchAnnouncementDetailByIDProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.announcementID,
+  }) : super.internal();
+
+  final int announcementID;
+
+  @override
+  Override overrideWith(
+    FutureOr<AnnouncementDetailResponse> Function(
+      FetchAnnouncementDetailByIDRef provider,
+    )
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchAnnouncementDetailByIDProvider._internal(
+        (ref) => create(ref as FetchAnnouncementDetailByIDRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        announcementID: announcementID,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<AnnouncementDetailResponse> createElement() {
+    return _FetchAnnouncementDetailByIDProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchAnnouncementDetailByIDProvider &&
+        other.announcementID == announcementID;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, announcementID.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchAnnouncementDetailByIDRef
+    on AutoDisposeFutureProviderRef<AnnouncementDetailResponse> {
+  /// The parameter `announcementID` of this provider.
+  int get announcementID;
+}
+
+class _FetchAnnouncementDetailByIDProviderElement
+    extends AutoDisposeFutureProviderElement<AnnouncementDetailResponse>
+    with FetchAnnouncementDetailByIDRef {
+  _FetchAnnouncementDetailByIDProviderElement(super.provider);
+
+  @override
+  int get announcementID =>
+      (origin as FetchAnnouncementDetailByIDProvider).announcementID;
 }
 
 // ignore_for_file: type=lint
