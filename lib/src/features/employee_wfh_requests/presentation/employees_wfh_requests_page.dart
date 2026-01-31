@@ -9,6 +9,7 @@ import 'package:hr_app/src/features/employee_wfh_requests/controller/employee_wf
 import 'package:hr_app/src/features/employee_wfh_requests/data/employees_wfh_requests_repository.dart';
 import 'package:hr_app/src/features/list_items/employee_wfh_request_item_view.dart';
 import 'package:hr_app/src/network/api_constants.dart';
+import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
@@ -101,6 +102,12 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
       ),
     );
 
+    ///show error dialog when network response error
+    ref.listen<AsyncValue>(
+      employeeWfhRequestControllerProvider,
+          (_, state) => state.showAlertDialogOnError(context),
+    );
+
     final allEmployeeWfhRequestsControllerState = ref.watch(
       employeeWfhRequestControllerProvider,
     );
@@ -172,11 +179,14 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
                                       leaveStatus: kLeaveStatusApproved,
                                     );
 
-                                ///is success
-                                ref.invalidate(
-                                  fetchAllEmployeesWfhRequestProvider,
-                                );
-                                await showApproveSuccessDialog(context);
+                                if(isSuccess){
+                                  ///is success
+                                  ref.invalidate(
+                                    fetchAllEmployeesWfhRequestProvider,
+                                  );
+                                  await showApproveSuccessDialog(context);
+                                }
+
                               }
                             }
                           },
@@ -195,11 +205,13 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesWfhRequestPage> {
                                       leaveStatus: kLeaveStatusRejected,
                                     );
 
-                                ///is success
-                                ref.invalidate(
-                                  fetchAllEmployeesWfhRequestProvider,
-                                );
-                                await showRejectSuccessDialog(context);
+                                if(isSuccess){
+                                  ///is success
+                                  ref.invalidate(
+                                    fetchAllEmployeesWfhRequestProvider,
+                                  );
+                                  await showRejectSuccessDialog(context);
+                                }
                               }
                             }
                           },

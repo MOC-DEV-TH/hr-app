@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/employee_leaves/controller/employee_leaves_controller.dart';
 import 'package:hr_app/src/features/employee_leaves/data/employee_leaves_repository.dart';
 import 'package:hr_app/src/network/api_constants.dart';
+import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
@@ -63,6 +64,12 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
         date: dateParam,
         leaveStatus: statusParam,
       ),
+    );
+
+    ///show error dialog when network response error
+    ref.listen<AsyncValue>(
+      employeeLeavesControllerProvider,
+          (_, state) => state.showAlertDialogOnError(context),
     );
 
     final allEmployeeLeavesControllerState =
@@ -125,11 +132,14 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                                       leaveStatus: kLeaveStatusApproved,
                                     );
 
-                                ///is success
+                                if(isSuccess){
+                                  ///is success
                                   ref.invalidate(
                                     fetchAllEmployeeLeavesProvider,
                                   );
                                   await showApproveSuccessDialog(context);
+                                }
+
 
                               }
                             }
@@ -147,11 +157,13 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                                       leaveStatus: kLeaveStatusReject,
                                     );
 
-                                ///is success
+                                if(isSuccess){
+                                  ///is success
                                   ref.invalidate(
                                     fetchAllEmployeeLeavesProvider,
                                   );
                                   await showRejectSuccessDialog(context);
+                                }
 
                               }
                             }
