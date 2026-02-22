@@ -114,7 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ref.invalidate(secureStorageProvider);
                         }
                       }
-                    },bgColor: kPrimaryColor,buttonTextColor: kWhiteColor,),
+                    },bgColor: kPrimaryColor,),
                   ),
                 ],
               ),

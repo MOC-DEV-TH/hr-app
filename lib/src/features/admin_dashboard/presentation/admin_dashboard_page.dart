@@ -294,35 +294,21 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
+                            final selectedBuId = ref.read(selectedBuIdProvider);
+                            final selectedDate = ref.read(selectedDateProvider);
+
+                            /// ✅ Find correct index by ID (not id-1)
+                            final idx = buIds.indexOf(selectedBuId);
+                            final buName = (idx >= 0 && idx < buList.length) ? (buList[idx].name ?? '') : '';
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (_) => EmployeesAttendancePage(
-                                      title:
-                                          businessUnitsResponse
-                                              .data?[ref
-                                                      .read(
-                                                        selectedBuIdProvider
-                                                            .notifier,
-                                                      )
-                                                      .state -
-                                                  1]
-                                              .name ??
-                                          '',
-                                      date:
-                                          ref
-                                              .read(
-                                                selectedDateProvider.notifier,
-                                              )
-                                              .state,
-                                      businessUintId:
-                                          ref
-                                              .read(
-                                                selectedBuIdProvider.notifier,
-                                              )
-                                              .state,
-                                    ),
+                                builder: (_) => EmployeesAttendancePage(
+                                  title: buName,
+                                  date: selectedDate,
+                                  businessUintId: selectedBuId,
+                                ),
                               ),
                             );
                           },

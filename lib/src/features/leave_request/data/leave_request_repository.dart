@@ -36,21 +36,29 @@ class LeaveRequestRepository {
     required String date,
     required int leaveType,
     required String message,
+    required int halfDay,
+    String? period,
   }) async {
     Response<dynamic> response;
 
     try {
+      final Map<String, dynamic> payload = {
+        "date": date,
+        "leave_type": leaveType,
+        "message": message,
+      };
+
+      if (halfDay == 1 && period != null) {
+        payload["period"] = period;
+        payload["half_day"] = halfDay;
+      }
+
       response = await dio.post(
         kEndPointCreateLeave,
-        data: {
-          "date": date,
-          "leave_type": leaveType,
-          "message": message,
-        },
+        data: payload,
         options: Options(validateStatus: (s) => s != null && s < 400),
       );
     } on DioException catch (e) {
-
       final msg = _extractServerMessage(e.response?.data) ??
           e.message ??
           'Network error';

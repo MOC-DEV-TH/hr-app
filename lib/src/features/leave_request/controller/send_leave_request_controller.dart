@@ -15,6 +15,8 @@ class SendLeaveRequestController extends _$SendLeaveRequestController {
     required date,
     required leaveType,
     required message,
+    required halfDay,
+    required period
   }) async {
     final leaveRequestRepository = ref.read(leaveRequestRepositoryProvider);
     state = const AsyncValue.loading();
@@ -23,6 +25,8 @@ class SendLeaveRequestController extends _$SendLeaveRequestController {
         date: date,
         leaveType: leaveType,
         message: message,
+        halfDay: halfDay,
+        period: period
       ),
     );
     if (mounted) {

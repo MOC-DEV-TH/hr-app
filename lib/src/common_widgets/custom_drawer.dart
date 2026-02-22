@@ -186,7 +186,7 @@ class CustomDrawer extends ConsumerWidget {
                     ),
 
                     Visibility(
-                      visible:true,
+                      visible:false,
                       child: DrawerItem(
                         isActive: true,
                         iconName: kDrawerHomeImage,
