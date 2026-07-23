@@ -72,13 +72,14 @@ dependencies:
   #intl:
   intl: ^0.20.2
   timezone: ^0.10.1
-  flutter_timezone: ^4.1.1
+  flutter_timezone: ^5.1.0
 
   #syncfusion_flutter_chat:
   syncfusion_flutter_charts: any
 
   #month_picker_dialog:
   month_picker_dialog: ^6.7.0
+
 
 dev_dependencies:
   flutter_test:

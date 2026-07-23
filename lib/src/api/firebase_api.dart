@@ -106,9 +106,9 @@ class FirebaseApi {
     }
 
     ///init timezone handling
-    tz.initializeTimeZones();
-    final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(currentTimeZone));
+    // tz.initializeTimeZones();
+    // final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+    // tz.setLocalLocation(tz.getLocation(currentTimeZone));
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<

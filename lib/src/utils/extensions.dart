@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
 
 extension SnackBarExtensions on BuildContext {
@@ -272,6 +273,17 @@ extension _Weight on TextStyle {
   TextStyle w600() => copyWith(fontWeight: FontWeight.w600);
 
   TextStyle w700() => copyWith(fontWeight: FontWeight.w700);
+}
+
+extension FlutterTimezoneExtension on FlutterTimezone {
+  static Future<String> getCurrentTimezone() async {
+    try {
+      final timezone = await FlutterTimezone.getLocalTimezone();
+      return timezone.identifier;
+    } catch (_) {
+      return 'UTC';
+    }
+  }
 }
 
 

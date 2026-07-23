@@ -19,7 +19,6 @@ import 'package:hr_app/src/utils/async_value_ui.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
-import 'package:hr_app/src/utils/fonts.dart';
 import 'package:hr_app/src/utils/gap.dart';
 import 'package:hr_app/src/utils/strings.dart';
 import 'package:intl/intl.dart';
@@ -34,29 +33,240 @@ import '../../../services/location_service.dart';
 import '../../../utils/secure_storage.dart';
 import '../model/attendance_response.dart';
 
-enum WorkLocation { workFromHome, office }
-
-class EmployeeHomePage extends ConsumerStatefulWidget {
-  const EmployeeHomePage({super.key});
-
-  @override
-  ConsumerState<EmployeeHomePage> createState() => _HomePageState();
+enum WorkLocation {
+  workFromHome,
+  office,
 }
 
-class _HomePageState extends ConsumerState<EmployeeHomePage> {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+class EmployeeHomePage extends ConsumerStatefulWidget {
+  const EmployeeHomePage({
+    super.key,
+  });
+
+  @override
+  ConsumerState<EmployeeHomePage> createState() =>
+      _EmployeeHomePageState();
+}
+
+class _EmployeeHomePageState
+    extends ConsumerState<EmployeeHomePage> {
+  final GlobalKey<ScaffoldState> scaffoldKey =
+  GlobalKey<ScaffoldState>();
+
   WorkLocation? _selectedLocation;
+
   bool _isShowLoadingView = false;
+  bool _isSubmittingCheckOut = false;
+
+  String currentTimezone = 'UTC';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await ref.read(homeRepositoryProvider).fetchEmployeeAddresses();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadInitialData();
     });
   }
 
-  @override
+  Future<void> _loadInitialData() async {
+    try {
+      await ref
+          .read(homeRepositoryProvider)
+          .fetchEmployeeAddresses();
+
+      currentTimezone =
+      await FlutterTimezoneExtension.getCurrentTimezone();
+
+      debugPrint(
+        'TimeZone >>> $currentTimezone',
+      );
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (error) {
+      debugPrint(
+        'Initial data error: $error',
+      );
+    }
+  }
+
+  bool _hasValidCheckOut(dynamic checkOut) {
+    final value = checkOut?.toString().trim();
+
+    return value != null &&
+        value.isNotEmpty &&
+        value.toLowerCase() != 'null';
+  }
+
+  String _normalizeWorkLocation(String? value) {
+    return value
+        ?.trim()
+        .toLowerCase()
+        .replaceAll('-', '_')
+        .replaceAll(' ', '_') ??
+        '';
+  }
+
+  bool _isOfficeWorkLocation(String? value) {
+    final normalized =
+    _normalizeWorkLocation(value);
+
+    return normalized == 'office' ||
+        normalized ==
+            _normalizeWorkLocation(kTypeOffice);
+  }
+
+  bool _isWorkFromHomeLocation(String? value) {
+    final normalized =
+    _normalizeWorkLocation(value);
+
+    return normalized == 'wfh' ||
+        normalized == 'work_from_home' ||
+        normalized == 'workfromhome' ||
+        normalized == 'work_from_somewhere' ||
+        normalized == 'workfromsomewhere' ||
+        normalized ==
+            _normalizeWorkLocation(kTypeWfh) ||
+        normalized ==
+            _normalizeWorkLocation(
+              kTypeWorkFromSomewhere,
+            );
+  }
+
+  WorkLocation? _getSavedWorkLocation(
+      List<Attendance> attendances,
+      ) {
+    for (final attendance in attendances.reversed) {
+      final workLocation =
+          attendance.workLocation;
+
+      if (_isOfficeWorkLocation(workLocation)) {
+        return WorkLocation.office;
+      }
+
+      if (_isWorkFromHomeLocation(workLocation)) {
+        return WorkLocation.workFromHome;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> _refreshAttendance() async {
+    ref.invalidate(
+      fetchAttendanceDataProvider,
+    );
+
+    try {
+      await ref.read(
+        fetchAttendanceDataProvider.future,
+      );
+
+      debugPrint(
+        'Attendance refreshed successfully',
+      );
+    } catch (error) {
+      debugPrint(
+        'Attendance refresh error: $error',
+      );
+    }
+  }
+
+  Future<bool> _submitCheckOut({
+    String? reason,
+  }) async {
+    if (_isSubmittingCheckOut) {
+      return false;
+    }
+
+    if (mounted) {
+      setState(() {
+        _isSubmittingCheckOut = true;
+      });
+    } else {
+      _isSubmittingCheckOut = true;
+    }
+
+    try {
+      final success = await ref
+          .read(
+        checkOutControllerProvider.notifier,
+      )
+          .checkOut(
+        reason: reason,
+      );
+
+      debugPrint(
+        'Check-out controller result: $success',
+      );
+
+      if (!success) {
+        return false;
+      }
+
+      await _refreshAttendance();
+
+      return true;
+    } catch (error) {
+      debugPrint(
+        'Check-out submit error: $error',
+      );
+
+      return false;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingCheckOut = false;
+        });
+      } else {
+        _isSubmittingCheckOut = false;
+      }
+    }
+  }
+
+  Future<void> _showCheckOutResult({
+    required bool success,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    if (success) {
+      await showClockOutSuccessDialog(
+        context,
+      );
+
+      return;
+    }
+
+    context.showErrorDialog(
+      'The check-out was not completed. Please try again.',
+      'Check-Out Failed',
+    );
+  }
+
+  Future<void> _performCheckOut({
+    String? reason,
+  }) async {
+    if (_isSubmittingCheckOut) {
+      return;
+    }
+
+    final success = await _submitCheckOut(
+      reason: reason,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _showCheckOutResult(
+      success: success,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -65,31 +275,47 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
       ),
     );
 
-    /// show error dialog when network response error
-    ref.listen<AsyncValue>(
-      checkOutControllerProvider,
-          (_, state) => state.showAlertDialogOnError(context),
-    );
     ref.listen<AsyncValue>(
       checkInControllerProvider,
-          (_, state) => state.showAlertDialogOnError(context),
+          (_, state) {
+        state.showAlertDialogOnError(
+          context,
+        );
+      },
     );
 
-    ///employee addresses
-    final addresses = ref.watch(employeeAddressesLocalProvider);
+    final addresses = ref.watch(
+      employeeAddressesLocalProvider,
+    );
 
-    /// provider states
-    final configState = ref.watch(fetchConfigDataProvider);
-    final checkInState = ref.watch(checkInControllerProvider);
-    final checkOutState = ref.watch(checkOutControllerProvider);
-    final attendanceState = ref.watch(fetchAttendanceDataProvider);
+    final configState = ref.watch(
+      fetchConfigDataProvider,
+    );
 
-    /// check in user role
-    final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
+    final checkInState = ref.watch(
+      checkInControllerProvider,
+    );
 
-    final isManagementUser = loginUserRole == kLoginUserRoleCeo ||
-        loginUserRole == kLoginUserRoleDirector ||
-        loginUserRole == kLoginUserRoleManager;
+    final checkOutState = ref.watch(
+      checkOutControllerProvider,
+    );
+
+    final attendanceState = ref.watch(
+      fetchAttendanceDataProvider,
+    );
+
+    final loginUserRole = ref
+        .watch(
+      getLoginUserRoleProvider,
+    )
+        .value;
+
+    final isManagementUser =
+        loginUserRole == kLoginUserRoleCeo ||
+            loginUserRole ==
+                kLoginUserRoleDirector ||
+            loginUserRole ==
+                kLoginUserRoleManager;
 
     return Scaffold(
       key: scaffoldKey,
@@ -100,272 +326,496 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
         isShowRightIcon: false,
       )
           : CustomToolbarWithLogo(
-        onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
+        onMenuTap: () {
+          scaffoldKey.currentState
+              ?.openDrawer();
+        },
         onSearchTap: () {},
         onNotificationTap: () {},
         showBadge: true,
       ),
-      drawer: isManagementUser ? const SizedBox.shrink() : const CustomDrawer(),
+      drawer: isManagementUser
+          ? const SizedBox.shrink()
+          : const CustomDrawer(),
       body: Stack(
         children: [
-          /// Main content based on config and attendance states
           configState.when(
             data: (configData) {
               return attendanceState.when(
                 data: (attendanceData) {
                   final currentDate =
-                  DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-                  /// ✅ FIX: avoid datum.date! crash
-                  final todayDatum = attendanceData.data.firstWhere(
-                        (datum) {
-                      final d = datum.date;
-                      if (d == null) return false;
-                      return DateFormat('yyyy-MM-dd').format(d) == currentDate;
-                    },
-                    orElse: () => AttendanceDataVO(date: null, attendances: []),
+                  DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(
+                    DateTime.now(),
                   );
 
-                  final hasCheckedIn = todayDatum.attendances.isNotEmpty;
+                  final todayDatum =
+                  attendanceData.data.firstWhere(
+                        (datum) {
+                      final date = datum.date;
+
+                      if (date == null) {
+                        return false;
+                      }
+
+                      final formattedDate =
+                      DateFormat(
+                        'yyyy-MM-dd',
+                      ).format(date);
+
+                      return formattedDate ==
+                          currentDate;
+                    },
+                    orElse: () =>
+                        AttendanceDataVO(
+                          date: null,
+                          attendances: [],
+                        ),
+                  );
+
+                  final hasCheckedIn =
+                      todayDatum
+                          .attendances
+                          .isNotEmpty;
+
                   final hasCheckedOut =
-                      todayDatum.attendances.firstOrNull?.checkOut != null;
+                  todayDatum.attendances.any(
+                        (attendance) {
+                      return _hasValidCheckOut(
+                        attendance.checkOut,
+                      );
+                    },
+                  );
+
+                  /*
+                   * Read the actual checked-in location
+                   * from today's attendance data.
+                   */
+                  final savedWorkLocation =
+                  hasCheckedIn
+                      ? _getSavedWorkLocation(
+                    todayDatum
+                        .attendances,
+                  )
+                      : null;
+
+                  /*
+                   * After check-in, always use the server
+                   * work location.
+                   *
+                   * Before check-in, use the manually
+                   * selected location.
+                   */
+                  final effectiveLocation =
+                      savedWorkLocation ??
+                          _selectedLocation;
+
+                  final isLocationLocked =
+                      hasCheckedIn &&
+                          savedWorkLocation !=
+                              null;
+
+                  final disableWorkFromHome =
+                      isLocationLocked &&
+                          savedWorkLocation ==
+                              WorkLocation.office;
+
+                  final disableOffice =
+                      isLocationLocked &&
+                          savedWorkLocation ==
+                              WorkLocation
+                                  .workFromHome;
+
+                  final isWorkFromHomeSelected =
+                      effectiveLocation ==
+                          WorkLocation
+                              .workFromHome;
+
+                  final isOfficeSelected =
+                      effectiveLocation ==
+                          WorkLocation.office;
 
                   return StreamBuilder<DateTime>(
                     stream: Stream.periodic(
                       const Duration(seconds: 1),
                           (_) => DateTime.now(),
                     ),
-                    builder: (context, snapshot) {
-                      final currentTime = snapshot.data ?? DateTime.now();
+                    initialData: DateTime.now(),
+                    builder: (
+                        context,
+                        snapshot,
+                        ) {
+                      final currentTime =
+                          snapshot.data ??
+                              DateTime.now();
 
-                      /// calculate working period
-                      final wp = ref
-                          .read(homeRepositoryProvider)
-                          .computeWorkingPeriod(todayDatum.attendances);
+                      final workingPeriod = ref
+                          .read(
+                        homeRepositoryProvider,
+                      )
+                          .computeWorkingPeriod(
+                        todayDatum
+                            .attendances,
+                      );
 
-                      final clockInText = wp.clockInText;
-                      final clockOutText = wp.clockOutText;
-                      final periodText = wp.periodText;
+                      final clockInText =
+                          workingPeriod
+                              .clockInText;
+
+                      final clockOutText =
+                          workingPeriod
+                              .clockOutText;
+
+                      final periodText =
+                          workingPeriod
+                              .periodText;
 
                       return SafeArea(
                         child: Column(
                           children: [
-                            /// 🔝 TOP section (scroll)
                             Expanded(
                               flex: 7,
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(kMarginLarge),
+                              child:
+                              SingleChildScrollView(
+                                padding:
+                                const EdgeInsets
+                                    .all(
+                                  kMarginLarge,
+                                ),
                                 child: Center(
                                   child: Column(
                                     children: [
                                       20.vGap,
-                                      Text(
+
+                                      const Text(
                                         'Check In / Check Out',
-                                        style: TextStyle(
-                                          color: kSecondaryOlive,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      20.vGap,
-
-                                      /// Work From Home button
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: CommonButton(
-                                          containerVPadding: 10,
-                                          text: 'Work From Home',
-                                          buttonTextColor: kSecondaryOlive,
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedLocation =
-                                                  WorkLocation.workFromHome;
-                                            });
-                                          },
-                                          bgColor: _selectedLocation ==
-                                              WorkLocation.workFromHome
-                                              ? kPrimaryColor
-                                              : kWhiteColor,
-                                          borderColor: kPrimaryColor,
+                                        style:
+                                        TextStyle(
+                                          color:
+                                          kSecondaryOlive,
+                                          fontSize:
+                                          28,
+                                          fontWeight:
+                                          FontWeight
+                                              .bold,
                                         ),
                                       ),
 
                                       20.vGap,
 
-                                      /// Office button
                                       SizedBox(
-                                        width: double.infinity,
-                                        child: CommonButton(
-                                          containerVPadding: 10,
-                                          text: 'Office',
-                                          buttonTextColor: kSecondaryOlive,
+                                        width: double
+                                            .infinity,
+                                        child:
+                                        CommonButton(
+                                          containerVPadding:
+                                          10,
+                                          text:
+                                          'Work From Home',
+                                          buttonTextColor:
+                                          disableWorkFromHome
+                                              ? kGreyColor
+                                              : kSecondaryOlive,
                                           onTap: () {
-                                            setState(() {
-                                              _selectedLocation =
-                                                  WorkLocation.office;
-                                            });
+                                            if (disableWorkFromHome) {
+                                              return;
+                                            }
+
+                                            setState(
+                                                  () {
+                                                _selectedLocation =
+                                                    WorkLocation.workFromHome;
+                                              },
+                                            );
                                           },
-                                          bgColor: _selectedLocation ==
-                                              WorkLocation.office
+                                          bgColor:
+                                          isWorkFromHomeSelected
                                               ? kPrimaryColor
+                                              : disableWorkFromHome
+                                              ? kGreyColor.withOpacity(
+                                            0.15,
+                                          )
                                               : kWhiteColor,
-                                          borderColor: kPrimaryColor,
+                                          borderColor:
+                                          disableWorkFromHome
+                                              ? kGreyColor
+                                              : kPrimaryColor,
                                         ),
                                       ),
+
+                                      20.vGap,
+
+                                      SizedBox(
+                                        width: double
+                                            .infinity,
+                                        child:
+                                        CommonButton(
+                                          containerVPadding:
+                                          10,
+                                          text:
+                                          'Office',
+                                          buttonTextColor:
+                                          disableOffice
+                                              ? kGreyColor
+                                              : kSecondaryOlive,
+                                          onTap: () {
+                                            if (disableOffice) {
+                                              return;
+                                            }
+
+                                            setState(
+                                                  () {
+                                                _selectedLocation =
+                                                    WorkLocation.office;
+                                              },
+                                            );
+                                          },
+                                          bgColor:
+                                          isOfficeSelected
+                                              ? kPrimaryColor
+                                              : disableOffice
+                                              ? kGreyColor.withOpacity(
+                                            0.15,
+                                          )
+                                              : kWhiteColor,
+                                          borderColor:
+                                          disableOffice
+                                              ? kGreyColor
+                                              : kPrimaryColor,
+                                        ),
+                                      ),
+
+                                      if (isLocationLocked) ...[
+                                        12.vGap,
+                                        Text(
+                                          savedWorkLocation ==
+                                              WorkLocation
+                                                  .office
+                                              ? 'Today\'s work location: Office'
+                                              : 'Today\'s work location: Work From Home',
+                                          textAlign:
+                                          TextAlign
+                                              .center,
+                                          style:
+                                          const TextStyle(
+                                            color:
+                                            kSecondaryOlive,
+                                            fontSize:
+                                            14,
+                                            fontWeight:
+                                            FontWeight
+                                                .w600,
+                                          ),
+                                        ),
+                                      ],
 
                                       40.vGap,
 
                                       Text(
-                                        currentTime.greeting,
-                                        style: const TextStyle(
-                                          fontSize: 35,
-                                          fontWeight: FontWeight.w600,
-                                          color: kSecondaryOlive,
+                                        currentTime
+                                            .greeting,
+                                        style:
+                                        const TextStyle(
+                                          fontSize:
+                                          35,
+                                          fontWeight:
+                                          FontWeight
+                                              .w600,
+                                          color:
+                                          kSecondaryOlive,
                                         ),
                                       ),
 
                                       10.vGap,
 
                                       Text(
-                                        DateTime.now().formattedFullDate,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.normal,
-                                          color: kSecondaryOlive,
+                                        currentTime
+                                            .formattedFullDate,
+                                        style:
+                                        const TextStyle(
+                                          fontSize:
+                                          18,
+                                          fontWeight:
+                                          FontWeight
+                                              .normal,
+                                          color:
+                                          kSecondaryOlive,
                                         ),
                                       ),
 
                                       40.vGap,
 
-                                      /// check in / check out buttons
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                        MainAxisAlignment
+                                            .center,
                                         children: [
-                                          /// CHECK-IN BUTTON
                                           if (!hasCheckedIn)
                                             CircleActionButton(
-                                              onTap: () async {
-
-                                                if (_selectedLocation == null) {
-                                                  context.showErrorSnackBar(
+                                              onTap:
+                                                  () async {
+                                                if (_selectedLocation ==
+                                                    null) {
+                                                  context
+                                                      .showErrorSnackBar(
                                                     'Please select a check-in type: Office or Work From Home.',
                                                   );
+
                                                   return;
                                                 }
 
-                                                ///work from home check in
                                                 if (_selectedLocation ==
-                                                    WorkLocation.workFromHome) {
-                                                  final addressId = await showWfhLocationDialog(
+                                                    WorkLocation
+                                                        .workFromHome) {
+                                                  final addressId =
+                                                  await showWfhLocationDialog(
                                                     context,
-                                                    addresses: addresses,
+                                                    addresses:
+                                                    addresses,
                                                   );
 
-                                                  if (addressId == null) return;
-                                                  if (checkInState.isLoading) return;
-                                                  final int? finalAddressId = (addressId == -1) ? null : addressId;
-
-                                                  final isSuccess = await ref
-                                                      .read(checkInControllerProvider.notifier)
-                                                      .checkIn(
-                                                    type:finalAddressId == null ? kTypeWorkFromSomewhere : kTypeWfh,
-                                                    addressId: finalAddressId,
-                                                  );
-
-                                                  if (isSuccess) {
-                                                    ref.invalidate(fetchAttendanceDataProvider);
+                                                  if (addressId ==
+                                                      null) {
+                                                    return;
                                                   }
 
+                                                  if (checkInState
+                                                      .isLoading) {
+                                                    return;
+                                                  }
 
+                                                  final int?
+                                                  finalAddressId =
+                                                  addressId ==
+                                                      -1
+                                                      ? null
+                                                      : addressId;
+
+                                                  final success =
+                                                  await ref
+                                                      .read(
+                                                    checkInControllerProvider.notifier,
+                                                  )
+                                                      .checkIn(
+                                                    type: finalAddressId ==
+                                                        null
+                                                        ? kTypeWorkFromSomewhere
+                                                        : kTypeWfh,
+                                                    addressId:
+                                                    finalAddressId,
+                                                    currentTimezone:
+                                                    currentTimezone,
+                                                  );
+
+                                                  if (!mounted) {
+                                                    return;
+                                                  }
+
+                                                  if (success) {
+                                                    await _refreshAttendance();
+                                                  }
                                                 } else {
-                                                  ///office check in
-                                                  _handleOfficeCheckIn(
+                                                  await _handleOfficeCheckIn(
                                                     context,
                                                     double.tryParse(
-                                                      configData.data?.businessUnit
+                                                      configData
+                                                          .data
+                                                          ?.businessUnit
                                                           ?.lat ??
                                                           '',
                                                     ),
                                                     double.tryParse(
-                                                      configData.data?.businessUnit
+                                                      configData
+                                                          .data
+                                                          ?.businessUnit
                                                           ?.long ??
                                                           '',
                                                     ),
-                                                    configData.data?.allowDistance,
+                                                    configData
+                                                        .data
+                                                        ?.allowDistance,
                                                   );
                                                 }
                                               },
-                                              label: currentTime.time12h,
-                                              icon: Icons.login,
+                                              label:
+                                              currentTime
+                                                  .time12h,
+                                              icon:
+                                              Icons
+                                                  .login,
                                               backgroundColor:
                                               kEmeraldGreenColor,
                                             ),
 
-                                          /// CHECK-OUT BUTTON
-                                          if (hasCheckedIn || hasCheckedOut)
+                                          if (hasCheckedIn)
                                             CircleActionButton(
-                                              onTap: () async {
-                                                if (hasCheckedOut == true) return;
+                                              onTap:
+                                                  () async {
+                                                if (hasCheckedOut ||
+                                                    _isSubmittingCheckOut ||
+                                                    checkOutState
+                                                        .isLoading) {
+                                                  return;
+                                                }
 
-                                                if (_selectedLocation == null) {
-                                                  context.showErrorSnackBar(
-                                                    'Please select a check-out type: Office or Work From Home.',
+                                                if (effectiveLocation ==
+                                                    null) {
+                                                  context
+                                                      .showErrorSnackBar(
+                                                    'Unable to identify today\'s work location.',
                                                   );
+
                                                   return;
                                                 }
 
                                                 await showClockOutConfirmBottomSheet(
                                                   context,
-                                                  clockInText: clockInText,
-                                                  clockOutText: clockOutText,
-                                                  periodText: periodText,
-                                                  onConfirm: () async {
-                                                    if (_selectedLocation ==
+                                                  clockInText:
+                                                  clockInText,
+                                                  clockOutText:
+                                                  clockOutText,
+                                                  periodText:
+                                                  periodText,
+                                                  onConfirm:
+                                                      () async {
+                                                    if (effectiveLocation ==
                                                         WorkLocation
                                                             .workFromHome) {
-                                                      if (!checkOutState
-                                                          .isLoading) {
-                                                        final isSuccess = await ref
-                                                            .read(
-                                                          checkOutControllerProvider
-                                                              .notifier,
-                                                        )
-                                                            .checkOut();
-
-                                                        if (isSuccess) {
-                                                          await showClockOutSuccessDialog(
-                                                              context);
-                                                          ref.invalidate(
-                                                            fetchAttendanceDataProvider,
-                                                          );
-                                                        }
-                                                      }
+                                                      await _performCheckOut();
                                                     } else {
-                                                      _handleOfficeCheckOut(
+                                                      await _handleOfficeCheckOut(
                                                         context,
                                                         double.tryParse(
-                                                          configData.data
+                                                          configData
+                                                              .data
                                                               ?.businessUnit
                                                               ?.lat ??
                                                               '',
                                                         ),
                                                         double.tryParse(
-                                                          configData.data
+                                                          configData
+                                                              .data
                                                               ?.businessUnit
                                                               ?.long ??
                                                               '',
                                                         ),
-                                                        configData.data
+                                                        configData
+                                                            .data
                                                             ?.allowLogoutDistance,
                                                       );
                                                     }
                                                   },
                                                 );
                                               },
-                                              label: currentTime.time12h,
-                                              icon: Icons.logout,
-                                              backgroundColor: hasCheckedOut
+                                              label:
+                                              currentTime
+                                                  .time12h,
+                                              icon:
+                                              Icons
+                                                  .logout,
+                                              backgroundColor:
+                                              hasCheckedOut
                                                   ? kGreyColor
                                                   : kSecondaryColor,
                                             ),
@@ -379,27 +829,49 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                               ),
                             ),
 
-                            /// 🔽 BOTTOM tracking section (cream background)
                             Expanded(
                               flex: 3,
                               child: Visibility(
-                                visible: todayDatum.date != null,
+                                visible:
+                                todayDatum.date !=
+                                    null,
                                 child: Container(
-                                  width: double.infinity,
-                                  decoration: const BoxDecoration(
-                                    color: kSoftYellow,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(22),
-                                      topRight: Radius.circular(22),
+                                  width: double
+                                      .infinity,
+                                  decoration:
+                                  const BoxDecoration(
+                                    color:
+                                    kSoftYellow,
+                                    borderRadius:
+                                    BorderRadius
+                                        .only(
+                                      topLeft:
+                                      Radius.circular(
+                                        22,
+                                      ),
+                                      topRight:
+                                      Radius.circular(
+                                        22,
+                                      ),
                                     ),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: (todayDatum.date == null)
-                                        ? const SizedBox.shrink()
+                                    padding:
+                                    const EdgeInsets
+                                        .all(
+                                      16,
+                                    ),
+                                    child:
+                                    todayDatum.date ==
+                                        null
+                                        ? const SizedBox
+                                        .shrink()
                                         : TimeTrackingTable(
-                                      isFromHomePage: true,
-                                      records: [todayDatum],
+                                      isFromHomePage:
+                                      true,
+                                      records: [
+                                        todayDatum,
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -411,36 +883,68 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
                     },
                   );
                 },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(color: kPrimaryColor),
+                loading: () =>
+                const Center(
+                  child:
+                  CircularProgressIndicator(
+                    color: kPrimaryColor,
+                  ),
                 ),
-                error: (error, stackTrace) => ErrorRetryView(
-                  title: 'Error loading attendance',
-                  message: error.toString(),
-                  onRetry: () => ref.invalidate(fetchAttendanceDataProvider),
-                ),
+                error: (
+                    error,
+                    stackTrace,
+                    ) =>
+                    ErrorRetryView(
+                      title:
+                      'Error loading attendance',
+                      message:
+                      error.toString(),
+                      onRetry: () {
+                        ref.invalidate(
+                          fetchAttendanceDataProvider,
+                        );
+                      },
+                    ),
               );
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(color: kPrimaryColor),
+            loading: () =>
+            const Center(
+              child:
+              CircularProgressIndicator(
+                color: kPrimaryColor,
+              ),
             ),
-            error: (error, stackTrace) => ErrorRetryView(
-              title: 'Error loading config',
-              message: error.toString(),
-              onRetry: () => ref.invalidate(fetchConfigDataProvider),
-            ),
+            error: (
+                error,
+                stackTrace,
+                ) =>
+                ErrorRetryView(
+                  title:
+                  'Error loading config',
+                  message:
+                  error.toString(),
+                  onRetry: () {
+                    ref.invalidate(
+                      fetchConfigDataProvider,
+                    );
+                  },
+                ),
           ),
 
-          /// Overlay loading indicator when any loading is active
           if (_isShowLoadingView ||
               checkInState.isLoading ||
-              checkOutState.isLoading)
-            Container(
-              color: Colors.black38,
-              child: const Center(
-                child: LoadingView(
-                  indicatorColor: Colors.white,
-                  indicator: Indicator.ballRotate,
+              checkOutState.isLoading ||
+              _isSubmittingCheckOut)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black38,
+                child: const Center(
+                  child: LoadingView(
+                    indicatorColor:
+                    Colors.white,
+                    indicator:
+                    Indicator.ballRotate,
+                  ),
                 ),
               ),
             ),
@@ -449,202 +953,292 @@ class _HomePageState extends ConsumerState<EmployeeHomePage> {
     );
   }
 
-
-
-  ///handle office check in
-  Future<void> _handleOfficeCheckIn(BuildContext context,
+  Future<void> _handleOfficeCheckIn(
+      BuildContext context,
       double? lat,
       double? long,
-      int? allowDistanceRadius,) async {
+      int? allowDistanceRadius,
+      ) async {
+    if (_isShowLoadingView) {
+      return;
+    }
+
     setState(() {
       _isShowLoadingView = true;
     });
 
-    final isAllowRemoteLoginStatus = GetStorage().read(
-        SecureDataList.isRemoteLogin.name) as String?;
+    final remoteLoginValue =
+    GetStorage().read(
+      SecureDataList.isRemoteLogin.name,
+    );
 
-    debugPrint("RemoteLoginStatus===>$isAllowRemoteLoginStatus");
+    final isRemoteAllowed =
+        remoteLoginValue?.toString() == '1';
+
+    debugPrint(
+      'RemoteLoginStatus ===> $isRemoteAllowed',
+    );
 
     try {
-      final bool isRemoteAllowed =
-          isAllowRemoteLoginStatus.toString() == '1';
-
       if (isRemoteAllowed) {
-        final ok = await ref
-            .read(checkInControllerProvider.notifier)
-            .checkIn(type: kTypeOffice);
-        if (ok) ref.invalidate(fetchAttendanceDataProvider);
+        final success = await ref
+            .read(
+          checkInControllerProvider
+              .notifier,
+        )
+            .checkIn(
+          type: kTypeOffice,
+          currentTimezone:
+          currentTimezone,
+        );
+
+        if (success) {
+          await _refreshAttendance();
+        }
+
         return;
       }
 
-      /// Check location services
-      if (!await LocationService.isLocationServiceEnabled()) {
+      final serviceEnabled =
+      await LocationService
+          .isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        if (!mounted) {
+          return;
+        }
+
         context.showErrorDialog(
           'Please enable location services',
           'Check-In Failed',
         );
+
         return;
       }
 
-      /// Check permissions
-      var permission = await LocationService.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await LocationService.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
+      var permission =
+      await LocationService
+          .checkPermission();
+
+      if (permission ==
+          LocationPermission.denied) {
+        permission =
+        await LocationService
+            .requestPermission();
+
+        final permissionGranted =
+            permission ==
+                LocationPermission
+                    .whileInUse ||
+                permission ==
+                    LocationPermission
+                        .always;
+
+        if (!permissionGranted) {
+          if (!mounted) {
+            return;
+          }
+
           context.showErrorDialog(
             'Location permission required',
             'Check-In Failed',
           );
+
           return;
         }
       }
 
-      /// Check if within office radius
-      final isWithinRadius = await LocationService.isWithinOfficeRadius(
+      final isWithinRadius =
+      await LocationService
+          .isWithinOfficeRadius(
         lat,
         long,
         allowDistanceRadius?.toDouble(),
       );
+
       if (!isWithinRadius) {
+        if (!mounted) {
+          return;
+        }
 
         context.showErrorDialog(
-          'You must be within 10km of the office to\ncheck in',
+          'You must be within the allowed office distance to check in.',
           'Check-In Failed',
         );
+
         return;
       }
 
-      /// Proceed with office check-in
-      final bool isSuccess = await ref
-          .read(checkInControllerProvider.notifier)
-          .checkIn(type: kTypeOffice);
+      final success = await ref
+          .read(
+        checkInControllerProvider
+            .notifier,
+      )
+          .checkIn(
+        type: kTypeOffice,
+        currentTimezone:
+        currentTimezone,
+      );
 
-      if (isSuccess) {
-        ref.invalidate(fetchAttendanceDataProvider);
+      if (success) {
+        await _refreshAttendance();
       }
-    } catch (e) {
-      context.showErrorDialog('Something went wrong', 'Check-In Failed');
+    } catch (error) {
+      debugPrint(
+        'Office check-in error: $error',
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      context.showErrorDialog(
+        'Something went wrong',
+        'Check-In Failed',
+      );
     } finally {
-      setState(() {
-        _isShowLoadingView = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isShowLoadingView = false;
+        });
+      }
     }
   }
 
-  /// Handle office check-out
-  Future<void> _handleOfficeCheckOut(BuildContext context,
+  Future<void> _handleOfficeCheckOut(
+      BuildContext context,
       double? lat,
       double? long,
-      int? allowDistanceRadius,) async {
-    if (_isShowLoadingView) return;
+      int? allowDistanceRadius,
+      ) async {
+    if (_isShowLoadingView ||
+        _isSubmittingCheckOut) {
+      return;
+    }
 
-    setState(() => _isShowLoadingView = true);
+    setState(() {
+      _isShowLoadingView = true;
+    });
+
     try {
-      if (!mounted) return;
+      final raw = GetStorage().read(
+        SecureDataList.isRemoteLogin.name,
+      );
 
-      final raw = GetStorage().read(SecureDataList.isRemoteLogin.name);
-      final isRemoteAllowed = (raw?.toString() ?? '0') == '1';
+      final isRemoteAllowed =
+          (raw?.toString() ?? '0') == '1';
 
-      /// ---- Remote-allowed path (no location check) ----
       if (isRemoteAllowed) {
-        final ok = await ref
-            .read(checkOutControllerProvider.notifier)
-            .checkOut().then((val){
-          if(val == true){
-            ref.invalidate(fetchAttendanceDataProvider);
-            showClockOutSuccessDialog(context);
-          }
-          else{
-            context.showErrorDialog('Something went wrong', 'Check-Out Failed');
-          }
-        });
-        if (!mounted) return;
+        await _performCheckOut();
+
         return;
       }
 
-      /// ---- Local-only path: require location services & permission ----
-      final serviceEnabled = await LocationService.isLocationServiceEnabled();
+      final serviceEnabled =
+      await LocationService
+          .isLocationServiceEnabled();
+
       if (!serviceEnabled) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
+
         context.showErrorDialog(
           'Please enable location services',
           'Check-Out Failed',
         );
+
         return;
       }
 
-      var permission = await LocationService.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await LocationService.requestPermission();
-        final granted = permission == LocationPermission.whileInUse ||
-            permission == LocationPermission.always;
+      var permission =
+      await LocationService
+          .checkPermission();
+
+      if (permission ==
+          LocationPermission.denied) {
+        permission =
+        await LocationService
+            .requestPermission();
+
+        final granted =
+            permission ==
+                LocationPermission
+                    .whileInUse ||
+                permission ==
+                    LocationPermission
+                        .always;
+
         if (!granted) {
-          if (!mounted) return;
+          if (!mounted) {
+            return;
+          }
+
           context.showErrorDialog(
             'Location permission required',
             'Check-Out Failed',
           );
+
           return;
         }
       }
 
-      /// ---- Radius gate ----
-      final isWithinRadius = await LocationService.isWithinOfficeRadius(
+      final isWithinRadius =
+      await LocationService
+          .isWithinOfficeRadius(
         lat,
         long,
         allowDistanceRadius?.toDouble(),
       );
 
-      debugPrint("IsWithinRadius>>>>$isWithinRadius");
+      debugPrint(
+        'IsWithinRadius >>>> $isWithinRadius',
+      );
 
       if (!isWithinRadius) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
+
         await showClockOutNotAllowedDialog(
           context,
           onUnderstand: () {
             showClockOutRestrictedBottomSheet(
               context,
-              onSubmit: (clockOutReason) async {
-                final ok = await ref
-                    .read(checkOutControllerProvider.notifier)
-                    .checkOut(reason: clockOutReason).then((val){
-                  if(val == true){
-                    ref.invalidate(fetchAttendanceDataProvider);
-                    showClockOutSuccessDialog(context);
-                  }
-                  else{
-                    context.showErrorDialog('Something went wrong', 'Check-Out Failed');
-                  }
-                });
-
-                if (!mounted) return;
+              onSubmit:
+                  (clockOutReason) async {
+                await _performCheckOut(
+                  reason:
+                  clockOutReason,
+                );
               },
             );
           },
         );
+
         return;
       }
 
-      /// ---- Normal in-radius checkout ----
-      final ok = await ref.read(checkOutControllerProvider.notifier).checkOut()
-      .then((val){
-        if(val == true){
-          ref.invalidate(fetchAttendanceDataProvider);
-          showClockOutSuccessDialog(context);
-        }
-        else{
-          context.showErrorDialog('Something went wrong', 'Check-Out Failed');
-        }
-      });
-      if (!mounted) return;
-    } catch (e) {
-      if (!mounted) return;
+      await _performCheckOut();
+    } catch (error) {
+      debugPrint(
+        'Office check-out error: $error',
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      context.showErrorDialog(
+        'Something went wrong',
+        'Check-Out Failed',
+      );
     } finally {
       if (mounted) {
-        setState(() => _isShowLoadingView = false);
+        setState(() {
+          _isShowLoadingView = false;
+        });
       }
     }
   }
 }
-

@@ -10,13 +10,14 @@ class CheckInController extends _$CheckInController {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> checkIn({required type,int? addressId}) async {
+  Future<bool> checkIn({required type,int? addressId,String? currentTimezone}) async {
     final homeRepository = ref.read(homeRepositoryProvider);
     state = const AsyncValue.loading();
     final result = await AsyncValue.guard(() =>
         homeRepository.checkIn(
           type: type,
-          addressId: addressId
+          addressId: addressId,
+            currentTimezone : currentTimezone
         ));
         if (mounted)
     {

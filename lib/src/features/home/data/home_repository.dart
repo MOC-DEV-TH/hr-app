@@ -58,11 +58,13 @@ class HomeRepository {
   Future<void> checkIn({
     required String type,
     int? addressId,
+    String? currentTimezone
   }) async {
     try {
       final data = <String, dynamic>{
         "type": type,
         if (addressId != null) "address_id": addressId,
+        "time_zone" : currentTimezone
       };
 
       final response = await _dioV2.post(
@@ -77,26 +79,132 @@ class HomeRepository {
     }
   }
 
-  Future<bool> checkOut({String? reason}) async {
+  Future<bool> checkOut({
+    String? reason,
+  }) async {
     try {
-      final res = await _dioV2.post(kEndPointCheckOut, data: {
-        if (reason != null && reason.trim().isNotEmpty) 'log_out_reason': reason.trim(),
-      });
+      final response = await _dioV2.post(
+        kEndPointCheckOut,
+        data: {
+          if (reason != null &&
+              reason.trim().isNotEmpty)
+            'log_out_reason': reason.trim(),
+        },
+      );
 
-      final ok = res.statusCode != null && res.statusCode! >= 200 && res.statusCode! < 300;
-      if (!ok) {
-        final msg = (res.data is Map && res.data['message'] is String)
-            ? res.data['message'] as String
-            : 'Checkout failed (${res.statusCode}).';
-        throw msg;
+      debugPrint(
+        'Checkout response: ${response.data}',
+      );
+
+      final httpSuccess =
+          response.statusCode != null &&
+              response.statusCode! >= 200 &&
+              response.statusCode! < 300;
+
+      if (!httpSuccess) {
+        throw Exception(
+          'Checkout failed (${response.statusCode}).',
+        );
       }
-      debugPrint("Checkout response::${res.data}");
+
+      final rawData = response.data;
+
+      if (rawData is! Map) {
+        throw Exception(
+          'Invalid checkout response.',
+        );
+      }
+
+      final data = Map<String, dynamic>.from(
+        rawData,
+      );
+
+      final statusCode = int.tryParse(
+        data['status_code']?.toString() ?? '',
+      );
+
+      final responseCode = data['response_code']
+          ?.toString()
+          .trim();
+
+      final status = data['status']
+          ?.toString()
+          .trim()
+          .toLowerCase();
+
+      final message = data['message']
+          ?.toString()
+          .trim();
+
+      final normalizedMessage =
+      message?.toLowerCase();
+
+      final resultData = data['data'];
+
+      String? checkoutTime;
+
+      if (resultData is Map) {
+        checkoutTime = resultData['check_out']
+            ?.toString()
+            .trim();
+      }
+
+      final hasCheckoutTime =
+          checkoutTime != null &&
+              checkoutTime.isNotEmpty &&
+              checkoutTime.toLowerCase() != 'null';
+
+      final isSuccess =
+          statusCode == 200 ||
+              responseCode == '000' ||
+              status == 'success' ||
+              status == 'true' ||
+              normalizedMessage == 'success';
+
+      if (!isSuccess) {
+        throw Exception(
+          message?.isNotEmpty == true
+              ? message!
+              : 'Checkout failed.',
+        );
+      }
+
+      if (!hasCheckoutTime) {
+        throw Exception(
+          'Checkout completed, but checkout time was not returned.',
+        );
+      }
+
+      debugPrint(
+        'Checkout successful at: $checkoutTime',
+      );
+
       return true;
-    } on DioException catch (e) {
-      final msg = e.response?.data is Map && e.response?.data['message'] is String
-          ? e.response?.data['message'] as String
-          : (e.message ?? 'Network error');
-      throw msg;
+    } on DioException catch (error) {
+      final errorData = error.response?.data;
+
+      String message =
+          error.message ?? 'Network error';
+
+      if (errorData is Map) {
+        final serverMessage =
+        errorData['message']?.toString().trim();
+
+        if (serverMessage != null &&
+            serverMessage.isNotEmpty) {
+          message = serverMessage;
+        }
+      }
+
+      throw Exception(message);
+    } catch (error) {
+      if (error is Exception) {
+        rethrow;
+      }
+
+      throw Exception(
+        error.toString(),
+      );
     }
   }
 
