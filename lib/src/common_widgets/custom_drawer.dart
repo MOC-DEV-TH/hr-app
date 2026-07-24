@@ -106,7 +106,7 @@ class CustomDrawer extends ConsumerWidget {
                     ),
 
                     Visibility(
-                      visible: true,
+                      visible: userData?.employeeType?.name != kLoginUserRoleProbation,
                       child: DrawerItem(
                         isActive: true,
                         iconName: kDrawerLeaveRequestImage,

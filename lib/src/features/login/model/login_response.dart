@@ -54,23 +54,33 @@ class UserData {
   };
 }
 
+
 class UserVO {
   int? id;
   String? name;
   String? email;
-  DateTime? emailVerifiedAt;
+  dynamic emailVerifiedAt;
   String? phone;
   int? positionId;
-  int? departmentId;
-  int? bussinessUnitId;
-  int? countryId;
+  dynamic departmentId;
+  int? role;
+  dynamic bussinessUnitId;
+  int? employeeTypeId;
+  int? allowRemoteLogin;
+  dynamic countryId;
   int? isDepartmentHead;
-  DateTime? twoFactorConfirmedAt;
-  int? currentTeamId;
-  String? profilePhotoPath;
+  bool? active;
+  int? allowWfhRequest;
+  String? checkInTimezone;
+  dynamic twoFactorConfirmedAt;
+  dynamic currentTeamId;
+  dynamic profilePhotoPath;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? allowWfhRequest;
+  List<OrgStructure>? orgStructure;
+  List<Address>? addresses;
+  Position? position;
+  EmployeeType? employeeType;
 
   UserVO({
     this.id,
@@ -80,64 +90,192 @@ class UserVO {
     this.phone,
     this.positionId,
     this.departmentId,
+    this.role,
     this.bussinessUnitId,
+    this.employeeTypeId,
+    this.allowRemoteLogin,
     this.countryId,
     this.isDepartmentHead,
+    this.active,
+    this.allowWfhRequest,
+    this.checkInTimezone,
     this.twoFactorConfirmedAt,
     this.currentTeamId,
     this.profilePhotoPath,
     this.createdAt,
     this.updatedAt,
-    this.allowWfhRequest
+    this.orgStructure,
+    this.addresses,
+    this.position,
+    this.employeeType,
   });
 
   factory UserVO.fromJson(Map<String, dynamic> json) => UserVO(
-    id: json["id"] as int?,
-    name: json["name"] as String?,
-    email: json["email"] as String?,
-    emailVerifiedAt:
-        json["email_verified_at"] != null
-            ? DateTime.tryParse(json["email_verified_at"] as String)
-            : null,
-    phone: json["phone"] as String?,
-    positionId: json["position_id"] as int?,
-    //departmentId: json["department_id"] as int?,
-    bussinessUnitId: json["bussiness_unit_id"] as int?,
-    countryId: json["country_id"] as int?,
-    isDepartmentHead: json["is_department_head"] as int?,
-    twoFactorConfirmedAt:
-        json["two_factor_confirmed_at"] != null
-            ? DateTime.tryParse(json["two_factor_confirmed_at"] as String)
-            : null,
-    currentTeamId: json["current_team_id"] as int?,
-    profilePhotoPath: json["profile_photo_path"] as String?,
-    createdAt:
-        json["created_at"] != null
-            ? DateTime.tryParse(json["created_at"] as String)
-            : null,
-    updatedAt:
-        json["updated_at"] != null
-            ? DateTime.tryParse(json["updated_at"] as String)
-            : null,
-    allowWfhRequest: json["allow_wfh_request"] as int?,
+    id: json["id"],
+    name: json["name"],
+    email: json["email"],
+    emailVerifiedAt: json["email_verified_at"],
+    phone: json["phone"],
+    positionId: json["position_id"],
+    departmentId: json["department_id"],
+    role: json["role"],
+    bussinessUnitId: json["bussiness_unit_id"],
+    employeeTypeId: json["employee_type_id"],
+    allowRemoteLogin: json["allow_remote_login"],
+    countryId: json["country_id"],
+    isDepartmentHead: json["is_department_head"],
+    active: json["active"],
+    allowWfhRequest: json["allow_wfh_request"],
+    checkInTimezone: json["check_in_timezone"],
+    twoFactorConfirmedAt: json["two_factor_confirmed_at"],
+    currentTeamId: json["current_team_id"],
+    profilePhotoPath: json["profile_photo_path"],
+    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
+    updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+    orgStructure: json["org_structure"] == null ? [] : List<OrgStructure>.from(json["org_structure"]!.map((x) => OrgStructure.fromJson(x))),
+    addresses: json["addresses"] == null ? [] : List<Address>.from(json["addresses"]!.map((x) => Address.fromJson(x))),
+    position: json["position"] == null ? null : Position.fromJson(json["position"]),
+    employeeType: json["employee_type"] == null ? null : EmployeeType.fromJson(json["employee_type"]),
   );
 
   Map<String, dynamic> toJson() => {
-    if (id != null) "id": id,
-    if (name != null) "name": name,
-    if (email != null) "email": email,
-    "email_verified_at": emailVerifiedAt?.toIso8601String(),
-    if (phone != null) "phone": phone,
-    if (positionId != null) "position_id": positionId,
-    //if (departmentId != null) "department_id": departmentId,
-    if (bussinessUnitId != null) "bussiness_unit_id": bussinessUnitId,
-    if (countryId != null) "country_id": countryId,
-    if (isDepartmentHead != null) "is_department_head": isDepartmentHead,
-    "two_factor_confirmed_at": twoFactorConfirmedAt?.toIso8601String(),
-    if (currentTeamId != null) "current_team_id": currentTeamId,
-    if (profilePhotoPath != null) "profile_photo_path": profilePhotoPath,
+    "id": id,
+    "name": name,
+    "email": email,
+    "email_verified_at": emailVerifiedAt,
+    "phone": phone,
+    "position_id": positionId,
+    "department_id": departmentId,
+    "role": role,
+    "bussiness_unit_id": bussinessUnitId,
+    "employee_type_id": employeeTypeId,
+    "allow_remote_login": allowRemoteLogin,
+    "country_id": countryId,
+    "is_department_head": isDepartmentHead,
+    "active": active,
+    "allow_wfh_request": allowWfhRequest,
+    "check_in_timezone": checkInTimezone,
+    "two_factor_confirmed_at": twoFactorConfirmedAt,
+    "current_team_id": currentTeamId,
+    "profile_photo_path": profilePhotoPath,
     "created_at": createdAt?.toIso8601String(),
     "updated_at": updatedAt?.toIso8601String(),
-    if (allowWfhRequest != null) "allow_wfh_request": allowWfhRequest,
+    "org_structure": orgStructure == null ? [] : List<dynamic>.from(orgStructure!.map((x) => x.toJson())),
+    "addresses": addresses == null ? [] : List<dynamic>.from(addresses!.map((x) => x.toJson())),
+    "position": position?.toJson(),
+    "employee_type": employeeType?.toJson(),
   };
 }
+
+class Address {
+  int? id;
+  int? userId;
+  String? addressName;
+  String? fullAddress;
+  String? lat;
+  String? long;
+
+  Address({
+    this.id,
+    this.userId,
+    this.addressName,
+    this.fullAddress,
+    this.lat,
+    this.long,
+  });
+
+  factory Address.fromJson(Map<String, dynamic> json) => Address(
+    id: json["id"],
+    userId: json["user_id"],
+    addressName: json["address_name"],
+    fullAddress: json["full_address"],
+    lat: json["lat"],
+    long: json["long"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "user_id": userId,
+    "address_name": addressName,
+    "full_address": fullAddress,
+    "lat": lat,
+    "long": long,
+  };
+}
+
+class EmployeeType {
+  int? id;
+  String? name;
+  List<dynamic>? leaveTypeIds;
+
+  EmployeeType({
+    this.id,
+    this.name,
+    this.leaveTypeIds,
+  });
+
+  factory EmployeeType.fromJson(Map<String, dynamic> json) => EmployeeType(
+    id: json["id"],
+    name: json["name"],
+    leaveTypeIds: json["leave_type_ids"] == null ? [] : List<dynamic>.from(json["leave_type_ids"]!.map((x) => x)),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "leave_type_ids": leaveTypeIds == null ? [] : List<dynamic>.from(leaveTypeIds!.map((x) => x)),
+  };
+}
+
+class OrgStructure {
+  int? id;
+  int? userId;
+  int? countryId;
+  int? bussinessUnitId;
+  List<int>? departmentId;
+
+  OrgStructure({
+    this.id,
+    this.userId,
+    this.countryId,
+    this.bussinessUnitId,
+    this.departmentId,
+  });
+
+  factory OrgStructure.fromJson(Map<String, dynamic> json) => OrgStructure(
+    id: json["id"],
+    userId: json["user_id"],
+    countryId: json["country_id"],
+    bussinessUnitId: json["bussiness_unit_id"],
+    departmentId: json["department_id"] == null ? [] : List<int>.from(json["department_id"]!.map((x) => x)),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "user_id": userId,
+    "country_id": countryId,
+    "bussiness_unit_id": bussinessUnitId,
+    "department_id": departmentId == null ? [] : List<dynamic>.from(departmentId!.map((x) => x)),
+  };
+}
+
+class Position {
+  int? id;
+  String? name;
+
+  Position({
+    this.id,
+    this.name,
+  });
+
+  factory Position.fromJson(Map<String, dynamic> json) => Position(
+    id: json["id"],
+    name: json["name"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+  };
+}
+

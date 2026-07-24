@@ -9,6 +9,7 @@ const kLoginUserRoleCeo = "ceo";
 const kLoginUserRoleDirector = "director";
 const kLoginUserRoleManager = "manager";
 const kLoginUserRoleEmployee = "employee";
+const kLoginUserRoleProbation = "Probation";
 
 const kLabelConfirmClockOut = "Confirm Clock-out";
 const kLabelConfirmClockOutTip = "Once you clock out, you won't be able to edit this time. "

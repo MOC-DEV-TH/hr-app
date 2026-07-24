@@ -9,6 +9,7 @@ const kBellImage = "assets/images/ic_bell.png";
 const kClockOutNotAllowInfoImage = "assets/images/clock_out_not_allow_info.png";
 const kClockOutRestrictImage = "assets/images/clock_out_restrict.png";
 const kClockOutSuccessfulImage = "assets/images/clock_out_successful.png";
+const kIncompleteCheckoutIcon = "assets/images/incomplete_checkout_icon.png";
 
 ///drawer icon
 const kDrawerHomeImage = "assets/images/drawer_home.png";

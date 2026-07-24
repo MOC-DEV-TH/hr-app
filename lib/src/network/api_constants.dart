@@ -23,6 +23,9 @@ const String kEndPointCreateLeave = "/create-leave";
 const String kEndPointGetConfig = "/get-config";
 const String kEndPointGetEmployees = "/employees";
 const String kEndPointGetEmployeeList = "/employee-list";
+const String kEndPointCheckAttendanceStatus = "/attendance-status";
+const String kEndPointUpdateYesterdayCheckout = "/update-check-out-time";
+
 
 
 ///Admin End points

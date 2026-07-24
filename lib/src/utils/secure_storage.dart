@@ -25,6 +25,7 @@ enum SecureDataList {
   employeeDropdown,
   businessUnits,
   employeeAddressList,
+  checkInDate,
 }
 
 class SecureStorage {
@@ -190,6 +191,25 @@ class SecureStorage {
     return _box.read(SecureDataList.authToken.name);
   }
 
+  /// Save check-in date
+  Future<void> saveCheckInDate(String checkInDate) async {
+    await _box.write(
+      SecureDataList.checkInDate.name,
+      checkInDate,
+    );
+  }
+
+  /// Get check-in date synchronously
+  String? getCheckInDate() {
+    final value = _box.read(SecureDataList.checkInDate.name);
+    return value?.toString();
+  }
+
+  /// Clear check-in date
+  Future<void> clearCheckInDate() async {
+    await _box.remove(SecureDataList.checkInDate.name);
+  }
+
   /// Convenience getters
   Future<List<IDNameVO>> getCountries() async {
     final d = await getEmployeeDropdown();
@@ -332,6 +352,12 @@ Future<List<BusinessUnitVO>> businessUnitsAllLocal(
 List<AddressVO> employeeAddressesLocal(EmployeeAddressesLocalRef ref) {
   final store = ref.watch(secureStorageProvider);
   return store.getEmployeeAddressesSync();
+}
+
+@riverpod
+String? getCheckInDate(GetCheckInDateRef ref) {
+  final storage = ref.watch(secureStorageProvider);
+  return storage.getCheckInDate();
 }
 
 

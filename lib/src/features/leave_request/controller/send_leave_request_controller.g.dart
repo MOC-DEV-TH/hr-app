@@ -7,7 +7,7 @@ part of 'send_leave_request_controller.dart';
 // **************************************************************************
 
 String _$sendLeaveRequestControllerHash() =>
-    r'cc162fa27e03602abed123369e04e14b0142fb5c';
+    r'6e36f7c0bfda67b82252c07f91047419e70301ff';
 
 /// See also [SendLeaveRequestController].
 @ProviderFor(SendLeaveRequestController)

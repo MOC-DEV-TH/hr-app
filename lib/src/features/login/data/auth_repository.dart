@@ -20,49 +20,131 @@ class AuthRepository {
   final Ref ref;
 
   ///login
-  Future<void> login({required email, required password}) async {
-    if (password.length < 1) {
+  /// Login
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
+    if (password.isEmpty) {
       throw EmptyPhoneNumberOrPasswordException();
     }
+
     try {
       final baseOptions = BaseOptions(
         baseUrl: kBaseUrl,
-        connectTimeout: const Duration(milliseconds: 5000),
-        receiveTimeout: const Duration(milliseconds: 5000),
+
+        // Time allowed to connect to the server
+        connectTimeout: const Duration(seconds: 30),
+
+        // Time allowed to receive the server response
+        receiveTimeout: const Duration(seconds: 30),
+
+        // Time allowed to send request data
+        sendTimeout: const Duration(seconds: 30),
+
         responseType: ResponseType.json,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
       );
 
       final dio = Dio(baseOptions);
+
       final response = await dio.post(
         kEndPointLogin,
-        options: Options(headers: {"Content-Type": "application/json"}),
-        data: {"email": email, "password": password},
+        data: {
+          'email': email,
+          'password': password,
+        },
       );
+
+      final responseData = response.data;
+
+      if (responseData is! Map ||
+          responseData['data'] is! Map) {
+        throw Exception(
+          'Invalid login response.',
+        );
+      }
+
+      final data = Map<String, dynamic>.from(
+        responseData['data'] as Map,
+      );
+
+      final accessToken =
+      data['access_token']?.toString();
+
+      final role = data['role']?.toString();
+
+      final rawUser = data['user'];
+
+      if (accessToken == null ||
+          accessToken.isEmpty ||
+          rawUser is! Map) {
+        throw Exception(
+          'Login information was not returned.',
+        );
+      }
+
+      final userData = Map<String, dynamic>.from(
+        rawUser,
+      );
+
       final tokenBox = GetStorage();
 
-      tokenBox.write(
+      await tokenBox.write(
         SecureDataList.authToken.name,
-        response.data["data"]['access_token'],
+        accessToken,
       );
 
-      await ref
-          .read(secureStorageProvider)
-          .saveLoginUserRole(response.data["data"]["role"]);
+      if (role != null && role.isNotEmpty) {
+        await ref
+            .read(secureStorageProvider)
+            .saveLoginUserRole(role);
+      }
 
-      tokenBox.write(
+      await tokenBox.write(
         SecureDataList.isRemoteLogin.name,
-        response.data["data"]["user"]["allow_remote_login"].toString(),
+        userData['allow_remote_login']
+            ?.toString(),
       );
 
       await ref
           .read(secureStorageProvider)
-          .saveUser(UserVO.fromJson(response.data["data"]["user"]));
-    } on DioException catch (e) {
-      throw e.response?.data["message"] ??
-          ErrorHandler.handle(e).failure.message;
-    } catch (e) {
-      throw e.toString();
+          .saveUser(
+        UserVO.fromJson(userData),
+      );
+    } on DioException catch (error) {
+      final errorData = error.response?.data;
+
+      if (errorData is Map) {
+        final serverMessage =
+        errorData['message']?.toString().trim();
+
+        if (serverMessage != null &&
+            serverMessage.isNotEmpty) {
+          throw serverMessage;
+        }
+      }
+
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+          throw 'Connection timed out after 30 seconds.';
+
+        case DioExceptionType.receiveTimeout:
+          throw 'The server did not respond within 30 seconds.';
+
+        case DioExceptionType.sendTimeout:
+          throw 'The request could not be sent within 30 seconds.';
+
+        default:
+          throw ErrorHandler.handle(error)
+              .failure
+              .message;
+      }
+    } catch (error) {
+      throw error.toString();
     }
   }
 }
