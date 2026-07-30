@@ -12,6 +12,8 @@ const String kImageBaseUrlHttp = "";
 const String kErrorImageUrl =
     "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
 
+
+
 ///End points
 const String kEndPointLogin = "/login";
 const String kEndPointCheckIn = "/check-in";
@@ -25,6 +27,9 @@ const String kEndPointGetEmployees = "/employees";
 const String kEndPointGetEmployeeList = "/employee-list";
 const String kEndPointCheckAttendanceStatus = "/attendance-status";
 const String kEndPointUpdateYesterdayCheckout = "/update-check-out-time";
+const String kEndPointLatestAttendanceStatus = "/latest-attendance-status";
+const String kEndPointGetEmployeeDashboard = "/employee-dashboard";
+
 
 
 

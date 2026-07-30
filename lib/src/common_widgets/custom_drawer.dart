@@ -82,11 +82,37 @@ class CustomDrawer extends ConsumerWidget {
                   children: [
                     DrawerItem(
                       iconName: kDrawerHomeImage,
-                      title: "Home",
+                      title: 'Home',
                       isActive: true,
                       onTap: () {
-                        Navigator.pop(context);
+                        final router = GoRouter.of(context);
+
+                        Navigator.of(context).pop();
+
+                        final isManagementUser =
+                            loginUserRole == kLoginUserRoleCeo ||
+                                loginUserRole == kLoginUserRoleDirector ||
+                                loginUserRole == kLoginUserRoleManager;
+
+                        if (!isManagementUser) {
+                          router.go(
+                            RoutePath.employeeHome.path,
+                          );
+                        }
                       },
+                    ),
+                    Visibility(
+                      visible:
+                      loginUserRole == kLoginUserRoleEmployee,
+                      child: DrawerItem(
+                        iconName: kDrawerHomeImage,
+                        title: "Employee Dashboard",
+                        isActive: true,
+                        onTap: () {
+                          Navigator.pop(context);
+                          GoRouter.of(context).push(RoutePath.employeeDashboard.path);
+                        },
+                      ),
                     ),
 
                     Visibility(

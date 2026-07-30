@@ -16,6 +16,7 @@ class YesterdayCheckoutController
   Future<bool> updateYesterdayCheckout({
     required int userId,
     required String time,
+    required String date
   }) async {
     if (state.isLoading) {
       return false;
@@ -29,6 +30,7 @@ class YesterdayCheckoutController
           .updateYesterdayCheckout(
         userId: userId,
         time: time,
+        date: date
       );
 
       state = const AsyncData(null);

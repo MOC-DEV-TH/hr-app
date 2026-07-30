@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/home/model/attendance_response.dart';
 import 'package:hr_app/src/features/home/model/config_response.dart';
+import 'package:hr_app/src/features/home/model/employee_dashboard_response.dart';
 import 'package:hr_app/src/features/home/model/user_address_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
 import 'package:hr_app/src/utils/extensions.dart';
@@ -112,7 +113,7 @@ class HomeRepository {
       /// 2026-07-24 10:41:37 → 2026-07-24
       final checkInDate = checkInValue.split(RegExp(r'\s+')).first;
 
-      await _secureStorage.saveCheckInDate(checkInDate);
+      //await _secureStorage.saveCheckInDate(checkInDate);
 
       debugPrint('Saved check-in date: $checkInDate');
 
@@ -259,21 +260,14 @@ class HomeRepository {
     }
   }
 
-  /// Fetch attendance status
-  Future<AttendanceStatusResponse> fetchAttendanceStatus({
-    required int userId,
-  }) async {
+  /// Fetch latest attendance status
+  Future<AttendanceStatusResponse> fetchLatestAttendanceStatus() async {
     try {
-      final attendanceDate = _getPreviousAttendanceDate();
-
-      debugPrint('Attendance status date: $attendanceDate');
-
       final response = await _dioV2.get(
-        '$kEndPointCheckAttendanceStatus/'
-        '$userId/$attendanceDate',
+        kEndPointLatestAttendanceStatus,
       );
 
-      debugPrint('Attendance status response: ${response.data}');
+      debugPrint('Latest Attendance status response: ${response.data}');
 
       final rawData = response.data;
 
@@ -305,13 +299,12 @@ class HomeRepository {
   Future<bool> updateYesterdayCheckout({
     required int userId,
     required String time,
+    required String date
   }) async {
     try {
-      final attendanceDate = _getPreviousAttendanceDate();
-
       final requestData = <String, dynamic>{
         'user_id': userId,
-        'date': attendanceDate,
+        'date': date,
         'time': time,
       };
 
@@ -362,47 +355,49 @@ class HomeRepository {
     }
   }
 
-  ///get previous attendance date
-  bool _isWeekend(DateTime date) {
-    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
-  }
+  /// Fetch employee dashboard
+  Future<EmployeeDashboardResponse> fetchEmployeeDashboard({
+    required int year,
+    required int month,
+  }) async {
+    try {
+      final response = await dio.get(
+        kEndPointGetEmployeeDashboard,
+        queryParameters: {
+          'year': year,
+          'month': month,
+        },
+      );
 
-  DateTime _getPreviousWorkingDay(DateTime date) {
-    var previousDate = DateUtils.dateOnly(
-      date,
-    ).subtract(const Duration(days: 1));
+      final rawData = response.data;
 
-    while (_isWeekend(previousDate)) {
-      previousDate = previousDate.subtract(const Duration(days: 1));
-    }
+      if (rawData is! Map) {
+        throw Exception('Invalid response.');
+      }
 
-    return previousDate;
-  }
+      return EmployeeDashboardResponse.fromJson(
+        Map<String, dynamic>.from(rawData),
+      );
+    } on DioException catch (error) {
+      final errorData = error.response?.data;
 
-  String _getPreviousAttendanceDate() {
-    final today = DateUtils.dateOnly(DateTime.now());
+      String message =
+          ErrorHandler.handle(error).failure.message;
 
-    final fallbackDate = _getPreviousWorkingDay(today);
+      if (errorData is Map) {
+        final serverMessage =
+        errorData['message']?.toString().trim();
 
-    final savedValue = _secureStorage.getCheckInDate()?.trim();
-
-    if (savedValue != null && savedValue.isNotEmpty) {
-      final parsedDate = DateTime.tryParse(savedValue);
-
-      if (parsedDate != null) {
-        final savedDate = DateUtils.dateOnly(parsedDate);
-
-        final isValidPreviousWorkDate =
-            savedDate.isBefore(today) && !_isWeekend(savedDate);
-
-        if (isValidPreviousWorkDate) {
-          return DateFormat('yyyy-MM-dd').format(savedDate);
+        if (serverMessage != null &&
+            serverMessage.isNotEmpty) {
+          message = serverMessage;
         }
       }
-    }
 
-    return DateFormat('yyyy-MM-dd').format(fallbackDate);
+      throw Exception(message);
+    }
   }
+
 }
 
 @riverpod
@@ -422,4 +417,20 @@ Future<AttendanceResponse> fetchAttendanceData(
 Future<ConfigResponse> fetchConfigData(FetchConfigDataRef ref) async {
   final provider = ref.watch(homeRepositoryProvider);
   return provider.fetchConfig();
+}
+
+@riverpod
+Future<EmployeeDashboardResponse> fetchEmployeeDashboard(
+    FetchEmployeeDashboardRef ref, {
+      required int year,
+      required int month,
+    }) async {
+  final repository = ref.watch(
+    homeRepositoryProvider,
+  );
+
+  return repository.fetchEmployeeDashboard(
+    year: year,
+    month: month,
+  );
 }

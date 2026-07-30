@@ -23,9 +23,10 @@ import '../model/employee_profile_response.dart';
 import 'leave_summary_page.dart';
 
 class EmployeeDetailsPage extends ConsumerStatefulWidget {
-  const EmployeeDetailsPage({super.key, required this.userID});
+  const EmployeeDetailsPage({super.key, required this.userID,this.initialIndex = 0});
 
   final int? userID;
+  final int initialIndex;
 
   @override
   ConsumerState<EmployeeDetailsPage> createState() =>
@@ -36,14 +37,44 @@ class EmployeeDetailsPage extends ConsumerStatefulWidget {
 ///  PAGE
 /// ===============================================================
 
-class _EmployeeDetailsPageState extends ConsumerState<EmployeeDetailsPage>
+class _EmployeeDetailsPageState
+    extends ConsumerState<EmployeeDetailsPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabs;
+  late final TabController _tabs;
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 4, vsync: this, initialIndex: 0);
+
+    final safeInitialIndex =
+    widget.initialIndex >= 0 &&
+        widget.initialIndex < 4
+        ? widget.initialIndex
+        : 0;
+
+    _tabs = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: safeInitialIndex,
+    );
+  }
+
+  @override
+  void didUpdateWidget(
+      covariant EmployeeDetailsPage oldWidget,
+      ) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialIndex !=
+        widget.initialIndex) {
+      final safeIndex =
+      widget.initialIndex >= 0 &&
+          widget.initialIndex < 4
+          ? widget.initialIndex
+          : 0;
+
+      _tabs.animateTo(safeIndex);
+    }
   }
 
   @override
@@ -51,6 +82,7 @@ class _EmployeeDetailsPageState extends ConsumerState<EmployeeDetailsPage>
     _tabs.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {

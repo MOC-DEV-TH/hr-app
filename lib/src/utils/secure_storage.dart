@@ -262,6 +262,32 @@ class SecureStorage {
   void clearEmployeeAddresses() {
     _box.remove(SecureDataList.employeeAddressList.name);
   }
+
+  UserVO? getUserSync() {
+    final raw = _box.read(
+      SecureDataList.userData.name,
+    );
+
+    if (raw == null || raw is! Map) {
+      return null;
+    }
+
+    try {
+      return UserVO.fromJson(
+        Map<String, dynamic>.from(raw),
+      );
+    } catch (error) {
+      debugPrint(
+        'Error parsing saved user: $error',
+      );
+
+      return null;
+    }
+  }
+
+  int? getUserId() {
+    return getUserSync()?.id;
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -358,6 +384,15 @@ List<AddressVO> employeeAddressesLocal(EmployeeAddressesLocalRef ref) {
 String? getCheckInDate(GetCheckInDateRef ref) {
   final storage = ref.watch(secureStorageProvider);
   return storage.getCheckInDate();
+}
+
+@riverpod
+int? getUserId(GetUserIdRef ref) {
+  final storage = ref.watch(
+    secureStorageProvider,
+  );
+
+  return storage.getUserId();
 }
 
 

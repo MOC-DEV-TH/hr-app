@@ -308,5 +308,21 @@ final getCheckInDateProvider = AutoDisposeProvider<String?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetCheckInDateRef = AutoDisposeProviderRef<String?>;
+String _$getUserIdHash() => r'1919d4a4a663ec43cf4c1cfb757670d7427cafbc';
+
+/// See also [getUserId].
+@ProviderFor(getUserId)
+final getUserIdProvider = AutoDisposeProvider<int?>.internal(
+  getUserId,
+  name: r'getUserIdProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$getUserIdHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetUserIdRef = AutoDisposeProviderRef<int?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

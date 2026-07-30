@@ -7,7 +7,7 @@ part of 'yesterday_checkout_controller.dart';
 // **************************************************************************
 
 String _$yesterdayCheckoutControllerHash() =>
-    r'e8f6829fdd5a07f07f0f46d5e53fc327a25c4098';
+    r'fc0a74f6bdc5035bfacb8ab8214363714bbc4837';
 
 /// See also [YesterdayCheckoutController].
 @ProviderFor(YesterdayCheckoutController)
