@@ -707,7 +707,7 @@ class _LeaveTab extends ConsumerWidget {
                                     )
                                     .updateLeaveRequest(
                                       leaveId: id,
-                                      leaveStatus: kLeaveStatusReject,
+                                      leaveStatus: kLeaveStatusRejected,
                                     );
 
                                 ///is success

@@ -154,7 +154,7 @@ class _EmployeesLeavesPageState extends ConsumerState<EmployeesLeavesPage> {
                                     )
                                     .updateLeaveRequest(
                                       leaveId: id,
-                                      leaveStatus: kLeaveStatusReject,
+                                      leaveStatus: kLeaveStatusRejected,
                                     );
 
                                 if(isSuccess){

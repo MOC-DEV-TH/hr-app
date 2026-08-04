@@ -7,12 +7,9 @@ const String kV2BaseUrl = "https://staging.hrapp.mocinteractive.com/api/v2";
 
 const String kImageBaseUrlHttp = "";
 
-
 ///Error image string
 const String kErrorImageUrl =
     "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM=";
-
-
 
 ///End points
 const String kEndPointLogin = "/login";
@@ -30,9 +27,6 @@ const String kEndPointUpdateYesterdayCheckout = "/update-check-out-time";
 const String kEndPointLatestAttendanceStatus = "/latest-attendance-status";
 const String kEndPointGetEmployeeDashboard = "/employee-dashboard";
 
-
-
-
 ///Admin End points
 const String kEndPointGetAdminDashboard = "/dashboard";
 const String kEndPointGetBusinessUnits = "/business-units";
@@ -46,23 +40,15 @@ const String kEndPointUpdateEmployee = "/update-employees";
 const String kEndPointHolidayList = "/get-holiday-list";
 const String kEndPointAllBusinessUnitList = "/get-business-unit-list";
 const String kEndPointAnnouncementList = "/get-announcement-list";
-const String kEndPointGetDashboardAttendedOverview = "/get-dashboard-attendance-ov";
+const String kEndPointGetDashboardAttendedOverview =
+    "/get-dashboard-attendance-ov";
 const String kEndPointCreateWfhRequest = "/create-wfh";
 const String kEndPointWfhRequestList = "/wfh-list";
-const String kEndPointUpdateWfhRequest="/update-wfh";
-const String kEndPointTotalEmployee="/total-employee";
-const String kEndPointAnnouncementGotIt="/announcement/got";
+const String kEndPointUpdateWfhRequest = "/update-wfh";
+const String kEndPointTotalEmployee = "/total-employee";
+const String kEndPointAnnouncementGotIt = "/announcement/got";
 const String kEndPointAnnouncementDetails = "/get-announcement-details";
-const String kEndPointUserAddress="/get-addresses";
-
-
-
-
-
-
-
-
-
+const String kEndPointUserAddress = "/get-addresses";
 
 ///Parameters
 const String kParamApiKey = "api_key";
@@ -75,9 +61,9 @@ const String kLanguageENUS = "en-US";
 const String kTypeWfh = "work_from_home";
 const String kTypeWorkFromSomewhere = "work_from_somewhere";
 const String kTypeOffice = "office";
-const String kLeaveStatusReject ="reject";
-const String kLeaveStatusRejected ="rejected";
-const String kLeaveStatusApproved="approved";
+const String kLeaveStatusReject = "reject";
+const String kLeaveStatusRejected = "rejected";
+const String kLeaveStatusApproved = "approved";
 
 const Duration kApiDeadline = Duration(minutes: 1);
 const Duration kRetryDelay = Duration(seconds: 3);

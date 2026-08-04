@@ -34,17 +34,13 @@ import '../../../utils/secure_storage.dart';
 import '../controller/yesterday_checkout_controller.dart';
 import '../model/attendance_response.dart';
 import '../model/attendance_status_response.dart';
+import '../model/user_address_response.dart';
 import 'add_yesterday_checkout_page.dart';
 
-enum WorkLocation {
-  workFromHome,
-  office,
-}
+enum WorkLocation { workFromHome, office }
 
 class EmployeeHomePage extends ConsumerStatefulWidget {
-  const EmployeeHomePage({
-    super.key,
-  });
+  const EmployeeHomePage({super.key});
 
   @override
   ConsumerState<EmployeeHomePage> createState() {
@@ -53,8 +49,7 @@ class EmployeeHomePage extends ConsumerStatefulWidget {
 }
 
 class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
-  final GlobalKey<ScaffoldState> scaffoldKey =
-  GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   WorkLocation? _selectedLocation;
 
@@ -80,28 +75,19 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   /// Load initial page data.
   Future<void> _loadInitialData() async {
     try {
-      await ref
-          .read(homeRepositoryProvider)
-          .fetchEmployeeAddresses();
+      await ref.read(homeRepositoryProvider).fetchEmployeeAddresses();
 
-      currentTimezone =
-      await FlutterTimezoneExtension.getCurrentTimezone();
+      currentTimezone = await FlutterTimezoneExtension.getCurrentTimezone();
 
-      final user = await ref
-          .read(secureStorageProvider)
-          .getUser();
+      final user = await ref.read(secureStorageProvider).getUser();
 
       _currentUserId = user?.id;
 
       await _loadLatestAttendanceStatus();
 
-      debugPrint(
-        'TimeZone >>> $currentTimezone',
-      );
+      debugPrint('TimeZone >>> $currentTimezone');
 
-      debugPrint(
-        'Current user ID >>> $_currentUserId',
-      );
+      debugPrint('Current user ID >>> $_currentUserId');
 
       if (!mounted) {
         return;
@@ -109,9 +95,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
       setState(() {});
     } catch (error) {
-      debugPrint(
-        'Initial data error: $error',
-      );
+      debugPrint('Initial data error: $error');
     }
   }
 
@@ -134,48 +118,38 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
     });
 
     try {
-      final result = await ref
-          .read(homeRepositoryProvider)
-          .fetchLatestAttendanceStatus();
+      final result =
+          await ref.read(homeRepositoryProvider).fetchLatestAttendanceStatus();
 
       final statusData = result.data;
       final statusDate = statusData?.date;
 
       final isIncompletePreviousAttendance =
           statusData != null &&
-              statusDate != null &&
-              _isPreviousDate(statusDate) &&
-              statusData.isCheckedOut == false;
+          statusDate != null &&
+          _isPreviousDate(statusDate) &&
+          statusData.isCheckedOut == false;
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _attendanceStatus =
-        isIncompletePreviousAttendance
-            ? result
-            : null;
+        _attendanceStatus = isIncompletePreviousAttendance ? result : null;
       });
 
       if (statusDate != null) {
-        final formattedDate = DateFormat(
-          'yyyy-MM-dd',
-        ).format(statusDate);
+        final formattedDate = DateFormat('yyyy-MM-dd').format(statusDate);
 
-        debugPrint(
-          'Latest attendance date >>> $formattedDate',
-        );
+        debugPrint('Latest attendance date >>> $formattedDate');
 
         debugPrint(
           'Is incomplete previous attendance >>> '
-              '$isIncompletePreviousAttendance',
+          '$isIncompletePreviousAttendance',
         );
       }
     } catch (error) {
-      debugPrint(
-        'Attendance status error: $error',
-      );
+      debugPrint('Attendance status error: $error');
 
       if (!mounted) {
         return;
@@ -195,13 +169,9 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
   /// Check whether attendance date is before today.
   bool _isPreviousDate(DateTime date) {
-    final today = DateUtils.dateOnly(
-      DateTime.now(),
-    );
+    final today = DateUtils.dateOnly(DateTime.now());
 
-    final attendanceDate = DateUtils.dateOnly(
-      date,
-    );
+    final attendanceDate = DateUtils.dateOnly(date);
 
     return attendanceDate.isBefore(today);
   }
@@ -242,76 +212,48 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   }
 
   bool _hasValidCheckOut(dynamic checkOut) {
-    final value = checkOut
-        ?.toString()
-        .trim();
+    final value = checkOut?.toString().trim();
 
-    return value != null &&
-        value.isNotEmpty &&
-        value.toLowerCase() != 'null';
+    return value != null && value.isNotEmpty && value.toLowerCase() != 'null';
   }
 
-  String _normalizeWorkLocation(
-      String? value,
-      ) {
+  String _normalizeWorkLocation(String? value) {
     return value
-        ?.trim()
-        .toLowerCase()
-        .replaceAll('-', '_')
-        .replaceAll(' ', '_') ??
+            ?.trim()
+            .toLowerCase()
+            .replaceAll('-', '_')
+            .replaceAll(' ', '_') ??
         '';
   }
 
-  bool _isOfficeWorkLocation(
-      String? value,
-      ) {
-    final normalized =
-    _normalizeWorkLocation(value);
+  bool _isOfficeWorkLocation(String? value) {
+    final normalized = _normalizeWorkLocation(value);
 
     return normalized == 'office' ||
-        normalized ==
-            _normalizeWorkLocation(
-              kTypeOffice,
-            );
+        normalized == _normalizeWorkLocation(kTypeOffice);
   }
 
-  bool _isWorkFromHomeLocation(
-      String? value,
-      ) {
-    final normalized =
-    _normalizeWorkLocation(value);
+  bool _isWorkFromHomeLocation(String? value) {
+    final normalized = _normalizeWorkLocation(value);
 
     return normalized == 'wfh' ||
         normalized == 'work_from_home' ||
         normalized == 'workfromhome' ||
         normalized == 'work_from_somewhere' ||
         normalized == 'workfromsomewhere' ||
-        normalized ==
-            _normalizeWorkLocation(
-              kTypeWfh,
-            ) ||
-        normalized ==
-            _normalizeWorkLocation(
-              kTypeWorkFromSomewhere,
-            );
+        normalized == _normalizeWorkLocation(kTypeWfh) ||
+        normalized == _normalizeWorkLocation(kTypeWorkFromSomewhere);
   }
 
-  WorkLocation? _getSavedWorkLocation(
-      List<Attendance> attendances,
-      ) {
+  WorkLocation? _getSavedWorkLocation(List<Attendance> attendances) {
     for (final attendance in attendances.reversed) {
-      final workLocation =
-          attendance.workLocation;
+      final workLocation = attendance.workLocation;
 
-      if (_isOfficeWorkLocation(
-        workLocation,
-      )) {
+      if (_isOfficeWorkLocation(workLocation)) {
         return WorkLocation.office;
       }
 
-      if (_isWorkFromHomeLocation(
-        workLocation,
-      )) {
+      if (_isWorkFromHomeLocation(workLocation)) {
         return WorkLocation.workFromHome;
       }
     }
@@ -320,28 +262,18 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   }
 
   Future<void> _refreshAttendance() async {
-    ref.invalidate(
-      fetchAttendanceDataProvider,
-    );
+    ref.invalidate(fetchAttendanceDataProvider);
 
     try {
-      await ref.read(
-        fetchAttendanceDataProvider.future,
-      );
+      await ref.read(fetchAttendanceDataProvider.future);
 
-      debugPrint(
-        'Attendance refreshed successfully',
-      );
+      debugPrint('Attendance refreshed successfully');
     } catch (error) {
-      debugPrint(
-        'Attendance refresh error: $error',
-      );
+      debugPrint('Attendance refresh error: $error');
     }
   }
 
-  Future<bool> _submitCheckOut({
-    String? reason,
-  }) async {
+  Future<bool> _submitCheckOut({String? reason}) async {
     if (_isSubmittingCheckOut) {
       return false;
     }
@@ -356,16 +288,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
     try {
       final success = await ref
-          .read(
-        checkOutControllerProvider.notifier,
-      )
-          .checkOut(
-        reason: reason,
-      );
+          .read(checkOutControllerProvider.notifier)
+          .checkOut(reason: reason);
 
-      debugPrint(
-        'Check-out controller result: $success',
-      );
+      debugPrint('Check-out controller result: $success');
 
       if (!success) {
         return false;
@@ -375,9 +301,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
       return true;
     } catch (error) {
-      debugPrint(
-        'Check-out submit error: $error',
-      );
+      debugPrint('Check-out submit error: $error');
 
       return false;
     } finally {
@@ -391,17 +315,13 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
     }
   }
 
-  Future<void> _showCheckOutResult({
-    required bool success,
-  }) async {
+  Future<void> _showCheckOutResult({required bool success}) async {
     if (!mounted) {
       return;
     }
 
     if (success) {
-      await showClockOutSuccessDialog(
-        context,
-      );
+      await showClockOutSuccessDialog(context);
 
       return;
     }
@@ -412,110 +332,76 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
     );
   }
 
-  Future<void> _performCheckOut({
-    String? reason,
-  }) async {
+  Future<void> _performCheckOut({String? reason}) async {
     if (_isSubmittingCheckOut) {
       return;
     }
 
-    final success = await _submitCheckOut(
-      reason: reason,
-    );
+    final success = await _submitCheckOut(reason: reason);
 
     if (!mounted) {
       return;
     }
 
-    await _showCheckOutResult(
-      success: success,
-    );
+    await _showCheckOutResult(success: success);
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: kSecondaryColor,
-      ),
+      const SystemUiOverlayStyle(statusBarColor: kSecondaryColor),
     );
 
-    ref.listen<AsyncValue<void>>(
-      yesterdayCheckoutControllerProvider,
-          (_, state) {
-        state.showAlertDialogOnError(
-          context,
-        );
-      },
-    );
+    ref.listen<AsyncValue<void>>(yesterdayCheckoutControllerProvider, (
+      _,
+      state,
+    ) {
+      state.showAlertDialogOnError(context);
+    });
 
-    ref.listen<AsyncValue>(
-      checkInControllerProvider,
-          (_, state) {
-        state.showAlertDialogOnError(
-          context,
-        );
-      },
-    );
+    ref.listen<AsyncValue>(checkInControllerProvider, (_, state) {
+      state.showAlertDialogOnError(context);
+    });
 
-    final addresses = ref.watch(
-      employeeAddressesLocalProvider,
-    );
+    final addresses = ref.watch(employeeAddressesLocalProvider);
 
-    final configState = ref.watch(
-      fetchConfigDataProvider,
-    );
+    final configState = ref.watch(fetchConfigDataProvider);
 
-    final checkInState = ref.watch(
-      checkInControllerProvider,
-    );
+    final checkInState = ref.watch(checkInControllerProvider);
 
-    final checkOutState = ref.watch(
-      checkOutControllerProvider,
-    );
+    final checkOutState = ref.watch(checkOutControllerProvider);
 
-    final attendanceState = ref.watch(
-      fetchAttendanceDataProvider,
-    );
+    final attendanceState = ref.watch(fetchAttendanceDataProvider);
 
     final yesterdayCheckoutState = ref.watch(
       yesterdayCheckoutControllerProvider,
     );
 
-    final loginUserRole = ref
-        .watch(
-      getLoginUserRoleProvider,
-    )
-        .value;
+    final loginUserRole = ref.watch(getLoginUserRoleProvider).value;
 
     final isManagementUser =
-        loginUserRole ==
-            kLoginUserRoleCeo ||
-            loginUserRole ==
-                kLoginUserRoleDirector ||
-            loginUserRole ==
-                kLoginUserRoleManager;
+        loginUserRole == kLoginUserRoleCeo ||
+        loginUserRole == kLoginUserRoleDirector ||
+        loginUserRole == kLoginUserRoleManager;
 
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: kWhiteColor,
-      appBar: isManagementUser
-          ? const AdminCustomAppBarView(
-        title: 'Check-in/out',
-        isShowRightIcon: false,
-      )
-          : CustomToolbarWithLogo(
-        onMenuTap: () {
-          scaffoldKey.currentState
-              ?.openDrawer();
-        },
-        onSearchTap: () {},
-        onNotificationTap: () {},
-        showBadge: true,
-      ),
-      drawer: isManagementUser
-          ? const SizedBox.shrink()
-          : const CustomDrawer(),
+      appBar:
+          isManagementUser
+              ? const AdminCustomAppBarView(
+                title: 'Check-in/out',
+                isShowRightIcon: false,
+              )
+              : CustomToolbarWithLogo(
+                onMenuTap: () {
+                  scaffoldKey.currentState?.openDrawer();
+                },
+                onSearchTap: () {},
+                onNotificationTap: () {},
+                showBadge: true,
+              ),
+      drawer: isManagementUser ? const SizedBox.shrink() : const CustomDrawer(),
       body: Stack(
         children: [
           configState.when(
@@ -524,55 +410,38 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                 data: (attendanceData) {
                   final now = DateTime.now();
 
-                  final currentDate = DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(now);
+                  final currentDate = DateFormat('yyyy-MM-dd').format(now);
 
-                  final todayDatum =
-                  attendanceData.data.firstWhere(
-                        (datum) {
+                  final todayDatum = attendanceData.data.firstWhere(
+                    (datum) {
                       final date = datum.date;
 
                       if (date == null) {
                         return false;
                       }
 
-                      final formattedDate =
-                      DateFormat(
+                      final formattedDate = DateFormat(
                         'yyyy-MM-dd',
                       ).format(date);
 
-                      return formattedDate ==
-                          currentDate;
+                      return formattedDate == currentDate;
                     },
-                    orElse: () =>
-                        AttendanceDataVO(
-                          date: null,
-                          attendances: [],
-                        ),
+                    orElse: () => AttendanceDataVO(date: null, attendances: []),
                   );
 
-                  final hasCheckedIn =
-                      todayDatum
-                          .attendances
-                          .isNotEmpty;
+                  final hasCheckedIn = todayDatum.attendances.isNotEmpty;
 
-                  final hasCheckedOut =
-                  todayDatum.attendances.any(
-                        (attendance) {
-                      return _hasValidCheckOut(
-                        attendance.checkOut,
-                      );
-                    },
-                  );
+                  final hasCheckedOut = todayDatum.attendances.any((
+                    attendance,
+                  ) {
+                    return _hasValidCheckOut(attendance.checkOut);
+                  });
 
-                  final statusData =
-                      _attendanceStatus?.data;
+                  final statusData = _attendanceStatus?.data;
 
-                  final statusDate =
-                      statusData?.date;
+                  final statusDate = statusData?.date;
 
-                  /*
+                  /***
                    * Show previous checkout card only when:
                    *
                    * 1. The date is before today.
@@ -580,95 +449,67 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                    *
                    * Today's active attendance will not
                    * show this card.
-                   */
+                   ***/
                   final hasIncompletePreviousCheckout =
                       statusData != null &&
-                          statusDate != null &&
-                          _isPreviousDate(
-                            statusDate,
-                          ) &&
-                          statusData.isCheckedOut ==
-                              false;
+                      statusDate != null &&
+                      _isPreviousDate(statusDate) &&
+                      statusData.isCheckedOut == false;
 
                   final savedWorkLocation =
-                  hasCheckedIn
-                      ? _getSavedWorkLocation(
-                    todayDatum.attendances,
-                  )
-                      : null;
+                      hasCheckedIn
+                          ? _getSavedWorkLocation(todayDatum.attendances)
+                          : null;
 
                   final effectiveLocation =
-                      savedWorkLocation ??
-                          _selectedLocation;
+                      savedWorkLocation ?? _selectedLocation;
 
                   final isLocationLocked =
-                      hasCheckedIn &&
-                          savedWorkLocation != null;
+                      hasCheckedIn && savedWorkLocation != null;
 
                   final disableWorkFromHome =
                       isLocationLocked &&
-                          savedWorkLocation ==
-                              WorkLocation.office;
+                      savedWorkLocation == WorkLocation.office;
 
                   final disableOffice =
                       isLocationLocked &&
-                          savedWorkLocation ==
-                              WorkLocation.workFromHome;
+                      savedWorkLocation == WorkLocation.workFromHome;
 
                   final isWorkFromHomeSelected =
-                      effectiveLocation ==
-                          WorkLocation.workFromHome;
+                      effectiveLocation == WorkLocation.workFromHome;
 
                   final isOfficeSelected =
-                      effectiveLocation ==
-                          WorkLocation.office;
+                      effectiveLocation == WorkLocation.office;
 
                   return StreamBuilder<DateTime>(
                     stream: Stream.periodic(
-                      const Duration(
-                        seconds: 1,
-                      ),
-                          (_) => DateTime.now(),
+                      const Duration(seconds: 1),
+                      (_) => DateTime.now(),
                     ),
                     initialData: DateTime.now(),
-                    builder: (
-                        context,
-                        snapshot,
-                        ) {
-                      final currentTime =
-                          snapshot.data ??
-                              DateTime.now();
+                    builder: (context, snapshot) {
+                      final currentTime = snapshot.data ?? DateTime.now();
 
                       final workingPeriod = ref
-                          .read(
-                        homeRepositoryProvider,
-                      )
+                          .read(homeRepositoryProvider)
                           .computeWorkingPeriod(
-                        todayDatum.attendances,
-                        now: currentTime,
-                      );
+                            todayDatum.attendances,
+                            now: currentTime,
+                          );
 
-                      final clockInText =
-                          workingPeriod.clockInText;
+                      final clockInText = workingPeriod.clockInText;
 
-                      final clockOutText =
-                          workingPeriod.clockOutText;
+                      final clockOutText = workingPeriod.clockOutText;
 
-                      final periodText =
-                          workingPeriod.periodText;
+                      final periodText = workingPeriod.periodText;
 
                       return SafeArea(
                         child: Column(
                           children: [
                             Expanded(
                               flex: 7,
-                              child:
-                              SingleChildScrollView(
-                                padding:
-                                const EdgeInsets
-                                    .all(
-                                  kMarginLarge,
-                                ),
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.all(kMarginLarge),
                                 child: Center(
                                   child: Column(
                                     children: [
@@ -676,15 +517,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                       const Text(
                                         'Check In / Check Out',
-                                        style:
-                                        TextStyle(
-                                          color:
-                                          kSecondaryOlive,
-                                          fontSize:
-                                          28,
-                                          fontWeight:
-                                          FontWeight
-                                              .bold,
+                                        style: TextStyle(
+                                          color: kSecondaryOlive,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
 
@@ -692,44 +528,34 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                       /// Work From Home
                                       SizedBox(
-                                        width: double
-                                            .infinity,
-                                        child:
-                                        CommonButton(
-                                          containerVPadding:
-                                          10,
-                                          text:
-                                          'Work From Home',
+                                        width: double.infinity,
+                                        child: CommonButton(
+                                          containerVPadding: 10,
+                                          text: 'Work From Home',
                                           buttonTextColor:
-                                          disableWorkFromHome
-                                              ? kGreyColor
-                                              : kSecondaryOlive,
+                                              disableWorkFromHome
+                                                  ? kGreyColor
+                                                  : kSecondaryOlive,
                                           onTap: () {
                                             if (disableWorkFromHome) {
                                               return;
                                             }
 
-                                            setState(
-                                                  () {
-                                                _selectedLocation =
-                                                    WorkLocation
-                                                        .workFromHome;
-                                              },
-                                            );
+                                            setState(() {
+                                              _selectedLocation =
+                                                  WorkLocation.workFromHome;
+                                            });
                                           },
                                           bgColor:
-                                          isWorkFromHomeSelected
-                                              ? kPrimaryColor
-                                              : disableWorkFromHome
-                                              ? kGreyColor
-                                              .withOpacity(
-                                            0.15,
-                                          )
-                                              : kWhiteColor,
+                                              isWorkFromHomeSelected
+                                                  ? kPrimaryColor
+                                                  : disableWorkFromHome
+                                                  ? kGreyColor.withOpacity(0.15)
+                                                  : kWhiteColor,
                                           borderColor:
-                                          disableWorkFromHome
-                                              ? kGreyColor
-                                              : kPrimaryColor,
+                                              disableWorkFromHome
+                                                  ? kGreyColor
+                                                  : kPrimaryColor,
                                         ),
                                       ),
 
@@ -737,44 +563,34 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                       /// Office
                                       SizedBox(
-                                        width: double
-                                            .infinity,
-                                        child:
-                                        CommonButton(
-                                          containerVPadding:
-                                          10,
-                                          text:
-                                          'Office',
+                                        width: double.infinity,
+                                        child: CommonButton(
+                                          containerVPadding: 10,
+                                          text: 'Office',
                                           buttonTextColor:
-                                          disableOffice
-                                              ? kGreyColor
-                                              : kSecondaryOlive,
+                                              disableOffice
+                                                  ? kGreyColor
+                                                  : kSecondaryOlive,
                                           onTap: () {
                                             if (disableOffice) {
                                               return;
                                             }
 
-                                            setState(
-                                                  () {
-                                                _selectedLocation =
-                                                    WorkLocation
-                                                        .office;
-                                              },
-                                            );
+                                            setState(() {
+                                              _selectedLocation =
+                                                  WorkLocation.office;
+                                            });
                                           },
                                           bgColor:
-                                          isOfficeSelected
-                                              ? kPrimaryColor
-                                              : disableOffice
-                                              ? kGreyColor
-                                              .withOpacity(
-                                            0.15,
-                                          )
-                                              : kWhiteColor,
+                                              isOfficeSelected
+                                                  ? kPrimaryColor
+                                                  : disableOffice
+                                                  ? kGreyColor.withOpacity(0.15)
+                                                  : kWhiteColor,
                                           borderColor:
-                                          disableOffice
-                                              ? kGreyColor
-                                              : kPrimaryColor,
+                                              disableOffice
+                                                  ? kGreyColor
+                                                  : kPrimaryColor,
                                         ),
                                       ),
 
@@ -782,22 +598,14 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                         12.vGap,
                                         Text(
                                           savedWorkLocation ==
-                                              WorkLocation
-                                                  .office
+                                                  WorkLocation.office
                                               ? 'Today\'s work location: Office'
                                               : 'Today\'s work location: Work From Home',
-                                          textAlign:
-                                          TextAlign
-                                              .center,
-                                          style:
-                                          const TextStyle(
-                                            color:
-                                            kSecondaryOlive,
-                                            fontSize:
-                                            14,
-                                            fontWeight:
-                                            FontWeight
-                                                .w600,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: kSecondaryOlive,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ],
@@ -806,32 +614,21 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                       Text(
                                         currentTime.greeting,
-                                        style:
-                                        const TextStyle(
-                                          fontSize:
-                                          35,
-                                          fontWeight:
-                                          FontWeight
-                                              .w600,
-                                          color:
-                                          kSecondaryOlive,
+                                        style: const TextStyle(
+                                          fontSize: 35,
+                                          fontWeight: FontWeight.w600,
+                                          color: kSecondaryOlive,
                                         ),
                                       ),
 
                                       10.vGap,
 
                                       Text(
-                                        currentTime
-                                            .formattedFullDate,
-                                        style:
-                                        const TextStyle(
-                                          fontSize:
-                                          18,
-                                          fontWeight:
-                                          FontWeight
-                                              .normal,
-                                          color:
-                                          kSecondaryOlive,
+                                        currentTime.formattedFullDate,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.normal,
+                                          color: kSecondaryOlive,
                                         ),
                                       ),
 
@@ -839,61 +636,34 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                       if (_isAttendanceStatusLoading)
                                         const Padding(
-                                          padding:
-                                          EdgeInsets
-                                              .all(
-                                            24,
-                                          ),
-                                          child:
-                                          CircularProgressIndicator(
-                                            color:
-                                            kPrimaryColor,
+                                          padding: EdgeInsets.all(24),
+                                          child: CircularProgressIndicator(
+                                            color: kPrimaryColor,
                                           ),
                                         )
                                       else if (hasIncompletePreviousCheckout &&
                                           statusData != null)
                                         Container(
-                                          width: double
-                                              .infinity,
-                                          padding:
-                                          const EdgeInsets
-                                              .all(
-                                            18,
-                                          ),
-                                          decoration:
-                                          BoxDecoration(
-                                            color:
-                                            const Color(
-                                              0xFFFFF8F8,
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(18),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFF8F8),
+                                            border: Border.all(
+                                              color: Colors.redAccent,
                                             ),
-                                            border:
-                                            Border.all(
-                                              color: Colors
-                                                  .redAccent,
-                                            ),
-                                            borderRadius:
-                                            BorderRadius
-                                                .circular(
+                                            borderRadius: BorderRadius.circular(
                                               12,
                                             ),
                                           ),
-                                          child:
-                                          Column(
+                                          child: Column(
                                             children: [
                                               const Text(
                                                 'Incomplete checkout yesterday',
-                                                textAlign:
-                                                TextAlign
-                                                    .center,
-                                                style:
-                                                TextStyle(
-                                                  color:
-                                                  kSecondaryOlive,
-                                                  fontSize:
-                                                  15,
-                                                  fontWeight:
-                                                  FontWeight
-                                                      .w700,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: kSecondaryOlive,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
 
@@ -901,50 +671,35 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                               const Text(
                                                 'Please add yesterday checkout to continue check-in today.',
-                                                textAlign:
-                                                TextAlign
-                                                    .center,
-                                                style:
-                                                TextStyle(
-                                                  color:
-                                                  kGreyColor,
-                                                  fontSize:
-                                                  12,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: kGreyColor,
+                                                  fontSize: 12,
                                                 ),
                                               ),
 
                                               18.vGap,
 
                                               SizedBox(
-                                                width: double
-                                                    .infinity,
-                                                child:
-                                                CommonButton(
-                                                  containerVPadding:
-                                                  10,
+                                                width: double.infinity,
+                                                child: CommonButton(
+                                                  containerVPadding: 10,
                                                   text:
-                                                  'Add Yesterday Checkout',
-                                                  buttonTextColor:
-                                                  Colors.white,
-                                                  bgColor:
-                                                  Colors.green,
-                                                  borderColor:
-                                                  kPrimaryColor,
-                                                  onTap:
-                                                      () async {
+                                                      'Add Yesterday Checkout',
+                                                  buttonTextColor: Colors.white,
+                                                  bgColor: Colors.green,
+                                                  borderColor: kPrimaryColor,
+                                                  onTap: () async {
                                                     final attendanceDate =
-                                                        statusData
-                                                            .date;
+                                                        statusData.date;
 
                                                     final userId =
                                                         _currentUserId ??
-                                                            statusData
-                                                                .userId;
+                                                        statusData.userId;
 
                                                     if (attendanceDate ==
-                                                        null ||
-                                                        userId ==
-                                                            null) {
+                                                            null ||
+                                                        userId == null) {
                                                       debugPrint(
                                                         'Previous attendance information was not found.',
                                                       );
@@ -957,22 +712,21 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                     ).push(
                                                       MaterialPageRoute(
                                                         builder:
-                                                            (_) =>
-                                                            AddYesterdayCheckoutPage(
+                                                            (
+                                                              _,
+                                                            ) => AddYesterdayCheckoutPage(
                                                               date:
-                                                              attendanceDate,
-                                                              onSave:
-                                                                  ({
+                                                                  attendanceDate,
+                                                              onSave: ({
                                                                 required date,
                                                                 required checkoutTime,
                                                               }) async {
                                                                 return _saveYesterdayCheckout(
                                                                   userId:
-                                                                  userId,
+                                                                      userId,
                                                                   checkoutTime:
-                                                                  checkoutTime,
-                                                                  date:
-                                                                  DateFormat(
+                                                                      checkoutTime,
+                                                                  date: DateFormat(
                                                                     'yyyy-MM-dd',
                                                                   ).format(
                                                                     date,
@@ -991,18 +745,15 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                       else
                                         Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment
-                                              .center,
+                                              MainAxisAlignment.center,
                                           children: [
                                             /// Check in
                                             if (!hasCheckedIn)
                                               CircleActionButton(
-                                                onTap:
-                                                    () async {
+                                                onTap: () async {
                                                   if (_selectedLocation ==
                                                       null) {
-                                                    context
-                                                        .showErrorSnackBar(
+                                                    context.showErrorSnackBar(
                                                       'Please select a check-in type: Office or Work From Home.',
                                                     );
 
@@ -1012,71 +763,26 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                   if (_selectedLocation ==
                                                       WorkLocation
                                                           .workFromHome) {
-                                                    final addressId =
-                                                    await showWfhLocationDialog(
-                                                      context,
-                                                      addresses:
-                                                      addresses,
+                                                    await _handleWorkFromHomeCheckIn(
+                                                      addresses: addresses,
+                                                      allowDistanceRadius: configData.data?.allowDistance,
                                                     );
-
-                                                    if (addressId ==
-                                                        null) {
-                                                      return;
-                                                    }
-
-                                                    if (checkInState
-                                                        .isLoading) {
-                                                      return;
-                                                    }
-
-                                                    final int?
-                                                    finalAddressId =
-                                                    addressId ==
-                                                        -1
-                                                        ? null
-                                                        : addressId;
-
-                                                    final success =
-                                                    await ref
-                                                        .read(
-                                                      checkInControllerProvider
-                                                          .notifier,
-                                                    )
-                                                        .checkIn(
-                                                      type: finalAddressId ==
-                                                          null
-                                                          ? kTypeWorkFromSomewhere
-                                                          : kTypeWfh,
-                                                      addressId:
-                                                      finalAddressId,
-                                                      currentTimezone:
-                                                      currentTimezone,
-                                                    );
-
-                                                    if (!mounted) {
-                                                      return;
-                                                    }
-
-                                                    if (success) {
-                                                      await _afterSuccessfulCheckIn();
-                                                    }
                                                   } else {
+                                                    ///handle office checkIn
                                                     await _handleOfficeCheckIn(
                                                       context,
-                                                      double
-                                                          .tryParse(
+                                                      double.tryParse(
                                                         configData
-                                                            .data
-                                                            ?.businessUnit
-                                                            ?.lat ??
+                                                                .data
+                                                                ?.businessUnit
+                                                                ?.lat ??
                                                             '',
                                                       ),
-                                                      double
-                                                          .tryParse(
+                                                      double.tryParse(
                                                         configData
-                                                            .data
-                                                            ?.businessUnit
-                                                            ?.long ??
+                                                                .data
+                                                                ?.businessUnit
+                                                                ?.long ??
                                                             '',
                                                       ),
                                                       configData
@@ -1085,32 +791,25 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                     );
                                                   }
                                                 },
-                                                label:
-                                                currentTime
-                                                    .time12h,
-                                                icon:
-                                                Icons
-                                                    .login,
+                                                label: currentTime.time12h,
+                                                icon: Icons.login,
                                                 backgroundColor:
-                                                kEmeraldGreenColor,
+                                                    kEmeraldGreenColor,
                                               ),
 
                                             /// Check out
                                             if (hasCheckedIn)
                                               CircleActionButton(
-                                                onTap:
-                                                    () async {
+                                                onTap: () async {
                                                   if (hasCheckedOut ||
                                                       _isSubmittingCheckOut ||
-                                                      checkOutState
-                                                          .isLoading) {
+                                                      checkOutState.isLoading) {
                                                     return;
                                                   }
 
                                                   if (effectiveLocation ==
                                                       null) {
-                                                    context
-                                                        .showErrorSnackBar(
+                                                    context.showErrorSnackBar(
                                                       'Unable to identify today\'s work location.',
                                                     );
 
@@ -1119,14 +818,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
                                                   await showClockOutConfirmBottomSheet(
                                                     context,
-                                                    clockInText:
-                                                    clockInText,
-                                                    clockOutText:
-                                                    clockOutText,
-                                                    periodText:
-                                                    periodText,
-                                                    onConfirm:
-                                                        () async {
+                                                    clockInText: clockInText,
+                                                    clockOutText: clockOutText,
+                                                    periodText: periodText,
+                                                    onConfirm: () async {
                                                       if (effectiveLocation ==
                                                           WorkLocation
                                                               .workFromHome) {
@@ -1134,20 +829,18 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                       } else {
                                                         await _handleOfficeCheckOut(
                                                           context,
-                                                          double
-                                                              .tryParse(
+                                                          double.tryParse(
                                                             configData
-                                                                .data
-                                                                ?.businessUnit
-                                                                ?.lat ??
+                                                                    .data
+                                                                    ?.businessUnit
+                                                                    ?.lat ??
                                                                 '',
                                                           ),
-                                                          double
-                                                              .tryParse(
+                                                          double.tryParse(
                                                             configData
-                                                                .data
-                                                                ?.businessUnit
-                                                                ?.long ??
+                                                                    .data
+                                                                    ?.businessUnit
+                                                                    ?.long ??
                                                                 '',
                                                           ),
                                                           configData
@@ -1158,16 +851,12 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                     },
                                                   );
                                                 },
-                                                label:
-                                                currentTime
-                                                    .time12h,
-                                                icon:
-                                                Icons
-                                                    .logout,
+                                                label: currentTime.time12h,
+                                                icon: Icons.logout,
                                                 backgroundColor:
-                                                hasCheckedOut
-                                                    ? kGreyColor
-                                                    : kSecondaryColor,
+                                                    hasCheckedOut
+                                                        ? kGreyColor
+                                                        : kSecondaryColor,
                                               ),
                                           ],
                                         ),
@@ -1183,49 +872,25 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                             Expanded(
                               flex: 3,
                               child: Visibility(
-                                visible:
-                                todayDatum.date !=
-                                    null,
+                                visible: todayDatum.date != null,
                                 child: Container(
-                                  width: double
-                                      .infinity,
-                                  decoration:
-                                  const BoxDecoration(
-                                    color:
-                                    kSoftYellow,
-                                    borderRadius:
-                                    BorderRadius
-                                        .only(
-                                      topLeft:
-                                      Radius
-                                          .circular(
-                                        22,
-                                      ),
-                                      topRight:
-                                      Radius
-                                          .circular(
-                                        22,
-                                      ),
+                                  width: double.infinity,
+                                  decoration: const BoxDecoration(
+                                    color: kSoftYellow,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(22),
+                                      topRight: Radius.circular(22),
                                     ),
                                   ),
                                   child: Padding(
-                                    padding:
-                                    const EdgeInsets
-                                        .all(
-                                      16,
-                                    ),
-                                    child: todayDatum
-                                        .date ==
-                                        null
-                                        ? const SizedBox
-                                        .shrink()
-                                        : TimeTrackingTable(
-                                      isFromHomePage:
-                                      true,
-                                      records: [
-                                        todayDatum,
-                                      ],
-                                    ),
+                                    padding: const EdgeInsets.all(16),
+                                    child:
+                                        todayDatum.date == null
+                                            ? const SizedBox.shrink()
+                                            : TimeTrackingTable(
+                                              isFromHomePage: true,
+                                              records: [todayDatum],
+                                            ),
                                   ),
                                 ),
                               ),
@@ -1236,52 +901,32 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                     },
                   );
                 },
-                loading: () =>
-                const Center(
-                  child:
-                  CircularProgressIndicator(
-                    color: kPrimaryColor,
-                  ),
-                ),
-                error: (
-                    error,
-                    stackTrace,
-                    ) =>
-                    ErrorRetryView(
-                      title:
-                      'Error loading attendance',
-                      message:
-                      error.toString(),
+                loading:
+                    () => const Center(
+                      child: CircularProgressIndicator(color: kPrimaryColor),
+                    ),
+                error:
+                    (error, stackTrace) => ErrorRetryView(
+                      title: 'Error loading attendance',
+                      message: error.toString(),
                       onRetry: () {
-                        ref.invalidate(
-                          fetchAttendanceDataProvider,
-                        );
+                        ref.invalidate(fetchAttendanceDataProvider);
 
                         _loadLatestAttendanceStatus();
                       },
                     ),
               );
             },
-            loading: () =>
-            const Center(
-              child:
-              CircularProgressIndicator(
-                color: kPrimaryColor,
-              ),
-            ),
-            error: (
-                error,
-                stackTrace,
-                ) =>
-                ErrorRetryView(
-                  title:
-                  'Error loading config',
-                  message:
-                  error.toString(),
+            loading:
+                () => const Center(
+                  child: CircularProgressIndicator(color: kPrimaryColor),
+                ),
+            error:
+                (error, stackTrace) => ErrorRetryView(
+                  title: 'Error loading config',
+                  message: error.toString(),
                   onRetry: () {
-                    ref.invalidate(
-                      fetchConfigDataProvider,
-                    );
+                    ref.invalidate(fetchConfigDataProvider);
 
                     _loadLatestAttendanceStatus();
                   },
@@ -1298,10 +943,8 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                 color: Colors.black38,
                 child: const Center(
                   child: LoadingView(
-                    indicatorColor:
-                    Colors.white,
-                    indicator:
-                    Indicator.ballRotate,
+                    indicatorColor: Colors.white,
+                    indicator: Indicator.ballRotate,
                   ),
                 ),
               ),
@@ -1319,15 +962,12 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   }) async {
     try {
       final success = await ref
-          .read(
-        yesterdayCheckoutControllerProvider
-            .notifier,
-      )
+          .read(yesterdayCheckoutControllerProvider.notifier)
           .updateYesterdayCheckout(
-        userId: userId,
-        time: checkoutTime,
-        date: date,
-      );
+            userId: userId,
+            time: checkoutTime,
+            date: date,
+          );
 
       if (!success) {
         return false;
@@ -1347,9 +987,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
       return true;
     } catch (error) {
-      debugPrint(
-        'Save yesterday checkout error: $error',
-      );
+      debugPrint('Save yesterday checkout error: $error');
 
       return false;
     }
@@ -1357,11 +995,11 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
   /// Handle Office check-in.
   Future<void> _handleOfficeCheckIn(
-      BuildContext context,
-      double? lat,
-      double? long,
-      int? allowDistanceRadius,
-      ) async {
+    BuildContext context,
+    double? lat,
+    double? long,
+    int? allowDistanceRadius,
+  ) async {
     if (_isShowLoadingView) {
       return;
     }
@@ -1370,31 +1008,22 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       _isShowLoadingView = true;
     });
 
-    final remoteLoginValue =
-    GetStorage().read(
+    final remoteLoginValue = GetStorage().read(
       SecureDataList.isRemoteLogin.name,
     );
 
-    final isRemoteAllowed =
-        remoteLoginValue?.toString() == '1';
+    final isRemoteAllowed = remoteLoginValue?.toString() == '1';
 
     debugPrint(
       'RemoteLoginStatus ===> '
-          '$isRemoteAllowed',
+      '$isRemoteAllowed',
     );
 
     try {
       if (isRemoteAllowed) {
         final success = await ref
-            .read(
-          checkInControllerProvider
-              .notifier,
-        )
-            .checkIn(
-          type: kTypeOffice,
-          currentTimezone:
-          currentTimezone,
-        );
+            .read(checkInControllerProvider.notifier)
+            .checkIn(type: kTypeOffice, currentTimezone: currentTimezone);
 
         if (success) {
           await _afterSuccessfulCheckIn();
@@ -1403,9 +1032,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         return;
       }
 
-      final serviceEnabled =
-      await LocationService
-          .isLocationServiceEnabled();
+      final serviceEnabled = await LocationService.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
         if (!mounted) {
@@ -1420,23 +1047,14 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         return;
       }
 
-      var permission =
-      await LocationService
-          .checkPermission();
+      var permission = await LocationService.checkPermission();
 
-      if (permission ==
-          LocationPermission.denied) {
-        permission =
-        await LocationService
-            .requestPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await LocationService.requestPermission();
 
         final permissionGranted =
-            permission ==
-                LocationPermission
-                    .whileInUse ||
-                permission ==
-                    LocationPermission
-                        .always;
+            permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always;
 
         if (!permissionGranted) {
           if (!mounted) {
@@ -1452,13 +1070,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         }
       }
 
-      final isWithinRadius =
-      await LocationService
-          .isWithinOfficeRadius(
+      final isWithinRadius = await LocationService.isWithinOfficeRadius(
         lat,
         long,
-        allowDistanceRadius
-            ?.toDouble(),
+        allowDistanceRadius?.toDouble(),
       );
 
       if (!isWithinRadius) {
@@ -1475,32 +1090,20 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
 
       final success = await ref
-          .read(
-        checkInControllerProvider
-            .notifier,
-      )
-          .checkIn(
-        type: kTypeOffice,
-        currentTimezone:
-        currentTimezone,
-      );
+          .read(checkInControllerProvider.notifier)
+          .checkIn(type: kTypeOffice, currentTimezone: currentTimezone);
 
       if (success) {
         await _afterSuccessfulCheckIn();
       }
     } catch (error) {
-      debugPrint(
-        'Office check-in error: $error',
-      );
+      debugPrint('Office check-in error: $error');
 
       if (!mounted) {
         return;
       }
 
-      context.showErrorDialog(
-        'Something went wrong',
-        'Check-In Failed',
-      );
+      context.showErrorDialog('Something went wrong', 'Check-In Failed');
     } finally {
       if (mounted) {
         setState(() {
@@ -1512,13 +1115,12 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
   /// Handle Office check-out.
   Future<void> _handleOfficeCheckOut(
-      BuildContext context,
-      double? lat,
-      double? long,
-      int? allowDistanceRadius,
-      ) async {
-    if (_isShowLoadingView ||
-        _isSubmittingCheckOut) {
+    BuildContext context,
+    double? lat,
+    double? long,
+    int? allowDistanceRadius,
+  ) async {
+    if (_isShowLoadingView || _isSubmittingCheckOut) {
       return;
     }
 
@@ -1527,12 +1129,9 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
     });
 
     try {
-      final raw = GetStorage().read(
-        SecureDataList.isRemoteLogin.name,
-      );
+      final raw = GetStorage().read(SecureDataList.isRemoteLogin.name);
 
-      final isRemoteAllowed =
-          (raw?.toString() ?? '0') == '1';
+      final isRemoteAllowed = (raw?.toString() ?? '0') == '1';
 
       if (isRemoteAllowed) {
         await _performCheckOut();
@@ -1540,9 +1139,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         return;
       }
 
-      final serviceEnabled =
-      await LocationService
-          .isLocationServiceEnabled();
+      final serviceEnabled = await LocationService.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
         if (!mounted) {
@@ -1557,23 +1154,14 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         return;
       }
 
-      var permission =
-      await LocationService
-          .checkPermission();
+      var permission = await LocationService.checkPermission();
 
-      if (permission ==
-          LocationPermission.denied) {
-        permission =
-        await LocationService
-            .requestPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await LocationService.requestPermission();
 
         final granted =
-            permission ==
-                LocationPermission
-                    .whileInUse ||
-                permission ==
-                    LocationPermission
-                        .always;
+            permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always;
 
         if (!granted) {
           if (!mounted) {
@@ -1589,18 +1177,15 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         }
       }
 
-      final isWithinRadius =
-      await LocationService
-          .isWithinOfficeRadius(
+      final isWithinRadius = await LocationService.isWithinOfficeRadius(
         lat,
         long,
-        allowDistanceRadius
-            ?.toDouble(),
+        allowDistanceRadius?.toDouble(),
       );
 
       debugPrint(
         'IsWithinRadius >>>> '
-            '$isWithinRadius',
+        '$isWithinRadius',
       );
 
       if (!isWithinRadius) {
@@ -1613,11 +1198,8 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
           onUnderstand: () {
             showClockOutRestrictedBottomSheet(
               context,
-              onSubmit:
-                  (clockOutReason) async {
-                await _performCheckOut(
-                  reason: clockOutReason,
-                );
+              onSubmit: (clockOutReason) async {
+                await _performCheckOut(reason: clockOutReason);
               },
             );
           },
@@ -1628,8 +1210,210 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
       await _performCheckOut();
     } catch (error) {
+      debugPrint('Office check-out error: $error');
+
+      if (!mounted) {
+        return;
+      }
+
+      context.showErrorDialog('Something went wrong', 'Check-Out Failed');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isShowLoadingView = false;
+        });
+      }
+    }
+  }
+
+
+  Future<void> _handleWorkFromHomeCheckIn({
+    required List<AddressVO> addresses,
+    required int? allowDistanceRadius,
+  }) async {
+    if (_isShowLoadingView ||
+        ref.read(checkInControllerProvider).isLoading) {
+      return;
+    }
+
+    final selectedAddressId = await showWfhLocationDialog(
+      context,
+      addresses: addresses,
+    );
+
+    if (selectedAddressId == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isShowLoadingView = true;
+    });
+
+    try {
+      /**
+     * Work From Somewhere
+     *
+     * Do not check GPS location.
+     **/
+      if (selectedAddressId == -1) {
+        final success = await ref
+            .read(checkInControllerProvider.notifier)
+            .checkIn(
+          type: kTypeWorkFromSomewhere,
+          addressId: null,
+          currentTimezone: currentTimezone,
+        );
+
+        if (!mounted) {
+          return;
+        }
+
+        if (success) {
+          await _afterSuccessfulCheckIn();
+        }
+
+        return;
+      }
+
+      /**
+     * Find the selected saved address.
+     **/
+      final selectedAddress = _findAddressById(
+        addresses,
+        selectedAddressId,
+      );
+
+      if (selectedAddress == null) {
+        if (!mounted) {
+          return;
+        }
+
+        context.showErrorDialog(
+          'The selected address was not found.',
+          'Check-In Failed',
+        );
+
+        return;
+      }
+
+      final selectedLatitude = double.tryParse(
+        selectedAddress.lat?.trim() ?? '',
+      );
+
+      final selectedLongitude = double.tryParse(
+        selectedAddress.long?.trim() ?? '',
+      );
+
+      if (selectedLatitude == null ||
+          selectedLongitude == null) {
+        if (!mounted) {
+          return;
+        }
+
+        context.showErrorDialog(
+          'The selected address does not have a valid location.',
+          'Check-In Failed',
+        );
+
+        return;
+      }
+
+      if (allowDistanceRadius == null ||
+          allowDistanceRadius <= 0) {
+        if (!mounted) {
+          return;
+        }
+
+        context.showErrorDialog(
+          'The allowed WFH check-in distance is not configured.',
+          'Check-In Failed',
+        );
+
+        return;
+      }
+
+      final canContinue = await _prepareLocationPermission();
+
+      if (!canContinue || !mounted) {
+        return;
+      }
+
+      /**
+     * Compare the current phone location with
+     * the selected AddressVO latitude and longitude.
+     **/
+      final isWithinSelectedAddress =
+      await LocationService.isWithinOfficeRadius(
+        selectedLatitude,
+        selectedLongitude,
+        allowDistanceRadius.toDouble(),
+      );
+
       debugPrint(
-        'Office check-out error: $error',
+        'Selected address ID >>> ${selectedAddress.id}',
+      );
+
+      debugPrint(
+        'Selected address >>> ${selectedAddress.addressName}',
+      );
+
+      debugPrint(
+        'Selected latitude >>> $selectedLatitude',
+      );
+
+      debugPrint(
+        'Selected longitude >>> $selectedLongitude',
+      );
+
+      debugPrint(
+        'Allowed distance >>> $allowDistanceRadius meters',
+      );
+
+      debugPrint(
+        'Is within selected WFH address >>> '
+            '$isWithinSelectedAddress',
+      );
+
+      if (!isWithinSelectedAddress) {
+        if (!mounted) {
+          return;
+        }
+
+        context.showErrorDialog(
+          'You must be within $allowDistanceRadius meters '
+              'of ${selectedAddress.addressName ?? 'the selected address'} '
+              'to check in.',
+          'Outside WFH Location',
+        );
+
+        return;
+      }
+
+      /**
+     * User is within the selected address radius.
+     **/
+      final success = await ref
+          .read(checkInControllerProvider.notifier)
+          .checkIn(
+        type: kTypeWfh,
+        addressId: selectedAddress.id,
+        currentTimezone: currentTimezone,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (success) {
+        await _afterSuccessfulCheckIn();
+      }
+    } catch (error, stackTrace) {
+      debugPrint(
+        'WFH check-in error: $error',
+      );
+
+      debugPrintStack(
+        stackTrace: stackTrace,
       );
 
       if (!mounted) {
@@ -1637,8 +1421,8 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
 
       context.showErrorDialog(
-        'Something went wrong',
-        'Check-Out Failed',
+        'Something went wrong while checking your location.',
+        'Check-In Failed',
       );
     } finally {
       if (mounted) {
@@ -1648,4 +1432,72 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
     }
   }
+
+  AddressVO? _findAddressById(
+      List<AddressVO> addresses,
+      int selectedAddressId,
+      ) {
+    for (final address in addresses) {
+      if (address.id == selectedAddressId) {
+        return address;
+      }
+    }
+
+    return null;
+  }
+
+  Future<bool> _prepareLocationPermission() async {
+    final serviceEnabled =
+    await LocationService.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      if (mounted) {
+        context.showErrorDialog(
+          'Please enable location services.',
+          'Check-In Failed',
+        );
+      }
+
+      return false;
+    }
+
+    var permission =
+    await LocationService.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission =
+      await LocationService.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      if (mounted) {
+        context.showErrorDialog(
+          'Location permission is required to verify your WFH address.',
+          'Check-In Failed',
+        );
+      }
+
+      return false;
+    }
+
+    if (permission ==
+        LocationPermission.deniedForever) {
+      if (mounted) {
+        context.showErrorDialog(
+          'Location permission is permanently denied. '
+              'Please enable it from your phone settings.',
+          'Check-In Failed',
+        );
+      }
+
+      return false;
+    }
+
+    return permission ==
+        LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
+  }
+
 }
+
+

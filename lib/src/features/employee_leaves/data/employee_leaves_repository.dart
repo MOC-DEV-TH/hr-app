@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_app/src/features/admin_dashboard/model/admin_dasbhoard_response.dart';
 import 'package:hr_app/src/features/admin_dashboard/model/business_unit_response.dart';
 import 'package:hr_app/src/features/employee_details/model/employee_profile_response.dart';
+import 'package:hr_app/src/features/employee_leaves/model/update_leave_response.dart';
 import 'package:hr_app/src/features/home/model/attendance_response.dart';
 import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
 import 'package:hr_app/src/network/api_constants.dart';
@@ -51,7 +52,7 @@ class EmployeeLeavesRepository {
   }
 
   ///update employee leave request
-  Future<LeaveStatusResponse> updateEmployeeLeaveRequest({
+  Future<UpdateLeaveResponseVO> updateEmployeeLeaveRequest({
     required int leaveId,
     required String status,
   }) async {
@@ -60,7 +61,7 @@ class EmployeeLeavesRepository {
         kEndPointUpdateLeaveRequest,
         data: {"id": leaveId, "status": status},
       );
-      LeaveStatusResponse data = LeaveStatusResponse.fromJson(response.data);
+      UpdateLeaveResponseVO data = UpdateLeaveResponseVO.fromJson(response.data);
       return data;
     } on DioException catch (e) {
       throw e.response?.data["message"] ??

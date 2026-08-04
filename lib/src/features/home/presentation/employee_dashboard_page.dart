@@ -12,6 +12,7 @@ import '../../../common_widgets/error_retry_view.dart';
 import '../../../common_widgets/loading_view.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/secure_storage.dart';
+import '../../../utils/strings.dart';
 import '../../employee_details/presentation/employee_details_page.dart';
 import '../../employee_details/presentation/leave_summary_page.dart';
 import '../data/home_repository.dart';
@@ -1345,8 +1346,7 @@ class _DashboardDivider
 }
 
 ///quick action card
-class _QuickActionCard
-    extends StatelessWidget {
+class _QuickActionCard extends ConsumerWidget {
   const _QuickActionCard({
     required this.data,
   });
@@ -1354,23 +1354,85 @@ class _QuickActionCard
   final _QuickActionData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      WidgetRef ref,
+      ) {
+    final userDataState = ref.watch(
+      getUserDataProvider,
+    );
+
+    final userData = userDataState.value;
+
+    final allowWfhRequest =
+        userData?.allowWfhRequest ?? 0;
+
+    final employeeTypeName =
+    userData?.employeeType?.name?.trim();
+
+    final isWfhRequest =
+        data.label == 'WFH Request';
+
+    final isApplyLeave =
+        data.label == 'Apply Leave';
+
+    final isProbation =
+        employeeTypeName ==
+            kLoginUserRoleProbation;
+
+    void handleTap() {
+      final needsUserData =
+          isWfhRequest || isApplyLeave;
+
+      if (needsUserData &&
+          userDataState.isLoading) {
+        context.showErrorSnackBar(
+          'Please wait while checking your permission.',
+        );
+        return;
+      }
+
+      if (needsUserData &&
+          userDataState.hasError) {
+        context.showErrorSnackBar(
+          'Unable to verify your permission.',
+        );
+        return;
+      }
+
+      /// WFH permission validation
+      if (isWfhRequest &&
+          allowWfhRequest == 0) {
+        context.showErrorSnackBar(
+          'You are not allowed to submit a WFH request.',
+        );
+        return;
+      }
+
+      /// Apply leave validation
+      if (isApplyLeave && isProbation) {
+        context.showErrorSnackBar(
+          'Employees under probation are not allowed to apply for leave.',
+        );
+        return;
+      }
+
+      data.onTap();
+    }
+
     return Material(
       color: data.backgroundColor,
-      borderRadius:
-      BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: data.onTap,
-        borderRadius:
-        BorderRadius.circular(12),
+        onTap: handleTap,
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: 6,
             vertical: 12,
           ),
           decoration: BoxDecoration(
-            borderRadius:
-            BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: data.accentColor,
               width: 0.5,

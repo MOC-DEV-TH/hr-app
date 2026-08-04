@@ -129,39 +129,68 @@ BoxDecoration _cardDecoration(BuildContext context) => BoxDecoration(
 );
 
 class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+  const _StatusBadge({
+    required this.status,
+  });
 
   final String status;
 
   @override
   Widget build(BuildContext context) {
-    late final Color c;
-    late final String t;
-    switch (status) {
+    final normalizedStatus =
+    status.trim().toLowerCase();
+
+    late final Color color;
+    late final String text;
+
+    switch (normalizedStatus) {
       case 'pending':
-        c = const Color(0xFFF3A712);
-        t = 'PENDING';
+        color = const Color(0xFFF3A712);
+        text = 'PENDING';
         break;
+
       case 'approved':
-        c = kGreen;
-        t = 'APPROVED';
+      case 'approve':
+        color = kGreen;
+        text = 'APPROVED';
         break;
+
       case 'reject':
-        c = kRed;
-        t = 'REJECT';
+      case 'rejected':
+        color = kRed;
+        text = 'REJECTED';
+        break;
+
+      case 'cancelled':
+      case 'canceled':
+        color = Colors.grey;
+        text = 'CANCELLED';
+        break;
+
+      default:
+        color = Colors.grey;
+        text = normalizedStatus.isEmpty
+            ? 'UNKNOWN'
+            : normalizedStatus.toUpperCase();
         break;
     }
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: c.withOpacity(.08),
-        border: Border.all(color: c.withOpacity(.25)),
+        color: color.withOpacity(0.08),
+        border: Border.all(
+          color: color.withOpacity(0.25),
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        t,
+        text,
         style: TextStyle(
-          color: c,
+          color: color,
           fontWeight: FontWeight.w700,
           fontSize: kTextSmall,
         ),
