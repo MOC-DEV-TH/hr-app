@@ -65,12 +65,14 @@ class EmployeeVO {
   String? name;
   int? positionId;
   String? position;
+  String? profilePhoto;
 
   EmployeeVO({
     this.id,
     this.name,
     this.positionId,
     this.position,
+    this.profilePhoto
   });
 
   factory EmployeeVO.fromJson(Map<String, dynamic> json) => EmployeeVO(
@@ -78,6 +80,7 @@ class EmployeeVO {
     name: json["name"],
     positionId: json["position_id"],
     position: json["position"],
+    profilePhoto: json["profile_photo"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -85,6 +88,7 @@ class EmployeeVO {
     "name": name,
     "position_id": positionId,
     "position": position,
+    "profile_photo": profilePhoto,
   };
 }
 

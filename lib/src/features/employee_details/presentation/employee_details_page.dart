@@ -16,9 +16,16 @@ import '../../../common_widgets/leave_filter_bottom_sheet.dart';
 import '../../../common_widgets/loading_view.dart';
 import '../../../common_widgets/reject_confirm_dialog.dart';
 import '../../../common_widgets/reject_success_dialog.dart';
+import '../../../common_widgets/user_profile_image.dart';
+import '../../../common_widgets/wfh_approve_confirm_dialog.dart';
+import '../../../common_widgets/wfh_approve_success_dialog.dart';
+import '../../../common_widgets/wfh_reject_confirm_dialog.dart';
+import '../../../common_widgets/wfh_reject_success_dialog.dart';
 import '../../../network/api_constants.dart';
 import '../../edit_employee/presentation/edit_employee_page.dart';
 import '../../employee_leaves/controller/employee_leaves_controller.dart';
+import '../../employee_wfh_requests/controller/employee_wfh_request_controller.dart';
+import '../../list_items/employee_wfh_request_item_view.dart';
 import '../model/employee_profile_response.dart';
 import 'leave_summary_page.dart';
 
@@ -39,50 +46,7 @@ class EmployeeDetailsPage extends ConsumerStatefulWidget {
 
 class _EmployeeDetailsPageState
     extends ConsumerState<EmployeeDetailsPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabs;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final safeInitialIndex =
-    widget.initialIndex >= 0 &&
-        widget.initialIndex < 4
-        ? widget.initialIndex
-        : 0;
-
-    _tabs = TabController(
-      length: 4,
-      vsync: this,
-      initialIndex: safeInitialIndex,
-    );
-  }
-
-  @override
-  void didUpdateWidget(
-      covariant EmployeeDetailsPage oldWidget,
-      ) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.initialIndex !=
-        widget.initialIndex) {
-      final safeIndex =
-      widget.initialIndex >= 0 &&
-          widget.initialIndex < 4
-          ? widget.initialIndex
-          : 0;
-
-      _tabs.animateTo(safeIndex);
-    }
-  }
-
-  @override
-  void dispose() {
-    _tabs.dispose();
-    super.dispose();
-  }
-
+  {
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +56,26 @@ class _EmployeeDetailsPageState
     );
     return employeeProfileState.when(
       data: (profile) {
+
+        /// Show WFH only when allow_wfh_request = 1
+        final bool showWfh = profile.data?.allowWfhRequest == 1;
+
+        /// 5 tabs if WFH is allowed, otherwise 4
+        final int tabLength = showWfh ? 5 : 4;
+
+        /// Make sure initial index is valid
+        final int safeInitialIndex =
+        widget.initialIndex >= 0 &&
+            widget.initialIndex < tabLength
+            ? widget.initialIndex
+            : 0;
+
         return DefaultTabController(
-          length: 4,
+          key: ValueKey(
+            '${widget.userID}_${showWfh}_$safeInitialIndex',
+          ),
+          length: tabLength,
+          initialIndex: safeInitialIndex,
           child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AdminCustomAppBarView(
@@ -117,16 +99,30 @@ class _EmployeeDetailsPageState
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: _TopTabs(controller: _tabs),
+                  child: _TopTabs(showWfh: showWfh,),
                 ),
                 const SizedBox(height: 6),
                 Expanded(
                   child: TabBarView(
-                    controller: _tabs,
                     children: [
-                      _PersonalTab(profile: profile.data ?? ProfileVO()),
-                      _AttendanceTab(userId: widget.userID ?? 0),
-                      _LeaveTab(userId: widget.userID ?? 0),
+                      _PersonalTab(
+                        profile: profile.data ?? ProfileVO(),
+                      ),
+
+                      _AttendanceTab(
+                        userId: widget.userID ?? 0,
+                      ),
+
+                      _LeaveTab(
+                        userId: widget.userID ?? 0,
+                      ),
+
+                      /// Only add WFH page when allowed
+                      if (showWfh)
+                        _WfhTab(
+                          userId: widget.userID ?? 0,
+                        ),
+
                       const _PayrollTab(),
                     ],
                   ),
@@ -157,9 +153,11 @@ class _EmployeeDetailsPageState
 
 /// Pill-style top tabs (matches your design)
 class _TopTabs extends StatelessWidget {
-  const _TopTabs({required this.controller});
+  const _TopTabs({
+    required this.showWfh,
+  });
 
-  final TabController controller;
+  final bool showWfh;
 
   @override
   Widget build(BuildContext context) {
@@ -168,38 +166,56 @@ class _TopTabs extends StatelessWidget {
       decoration: BoxDecoration(
         color: kSoftYellow,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.transparent),
+        border: Border.all(
+          color: Colors.transparent,
+        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
         child: TabBar(
-          controller: controller,
-          tabs: const [
-            Tab(text: 'Personal'),
-            Tab(text: 'Attendance'),
-            Tab(text: 'Leave'),
-            Tab(text: 'Payroll'),
+          tabs: [
+            const Tab(text: 'Personal'),
+            const Tab(text: 'Attendance'),
+            const Tab(text: 'Leave'),
+
+            /// Hide WFH tab
+            if (showWfh)
+              const Tab(text: 'WFH'),
+
+            const Tab(text: 'Payroll'),
           ],
           isScrollable: true,
           padding: EdgeInsets.zero,
-          labelPadding: const EdgeInsets.symmetric(horizontal: 30),
+          labelPadding: const EdgeInsets.symmetric(
+            horizontal: 30,
+          ),
           indicatorSize: TabBarIndicatorSize.tab,
           indicator: BoxDecoration(
             color: kSecondaryColor,
             borderRadius: BorderRadius.circular(22),
           ),
           tabAlignment: TabAlignment.center,
-          labelStyle: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-          unselectedLabelStyle: Theme.of(
-            context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          labelStyle: Theme.of(context)
+              .textTheme
+              .titleSmall
+              ?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          unselectedLabelStyle: Theme.of(context)
+              .textTheme
+              .titleSmall
+              ?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
           labelColor: Colors.white,
-          unselectedLabelColor: const Color(0xFF4B5563),
+          unselectedLabelColor:
+          const Color(0xFF4B5563),
           dividerColor: Colors.transparent,
-          overlayColor: MaterialStateProperty.all(Colors.transparent),
-          splashBorderRadius: BorderRadius.circular(12),
+          overlayColor: MaterialStateProperty.all(
+            Colors.transparent,
+          ),
+          splashBorderRadius:
+          BorderRadius.circular(12),
         ),
       ),
     );
@@ -226,10 +242,13 @@ class _PersonalTab extends ConsumerWidget {
         Center(
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 36,
+              UserProfileImage(
+                imageUrl: profile.profilePhotoPath,
+                width: 70,
+                height: 70,
+                iconSize: 42,
                 backgroundColor: kLightGreyColor,
-                child: const Icon(Icons.person, size: 42,color: kSecondaryColor,),
+                iconColor: kSecondaryColor,
               ),
               const SizedBox(height: 8),
               Text(profile.name ?? '', style: tt.titleMedium?.w700()),
@@ -529,6 +548,13 @@ final leaveFilterProvider = StateProvider.autoDispose.family<LeaveStatus?, int>(
   (ref, userId) => null,
 );
 
+final wfhRequestFilterProvider = StateProvider.autoDispose.family<LeaveStatus?, int>(
+      (ref, userId) => null,
+);
+
+final wfhRequestPageProvider =
+StateProvider.family<int, int>((ref, userId) => 1);
+
 String _statusToParam(LeaveStatus? s) {
   if (s == null) return 'all';
   switch (s) {
@@ -536,27 +562,28 @@ String _statusToParam(LeaveStatus? s) {
       return 'all';
     case LeaveStatus.approved:
       return 'approved';
-    case LeaveStatus.reject:
-      return 'reject';
+    case LeaveStatus.rejected:
+      return 'rejected';
     case LeaveStatus.pending:
       return 'pending';
   }
 }
 
 String _statusToLabel(LeaveStatus? s) {
-  if (s == null) return 'All Leaves';
+  if (s == null) return 'All';
   switch (s) {
     case LeaveStatus.all:
-      return 'All Leaves';
+      return 'All';
     case LeaveStatus.approved:
       return 'Approved';
-    case LeaveStatus.reject:
+    case LeaveStatus.rejected:
       return 'Rejected';
     case LeaveStatus.pending:
       return 'Pending';
   }
 }
 
+///leave tab
 class _LeaveTab extends ConsumerWidget {
   const _LeaveTab({required this.userId});
 
@@ -761,6 +788,401 @@ class _LeaveTab extends ConsumerWidget {
   }
 }
 
+///wfh tab
+class _WfhTab extends ConsumerWidget {
+  const _WfhTab({
+    required this.userId,
+  });
+
+  final int userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tt = Theme.of(context).textTheme;
+
+    final selectedStatus =
+    ref.watch(wfhRequestFilterProvider(userId));
+
+    final statusParam =
+    _statusToParam(selectedStatus);
+
+    /// Current page
+    final currentPage =
+    ref.watch(wfhRequestPageProvider(userId));
+
+    final employeeWfhState = ref.watch(
+      fetchEmployeeWfhRequestDataProvider(
+        userID: userId,
+        status: statusParam,
+        pageNo: currentPage,
+      ),
+    );
+
+    final allEmployeeWfhRequestsControllerState =
+    ref.watch(
+      employeeWfhRequestControllerProvider,
+    );
+
+    return Stack(
+      children: [
+        employeeWfhState.when(
+          data: (allWfhRequests) {
+            final requests =
+                allWfhRequests.data?.data ?? [];
+
+            /// Change these based on your response model.
+            final lastPage =
+                allWfhRequests.data?.lastPage ?? 1;
+
+            return CustomScrollView(
+              slivers: [
+                /// View summary
+                SliverPadding(
+                  padding:
+                  const EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    0,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                LeaveSummaryPage(
+                                  userId: userId,
+                                ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color:
+                          Colors.grey.withOpacity(
+                            0.2,
+                          ),
+                          border: Border.all(
+                            color: kBlueColor,
+                            width: 1.5,
+                          ),
+                          borderRadius:
+                          BorderRadius.circular(
+                            22,
+                          ),
+                        ),
+                        child: const Padding(
+                          padding:
+                          EdgeInsets.all(10),
+                          child: Text(
+                            'View Summary',
+                            style: TextStyle(
+                              fontWeight:
+                              FontWeight.bold,
+                              color: kBlueColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 12),
+                ),
+
+                /// Filter
+                SliverPadding(
+                  padding:
+                  const EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    0,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: Row(
+                      children: [
+                        Text(
+                          _statusToLabel(
+                            selectedStatus,
+                          ),
+                          style: const TextStyle(
+                            fontWeight:
+                            FontWeight.bold,
+                            fontSize:
+                            kTextRegular2x,
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        InkWell(
+                          onTap: () async {
+                            final LeaveStatus?
+                            result =
+                            await showLeaveFilterBottomSheet(
+                              context,
+                              initial:
+                              selectedStatus ??
+                                  LeaveStatus
+                                      .all,
+                            );
+
+                            if (result != null) {
+                              /// IMPORTANT:
+                              /// Reset page when
+                              /// filter changes.
+                              ref
+                                  .read(
+                                wfhRequestPageProvider(
+                                  userId,
+                                ).notifier,
+                              )
+                                  .state = 1;
+
+                              ref
+                                  .read(
+                                wfhRequestFilterProvider(
+                                  userId,
+                                ).notifier,
+                              )
+                                  .state = result;
+                            }
+                          },
+                          child: const Padding(
+                            padding:
+                            EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.filter_list,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 12),
+                ),
+
+                /// Empty
+                if (requests.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Text(
+                        'No wfh requests',
+                        style: tt.bodyMedium,
+                      ),
+                    ),
+                  )
+                else ...[
+                  /// WFH List
+                  SliverPadding(
+                    padding:
+                    const EdgeInsets.fromLTRB(
+                      16,
+                      16,
+                      16,
+                      10,
+                    ),
+                    sliver: SliverList(
+                      delegate:
+                      SliverChildBuilderDelegate(
+                            (context, index) {
+                          final wfhRequestVO =
+                          requests[index];
+
+                          return Padding(
+                            padding:
+                            const EdgeInsets.only(
+                              bottom: 12,
+                            ),
+                            child:
+                            EmployeeWfhRequestItemView(
+                              userId:
+                              wfhRequestVO
+                                  .userId ??
+                                  0,
+                              showMemberHeader:
+                              true,
+                              wfhRequestVO:
+                              wfhRequestVO,
+
+                              /// APPROVE
+                              onApprove:
+                                  (id) async {
+                                final ok =
+                                await showWfhApproveConfirmDialog(
+                                  context,
+                                );
+
+                                if (!ok) {
+                                  return;
+                                }
+
+                                if (allEmployeeWfhRequestsControllerState
+                                    .isLoading) {
+                                  return;
+                                }
+
+                                final isSuccess =
+                                await ref
+                                    .read(
+                                  employeeWfhRequestControllerProvider
+                                      .notifier,
+                                )
+                                    .updateWfhRequest(
+                                  id: id,
+                                  leaveStatus:
+                                  kLeaveStatusApproved,
+                                );
+
+                                if (isSuccess) {
+                                  ref.invalidate(
+                                    fetchEmployeeWfhRequestDataProvider,
+                                  );
+
+                                  if (context
+                                      .mounted) {
+                                    await showWfhApproveSuccessDialog(
+                                      context,
+                                    );
+                                  }
+                                }
+                              },
+
+                              /// REJECT
+                              onReject:
+                                  (id) async {
+                                final ok =
+                                await showWfhRejectConfirmDialog(
+                                  context,
+                                );
+
+                                if (!ok) {
+                                  return;
+                                }
+
+                                if (allEmployeeWfhRequestsControllerState
+                                    .isLoading) {
+                                  return;
+                                }
+
+                                final isSuccess =
+                                await ref
+                                    .read(
+                                  employeeWfhRequestControllerProvider
+                                      .notifier,
+                                )
+                                    .updateWfhRequest(
+                                  id: id,
+                                  leaveStatus:
+                                  kLeaveStatusRejected,
+                                );
+
+                                if (isSuccess) {
+                                  ref.invalidate(
+                                    fetchEmployeeWfhRequestDataProvider,
+                                  );
+
+                                  if (context
+                                      .mounted) {
+                                    await showWfhRejectSuccessDialog(
+                                      context,
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          );
+                        },
+                        childCount:
+                        requests.length,
+                      ),
+                    ),
+                  ),
+
+                  /// Pagination
+                  if (lastPage > 1)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding:
+                        const EdgeInsets.fromLTRB(
+                          16,
+                          4,
+                          16,
+                          28,
+                        ),
+                        child: _PaginationView(
+                          currentPage:
+                          currentPage,
+                          lastPage: lastPage,
+                          onPageChanged:
+                              (page) {
+                            ref
+                                .read(
+                              wfhRequestPageProvider(
+                                userId,
+                              ).notifier,
+                            )
+                                .state = page;
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              ],
+            );
+          },
+
+          loading: () => const Center(
+            child: CircularProgressIndicator(
+              color: kPrimaryColor,
+            ),
+          ),
+
+          error: (error, stack) =>
+              ErrorRetryView(
+                title:
+                'Error loading employee wfh data',
+                message: error.toString(),
+                onRetry: () {
+                  ref.invalidate(
+                    fetchEmployeeWfhRequestDataProvider(
+                      userID: userId,
+                      status: statusParam,
+                      pageNo: currentPage,
+                    ),
+                  );
+                },
+              ),
+        ),
+
+        /// Update loading
+        if (allEmployeeWfhRequestsControllerState
+            .isLoading)
+          Container(
+            color: Colors.black12,
+            child: const Center(
+              child: LoadingView(
+                indicatorColor: Colors.white,
+                indicator:
+                Indicator.ballRotate,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// ===============================================================
 ///  SMALL WIDGETS
 /// ===============================================================
@@ -908,6 +1330,7 @@ bool isLateAfter930(String? timeText) {
   }
 }
 
+///leave approve and reject dialog
 Future<bool> showApproveConfirmDialog(BuildContext context) async {
   final res = await showDialog<bool>(
     context: context,
@@ -939,6 +1362,41 @@ Future<void> showRejectSuccessDialog(BuildContext context) {
     context: context,
     barrierDismissible: false,
     builder: (_) => const RejectSuccessDialog(),
+  );
+}
+
+///wfh approve and reject dialog
+Future<bool> showWfhApproveConfirmDialog(BuildContext context) async {
+  final res = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const WfhApproveConfirmDialog(),
+  );
+  return res == true;
+}
+
+Future<bool> showWfhRejectConfirmDialog(BuildContext context) async {
+  final res = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const WfhRejectConfirmDialog(),
+  );
+  return res == true;
+}
+
+Future<void> showWfhApproveSuccessDialog(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const WfhApproveSuccessDialog(),
+  );
+}
+
+Future<void> showWfhRejectSuccessDialog(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const WfhRejectSuccessDialog(),
   );
 }
 
@@ -1017,3 +1475,95 @@ class OrgStructureCard extends StatelessWidget {
     );
   }
 }
+
+///paginationView
+class _PaginationView extends StatelessWidget {
+  const _PaginationView({
+    required this.currentPage,
+    required this.lastPage,
+    required this.onPageChanged,
+  });
+
+  final int currentPage;
+  final int lastPage;
+  final ValueChanged<int> onPageChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasPrevious =
+        currentPage > 1;
+
+    final hasNext =
+        currentPage < lastPage;
+
+    return Row(
+      mainAxisAlignment:
+      MainAxisAlignment.center,
+      children: [
+        /// Previous
+        IconButton(
+          onPressed: hasPrevious
+              ? () {
+            onPageChanged(
+              currentPage - 1,
+            );
+          }
+              : null,
+          icon: const Icon(
+            Icons.chevron_left_rounded,
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        /// Current page
+        Container(
+          padding:
+          const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 9,
+          ),
+          decoration: BoxDecoration(
+            color: kBlueColor,
+            borderRadius:
+            BorderRadius.circular(10),
+          ),
+          child: Text(
+            '$currentPage',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Text(
+          'of $lastPage',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey,
+          ),
+        ),
+
+        const SizedBox(width: 8),
+
+        /// Next
+        IconButton(
+          onPressed: hasNext
+              ? () {
+            onPageChanged(
+              currentPage + 1,
+            );
+          }
+              : null,
+          icon: const Icon(
+            Icons.chevron_right_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+}
+

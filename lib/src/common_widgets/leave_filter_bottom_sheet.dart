@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/src/common_widgets/common_button.dart';
 import 'package:hr_app/src/utils/colors.dart';
 
-enum LeaveStatus {all, approved, reject, pending }
+enum LeaveStatus {all, approved, rejected, pending }
 
 Future<LeaveStatus?> showLeaveFilterBottomSheet(
     BuildContext context, {
@@ -69,10 +69,10 @@ Future<LeaveStatus?> showLeaveFilterBottomSheet(
 
 
                 RadioListTile<LeaveStatus?>(
-                  value: LeaveStatus.reject,
+                  value: LeaveStatus.rejected,
                   groupValue: selected,
                   onChanged: (v) => setState(() => selected = v),
-                  title: const Text('Reject'),
+                  title: const Text('Rejected'),
                   contentPadding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                 ),

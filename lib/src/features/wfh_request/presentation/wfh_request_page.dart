@@ -229,11 +229,27 @@ class _WfhRequestPageState extends ConsumerState<WfhRequestPage> {
                           containerVPadding: 10,
                           bgColor: kPrimaryColor,
                           buttonTextColor: kSecondaryOlive,
-                          text: 'Save', onTap: () {
-                          onSave(
-                              id: id ?? 0,
-                              name: userName ?? ''
-                          );
+                          text: 'Save', onTap: () async{
+                          if (_formKey.currentState?.validate() ?? false) {
+                            final payload = {
+                              "user_id": id,
+                              "wfh_date": selectedDate.ymd(),
+                              "name": userName,
+                              "message": _messageController.text,
+                              "affect_operation": _wfhDoesNotAffectOps == false ? 'No' : 'Yes',
+                            };
+                            final ok = await ref
+                                .read(sendWfhRequestControllerProvider.notifier)
+                                .sendWfhRequest(payload);
+                            debugPrint('$ok');
+                            if (!mounted) return;
+                            if (ok) {
+                              await wfhRequestSuccessDialog(context);
+                              ref.invalidate(fetchAdminDashboardDataProvider);
+                              _messageController.clear();
+                              _dateController.clear();
+                            }
+                          }
                         },),
                       ),
                       /// Spacer to push content to top like the screenshot

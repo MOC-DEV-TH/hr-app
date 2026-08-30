@@ -765,7 +765,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
                                                           .workFromHome) {
                                                     await _handleWorkFromHomeCheckIn(
                                                       addresses: addresses,
-                                                      allowDistanceRadius: configData.data?.allowDistance,
+                                                      allowDistanceRadius:
+                                                          configData
+                                                              .data
+                                                              ?.allowDistance,
                                                     );
                                                   } else {
                                                     ///handle office checkIn
@@ -1226,13 +1229,11 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
     }
   }
 
-
   Future<void> _handleWorkFromHomeCheckIn({
     required List<AddressVO> addresses,
     required int? allowDistanceRadius,
   }) async {
-    if (_isShowLoadingView ||
-        ref.read(checkInControllerProvider).isLoading) {
+    if (_isShowLoadingView || ref.read(checkInControllerProvider).isLoading) {
       return;
     }
 
@@ -1251,18 +1252,18 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
 
     try {
       /**
-     * Work From Somewhere
-     *
-     * Do not check GPS location.
-     **/
+       * Work From Somewhere
+       *
+       * Do not check GPS location.
+       **/
       if (selectedAddressId == -1) {
         final success = await ref
             .read(checkInControllerProvider.notifier)
             .checkIn(
-          type: kTypeWorkFromSomewhere,
-          addressId: null,
-          currentTimezone: currentTimezone,
-        );
+              type: kTypeWorkFromSomewhere,
+              addressId: null,
+              currentTimezone: currentTimezone,
+            );
 
         if (!mounted) {
           return;
@@ -1276,12 +1277,9 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
 
       /**
-     * Find the selected saved address.
-     **/
-      final selectedAddress = _findAddressById(
-        addresses,
-        selectedAddressId,
-      );
+       * Find the selected saved address.
+       **/
+      final selectedAddress = _findAddressById(addresses, selectedAddressId);
 
       if (selectedAddress == null) {
         if (!mounted) {
@@ -1304,8 +1302,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         selectedAddress.long?.trim() ?? '',
       );
 
-      if (selectedLatitude == null ||
-          selectedLongitude == null) {
+      if (selectedLatitude == null || selectedLongitude == null) {
         if (!mounted) {
           return;
         }
@@ -1318,8 +1315,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         return;
       }
 
-      if (allowDistanceRadius == null ||
-          allowDistanceRadius <= 0) {
+      if (allowDistanceRadius == null || allowDistanceRadius <= 0) {
         if (!mounted) {
           return;
         }
@@ -1339,39 +1335,29 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
 
       /**
-     * Compare the current phone location with
-     * the selected AddressVO latitude and longitude.
-     **/
+       * Compare the current phone location with
+       * the selected AddressVO latitude and longitude.
+       **/
       final isWithinSelectedAddress =
-      await LocationService.isWithinOfficeRadius(
-        selectedLatitude,
-        selectedLongitude,
-        allowDistanceRadius.toDouble(),
-      );
+          await LocationService.isWithinOfficeRadius(
+            selectedLatitude,
+            selectedLongitude,
+            allowDistanceRadius.toDouble(),
+          );
 
-      debugPrint(
-        'Selected address ID >>> ${selectedAddress.id}',
-      );
+      debugPrint('Selected address ID >>> ${selectedAddress.id}');
 
-      debugPrint(
-        'Selected address >>> ${selectedAddress.addressName}',
-      );
+      debugPrint('Selected address >>> ${selectedAddress.addressName}');
 
-      debugPrint(
-        'Selected latitude >>> $selectedLatitude',
-      );
+      debugPrint('Selected latitude >>> $selectedLatitude');
 
-      debugPrint(
-        'Selected longitude >>> $selectedLongitude',
-      );
+      debugPrint('Selected longitude >>> $selectedLongitude');
 
-      debugPrint(
-        'Allowed distance >>> $allowDistanceRadius meters',
-      );
+      debugPrint('Allowed distance >>> $allowDistanceRadius meters');
 
       debugPrint(
         'Is within selected WFH address >>> '
-            '$isWithinSelectedAddress',
+        '$isWithinSelectedAddress',
       );
 
       if (!isWithinSelectedAddress) {
@@ -1390,15 +1376,15 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       }
 
       /**
-     * User is within the selected address radius.
-     **/
+       * User is within the selected address radius.
+       **/
       final success = await ref
           .read(checkInControllerProvider.notifier)
           .checkIn(
-        type: kTypeWfh,
-        addressId: selectedAddress.id,
-        currentTimezone: currentTimezone,
-      );
+            type: kTypeWfh,
+            addressId: selectedAddress.id,
+            currentTimezone: currentTimezone,
+          );
 
       if (!mounted) {
         return;
@@ -1408,13 +1394,9 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
         await _afterSuccessfulCheckIn();
       }
     } catch (error, stackTrace) {
-      debugPrint(
-        'WFH check-in error: $error',
-      );
+      debugPrint('WFH check-in error: $error');
 
-      debugPrintStack(
-        stackTrace: stackTrace,
-      );
+      debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) {
         return;
@@ -1434,9 +1416,9 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   }
 
   AddressVO? _findAddressById(
-      List<AddressVO> addresses,
-      int selectedAddressId,
-      ) {
+    List<AddressVO> addresses,
+    int selectedAddressId,
+  ) {
     for (final address in addresses) {
       if (address.id == selectedAddressId) {
         return address;
@@ -1447,8 +1429,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
   }
 
   Future<bool> _prepareLocationPermission() async {
-    final serviceEnabled =
-    await LocationService.isLocationServiceEnabled();
+    final serviceEnabled = await LocationService.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
       if (mounted) {
@@ -1461,12 +1442,10 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       return false;
     }
 
-    var permission =
-    await LocationService.checkPermission();
+    var permission = await LocationService.checkPermission();
 
     if (permission == LocationPermission.denied) {
-      permission =
-      await LocationService.requestPermission();
+      permission = await LocationService.requestPermission();
     }
 
     if (permission == LocationPermission.denied) {
@@ -1480,8 +1459,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       return false;
     }
 
-    if (permission ==
-        LocationPermission.deniedForever) {
+    if (permission == LocationPermission.deniedForever) {
       if (mounted) {
         context.showErrorDialog(
           'Location permission is permanently denied. '
@@ -1493,11 +1471,7 @@ class _EmployeeHomePageState extends ConsumerState<EmployeeHomePage> {
       return false;
     }
 
-    return permission ==
-        LocationPermission.whileInUse ||
+    return permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always;
   }
-
 }
-
-

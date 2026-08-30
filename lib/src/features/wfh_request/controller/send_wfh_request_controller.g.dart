@@ -7,7 +7,7 @@ part of 'send_wfh_request_controller.dart';
 // **************************************************************************
 
 String _$sendWfhRequestControllerHash() =>
-    r'4e6825d1ecf349de511a76f4ec173de363283c1e';
+    r'808fd04d811a700c9342ec263a3e96753d7648e1';
 
 /// See also [SendWfhRequestController].
 @ProviderFor(SendWfhRequestController)

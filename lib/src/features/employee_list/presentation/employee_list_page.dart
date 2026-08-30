@@ -7,6 +7,7 @@ import 'package:hr_app/src/features/employee_list/data/employee_list_repository.
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 
+import '../../../common_widgets/user_profile_image.dart';
 import '../../employee_details/presentation/employee_details_page.dart';
 import '../model/employee_list_response.dart';
 class EmployeeListPage extends ConsumerStatefulWidget {
@@ -210,6 +211,7 @@ class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
                       return _EmployeeTile(
                         name: e.name ?? '—',
                         role: e.position ?? '—',
+                        profilePhotoPath: e.profilePhoto ?? '',
                         onTap: () {
                           Navigator.push(
                             context,
@@ -277,6 +279,7 @@ class _SearchResults extends StatelessWidget {
             return _EmployeeTile(
               name: e.name ?? '—',
               role: e.position ?? '—',
+              profilePhotoPath: e.profilePhoto ?? '',
               onTap: () {
                 Navigator.push(
                   context,
@@ -312,9 +315,10 @@ class _SearchResults extends StatelessWidget {
 }
 
 class _EmployeeTile extends StatelessWidget {
-  const _EmployeeTile({required this.name, required this.role, this.onTap});
+  const _EmployeeTile({required this.name, required this.role, this.onTap,required this.profilePhotoPath});
 
   final String name;
+  final String profilePhotoPath;
   final String role;
   final VoidCallback? onTap;
 
@@ -336,10 +340,13 @@ class _EmployeeTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundColor: Color(0xFFE0E0E0),
-                child: Icon(Icons.person, color: Colors.black54),
+               UserProfileImage(
+                imageUrl: profilePhotoPath,
+                width: 40,
+                height: 40,
+                iconSize: 18,
+                backgroundColor: kLightGreyColor,
+                iconColor: Colors.white,
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -635,5 +635,176 @@ class _FetchEmployeeLeaveSummaryDataProviderElement
   int get userID => (origin as FetchEmployeeLeaveSummaryDataProvider).userID;
 }
 
+String _$fetchEmployeeWfhRequestDataHash() =>
+    r'2275e2bbbb9b1556daf8c5acf36664b2db22d25f';
+
+/// See also [fetchEmployeeWfhRequestData].
+@ProviderFor(fetchEmployeeWfhRequestData)
+const fetchEmployeeWfhRequestDataProvider = FetchEmployeeWfhRequestDataFamily();
+
+/// See also [fetchEmployeeWfhRequestData].
+class FetchEmployeeWfhRequestDataFamily
+    extends Family<AsyncValue<ProfileWfhRequestsResponse>> {
+  /// See also [fetchEmployeeWfhRequestData].
+  const FetchEmployeeWfhRequestDataFamily();
+
+  /// See also [fetchEmployeeWfhRequestData].
+  FetchEmployeeWfhRequestDataProvider call({
+    required int userID,
+    required String status,
+    required int pageNo,
+  }) {
+    return FetchEmployeeWfhRequestDataProvider(
+      userID: userID,
+      status: status,
+      pageNo: pageNo,
+    );
+  }
+
+  @override
+  FetchEmployeeWfhRequestDataProvider getProviderOverride(
+    covariant FetchEmployeeWfhRequestDataProvider provider,
+  ) {
+    return call(
+      userID: provider.userID,
+      status: provider.status,
+      pageNo: provider.pageNo,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchEmployeeWfhRequestDataProvider';
+}
+
+/// See also [fetchEmployeeWfhRequestData].
+class FetchEmployeeWfhRequestDataProvider
+    extends AutoDisposeFutureProvider<ProfileWfhRequestsResponse> {
+  /// See also [fetchEmployeeWfhRequestData].
+  FetchEmployeeWfhRequestDataProvider({
+    required int userID,
+    required String status,
+    required int pageNo,
+  }) : this._internal(
+         (ref) => fetchEmployeeWfhRequestData(
+           ref as FetchEmployeeWfhRequestDataRef,
+           userID: userID,
+           status: status,
+           pageNo: pageNo,
+         ),
+         from: fetchEmployeeWfhRequestDataProvider,
+         name: r'fetchEmployeeWfhRequestDataProvider',
+         debugGetCreateSourceHash:
+             const bool.fromEnvironment('dart.vm.product')
+                 ? null
+                 : _$fetchEmployeeWfhRequestDataHash,
+         dependencies: FetchEmployeeWfhRequestDataFamily._dependencies,
+         allTransitiveDependencies:
+             FetchEmployeeWfhRequestDataFamily._allTransitiveDependencies,
+         userID: userID,
+         status: status,
+         pageNo: pageNo,
+       );
+
+  FetchEmployeeWfhRequestDataProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.userID,
+    required this.status,
+    required this.pageNo,
+  }) : super.internal();
+
+  final int userID;
+  final String status;
+  final int pageNo;
+
+  @override
+  Override overrideWith(
+    FutureOr<ProfileWfhRequestsResponse> Function(
+      FetchEmployeeWfhRequestDataRef provider,
+    )
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchEmployeeWfhRequestDataProvider._internal(
+        (ref) => create(ref as FetchEmployeeWfhRequestDataRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        userID: userID,
+        status: status,
+        pageNo: pageNo,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ProfileWfhRequestsResponse> createElement() {
+    return _FetchEmployeeWfhRequestDataProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchEmployeeWfhRequestDataProvider &&
+        other.userID == userID &&
+        other.status == status &&
+        other.pageNo == pageNo;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, userID.hashCode);
+    hash = _SystemHash.combine(hash, status.hashCode);
+    hash = _SystemHash.combine(hash, pageNo.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin FetchEmployeeWfhRequestDataRef
+    on AutoDisposeFutureProviderRef<ProfileWfhRequestsResponse> {
+  /// The parameter `userID` of this provider.
+  int get userID;
+
+  /// The parameter `status` of this provider.
+  String get status;
+
+  /// The parameter `pageNo` of this provider.
+  int get pageNo;
+}
+
+class _FetchEmployeeWfhRequestDataProviderElement
+    extends AutoDisposeFutureProviderElement<ProfileWfhRequestsResponse>
+    with FetchEmployeeWfhRequestDataRef {
+  _FetchEmployeeWfhRequestDataProviderElement(super.provider);
+
+  @override
+  int get userID => (origin as FetchEmployeeWfhRequestDataProvider).userID;
+  @override
+  String get status => (origin as FetchEmployeeWfhRequestDataProvider).status;
+  @override
+  int get pageNo => (origin as FetchEmployeeWfhRequestDataProvider).pageNo;
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

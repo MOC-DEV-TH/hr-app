@@ -120,12 +120,14 @@ class User {
   String? name;
   String? email;
   String? employeePosition;
+  String? profilePhotoPath;
 
   User({
     this.id,
     this.name,
     this.email,
     this.employeePosition,
+    this.profilePhotoPath
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -133,6 +135,7 @@ class User {
     name: json["name"],
     email: json["email"],
     employeePosition: json["position"],
+    profilePhotoPath: json["profile_photo"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -140,6 +143,7 @@ class User {
     "name": name,
     "email": email,
     "position": employeePosition,
+    "profile_photo": profilePhotoPath,
   };
 }
 

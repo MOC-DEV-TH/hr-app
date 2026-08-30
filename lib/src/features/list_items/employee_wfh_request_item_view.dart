@@ -5,6 +5,7 @@ import 'package:hr_app/src/features/employee_wfh_requests/model/wfh_requests_res
 import 'package:hr_app/src/features/leave_status/model/leave_status_response.dart';
 import 'package:hr_app/src/utils/gap.dart';
 
+import '../../common_widgets/user_profile_image.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimens.dart';
 import '../../utils/secure_storage.dart';
@@ -32,7 +33,7 @@ class EmployeeWfhRequestItemView extends ConsumerWidget {
           Visibility(
               visible: showMemberHeader == true,
               child: MemberHeader(name: wfhRequestVO?.name ?? '', role: wfhRequestVO?.position ?? '',
-              leaveStatus: wfhRequestVO?.status,)),
+              leaveStatus: wfhRequestVO?.status,imageUrl: wfhRequestVO?.profilePhotoPath ?? '',)),
 
           Visibility(
               visible: showMemberHeader == true,
@@ -147,7 +148,7 @@ class _StatusBadge extends StatelessWidget {
         break;
       case 'Rejected':
         c = kRed;
-        t = 'REJECT';
+        t = 'REJECTED';
         break;
     }
     return Container(
@@ -220,23 +221,20 @@ class MemberHeader extends StatelessWidget {
       height: 1.2,
     );
 
-    Widget avatar = CircleAvatar(
-      radius: 18,
-      backgroundColor: avatarBg,
-      backgroundImage:
-      (imageUrl != null && imageUrl!.isNotEmpty) ? NetworkImage(imageUrl!) : null,
-      child: (imageUrl == null || imageUrl!.isEmpty)
-          ? const Icon(Icons.person, color: Colors.grey, size: 20)
-          : null,
-    );
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          avatar,
+          UserProfileImage(
+            imageUrl: imageUrl,
+            width: 38,
+            height: 38,
+            iconSize: 18,
+            backgroundColor: kLightGreyColor,
+            iconColor: kWhiteColor,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

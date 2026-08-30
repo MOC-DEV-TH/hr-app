@@ -32,6 +32,7 @@ class WfhRequestVO {
   String? message;
   String? affectOperation;
   String? status;
+  String? profilePhotoPath;
   String? position;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -47,6 +48,7 @@ class WfhRequestVO {
     this.position,
     this.createdAt,
     this.updatedAt,
+    this.profilePhotoPath
   });
 
   factory WfhRequestVO.fromJson(Map<String, dynamic> json) => WfhRequestVO(
@@ -55,6 +57,7 @@ class WfhRequestVO {
     wfhDate: json["wfh_date"] == null ? null : DateTime.parse(json["wfh_date"]),
     name: json["name"],
     position: json["position"],
+    profilePhotoPath: json["profile_photo"],
     message: json["message"],
     affectOperation: json["affect_operation"],
     status: json["status"],
@@ -68,6 +71,7 @@ class WfhRequestVO {
     "wfh_date": "${wfhDate!.year.toString().padLeft(4, '0')}-${wfhDate!.month.toString().padLeft(2, '0')}-${wfhDate!.day.toString().padLeft(2, '0')}",
     "name": name,
     "message": message,
+    "profile_photo": profilePhotoPath,
     "affect_operation": affectOperation,
     "position" : position,
     "status": status,

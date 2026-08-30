@@ -50,6 +50,7 @@ class ProfileVO {
   bool? active;
   String? departments;
   String? checkInTimezone;
+  String? profilePhotoPath;
   BussinessUnit? bussinessUnit;
   EmployeeType? employeeType;
   Position? position;
@@ -78,7 +79,8 @@ class ProfileVO {
     this.position,
     this.country,
     this.orgStructure,
-    this.checkInTimezone
+    this.checkInTimezone,
+    this.profilePhotoPath
   });
 
   factory ProfileVO.fromJson(Map<String, dynamic> json) => ProfileVO(
@@ -88,6 +90,7 @@ class ProfileVO {
     emailVerifiedAt: json["email_verified_at"],
     phone: json["phone"],
     positionId: json["position_id"],
+    profilePhotoPath: json["profile_photo_path"],
     employeeTypeId: json["employee_type_id"],
     allowRemoteLogin: json["allow_remote_login"],
     allowWfhRequest: json["allow_wfh_request"],
@@ -121,6 +124,7 @@ class ProfileVO {
     "role": role,
     "bussiness_unit_id": bussinessUnitId,
     "country_id": countryId,
+    "profile_photo_path" : profilePhotoPath,
     "is_department_head": isDepartmentHead,
     "active": active,
     "departments": departments,

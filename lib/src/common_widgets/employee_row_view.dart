@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/src/common_widgets/user_profile_image.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/extensions.dart';
 
@@ -24,10 +25,13 @@ class EmployeeRow extends StatelessWidget {
         border: Border.all(color: cs.outlineVariant),
       ),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey.withOpacity(0.3),
-          radius: 18,
-          child: Icon(Icons.person, size: 18, color: Colors.grey),
+        leading: UserProfileImage(
+          imageUrl: employee?.profilePhotoPath ?? '',
+          width: 40,
+          height: 40,
+          iconSize: 18,
+          backgroundColor: kLightGreyColor,
+          iconColor: Colors.white,
         ),
         title: Text(
           employee?.name ?? '',

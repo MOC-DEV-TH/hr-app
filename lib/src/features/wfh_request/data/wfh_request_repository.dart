@@ -15,24 +15,36 @@ class WfhRequestRepository {
   final Ref ref;
   final Dio dio;
 
-  Future<void> sendWfhRequest(dynamic payload) async {
-    final res = await dio.post(
-      kEndPointCreateWfhRequest,
-      data: payload,
-      options: Options(
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-      ),
-    );
+  Future<void> sendWfhRequest(
+      Map<String, dynamic> payload,
+      ) async {
+    try {
+      final response = await dio.post(
+        kEndPointCreateWfhRequest,
+        data: payload,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) {
+            debugPrint('VALIDATE STATUS = $status');
 
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw DioException(
-        requestOptions: res.requestOptions,
-        response: res,
-        error: res.data["message"],
+            return status != null && status < 400;
+          },
+        ),
       );
+
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map && data['message'] != null) {
+        throw data['message'].toString();
+      }
+
+      throw e.message ?? 'Network error';
+    } catch (e, stackTrace) {
+      rethrow;
     }
   }
 }

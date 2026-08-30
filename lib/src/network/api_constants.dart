@@ -49,6 +49,8 @@ const String kEndPointTotalEmployee = "/total-employee";
 const String kEndPointAnnouncementGotIt = "/announcement/got";
 const String kEndPointAnnouncementDetails = "/get-announcement-details";
 const String kEndPointUserAddress = "/get-addresses";
+const String kEndPointGetEmployeeWfhRequestByStatus = "/wfh";
+
 
 ///Parameters
 const String kParamApiKey = "api_key";
@@ -61,7 +63,7 @@ const String kLanguageENUS = "en-US";
 const String kTypeWfh = "work_from_home";
 const String kTypeWorkFromSomewhere = "work_from_somewhere";
 const String kTypeOffice = "office";
-const String kLeaveStatusReject = "reject";
+const String kLeaveStatusReject = "rejected";
 const String kLeaveStatusRejected = "rejected";
 const String kLeaveStatusApproved = "approved";
 

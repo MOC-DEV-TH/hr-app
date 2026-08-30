@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hr_app/src/common_widgets/show_common_dialog.dart';
-import 'package:hr_app/src/features/admin_dashboard/presentation/admin_dashboard_page.dart';
+import 'package:hr_app/src/common_widgets/user_profile_image.dart';
 import 'package:hr_app/src/utils/colors.dart';
 import 'package:hr_app/src/utils/dimens.dart';
 import 'package:hr_app/src/utils/gap.dart';
@@ -48,10 +48,14 @@ class CustomDrawer extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor:kSecondaryColor,
-                        child: Icon(Icons.person, size: 40, color: Colors.white),
+
+                      UserProfileImage(
+                        imageUrl: userData?.profilePhotoPath ?? '',
+                        width: 80,
+                        height: 80,
+                        iconSize: 42,
+                        backgroundColor: kSecondaryColor,
+                        iconColor: Colors.white,
                       ),
 
                       10.vGap,
@@ -198,18 +202,18 @@ class CustomDrawer extends ConsumerWidget {
                     //   ),
                     // ),
 
-                    Visibility(
-                      visible: loginUserRole == kLoginUserRoleEmployee,
-                      child: DrawerItem(
-                        isActive: true,
-                        iconName: kDrawerLeaveRequestImage,
-                        title: 'Leave Status',
-                        onTap: () {
-                          Navigator.pop(context);
-                          GoRouter.of(context).push(RoutePath.leaveStatus.path);
-                        },
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: loginUserRole == kLoginUserRoleEmployee,
+                    //   child: DrawerItem(
+                    //     isActive: true,
+                    //     iconName: kDrawerLeaveRequestImage,
+                    //     title: 'Leave Status',
+                    //     onTap: () {
+                    //       Navigator.pop(context);
+                    //       GoRouter.of(context).push(RoutePath.leaveStatus.path);
+                    //     },
+                    //   ),
+                    // ),
 
                     Visibility(
                       visible:false,
@@ -284,7 +288,7 @@ class CustomDrawer extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(kMarginMedium),
                 child: Text(
-                  'Punchin v1.0.0',
+                  'Punchin v1.7.1',
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
               ),

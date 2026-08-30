@@ -75,6 +75,7 @@ class EmployeeAttendanceDataVO {
   int? id;
   String? name;
   int? bussinessUnitId;
+  String? profilePhotoPath;
   EmployeePosition? employeePosition;
   AttendanceForDateVO? attendanceForDate;
 
@@ -84,6 +85,7 @@ class EmployeeAttendanceDataVO {
     this.bussinessUnitId,
     this.employeePosition,
     this.attendanceForDate,
+    this.profilePhotoPath
   });
 
   factory EmployeeAttendanceDataVO.fromJson(Map<String, dynamic> json) =>
@@ -91,6 +93,7 @@ class EmployeeAttendanceDataVO {
         id: json["id"],
         name: json["name"],
         bussinessUnitId: json["bussiness_unit_id"],
+        profilePhotoPath: json["profile_photo"],
         employeePosition:
             json["position"] == null
                 ? null
@@ -105,6 +108,7 @@ class EmployeeAttendanceDataVO {
     "id": id,
     "name": name,
     "bussiness_unit_id": bussinessUnitId,
+    "profile_photo": profilePhotoPath,
     "position": employeePosition?.toJson(),
     "attendance_for_date": attendanceForDate?.toJson(),
   };
